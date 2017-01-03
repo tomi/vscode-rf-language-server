@@ -1,0 +1,38 @@
+{
+  "name": "rf-intellisense",
+  "version": "0.0.1",
+  "description": "Robot Framework Intellisense",
+  "license": "GPL-3.0",
+  "author": {
+    "name": "Tomi Turtiainen",
+    "email": "tomi.turtiainen@gmail.com"
+  },
+  "engines": {
+    "node": "*"
+  },
+  "dependencies": {
+    "vscode-languageserver": "2.6.2"
+  },
+  "devDependencies": {
+    "@types/node": "^6.0.52",
+    "typescript": "^2.1.4"
+  },
+  "main": "index.js",
+  "scripts": {
+    "compile": "installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc -p .",
+    "watch": "installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc --watch -p ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/tomi/vscode-rf-language-server.git"
+  },
+  "keywords": [
+    "RF",
+    "RobotFramework",
+    "Intellisense"
+  ],
+  "bugs": {
+    "url": "https://github.com/tomi/vscode-rf-language-server/issues"
+  },
+  "homepage": "https://github.com/tomi/vscode-rf-language-server#readme"
+}

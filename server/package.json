@@ -11,6 +11,7 @@
     "node": "*"
   },
   "dependencies": {
+    "lodash": "4.17.4",
     "vscode-languageserver": "2.6.2"
   },
   "devDependencies": {

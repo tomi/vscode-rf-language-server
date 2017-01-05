@@ -2,6 +2,18 @@
 	"version": "0.1.0",
 	// List of configurations. Add new configurations or edit existing ones.
 	"configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Unit Test",
+      "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
+      "sourceMaps": true,
+      "cwd": "${workspaceRoot}",
+			"outDir": "${workspaceRoot}/../client/server",
+      "args": [
+        "../client/server/**/*.test.js"
+      ]
+    },
 		{
 			"name": "Attach",
 			"type": "node",

@@ -1,22 +1,17 @@
-import _ from "lodash";
+import * as _ from "lodash";
+import {
+  Import,
+  Setting,
+  SingleValueSetting,
+  TestDataFile,
+  SettingsTable
+} from "./models";
 
 class DataRow {
-  private cells: string[];
+  public cells: string[];
 
   constructor(cells: string[]) {
     this.cells = cells;
-  }
-}
-
-class DataTable {
-  private rows: DataRow[];
-
-  constructor(private name: string) {
-    this.rows = [];
-  }
-
-  addRow(row: DataRow) {
-    this.rows.push(row);
   }
 }
 
@@ -24,24 +19,21 @@ class DataTable {
  * Parses plain text format tables
  */
 class TextFormatReader {
-  constructor(private populator: IPopulator) {
-
+  constructor(private populator: TablePopulator) {
   }
 
   parse(data: string) {
-    const tables: DataTable[] = [];
     const lines = data.match(/[^\r\n]+/g);
-    let currentTable : DataTable;
 
     lines.forEach(line => {
-      const cells = this.parseLine(line);
+      const row = this.parseLine(line);
 
-      if (this.isNameRow(cells)) {
-        const tableName = this.parseTableName(cells);
+      if (this.isTableNameRow(row)) {
+        const tableName = this.parseTableName(row);
 
-        currentTable = new DataTable(tableName);
+        this.populator.startTable(tableName);
       } else {
-        this.populator.addRow(cells);
+        this.populator.populateRow(row);
       }
     });
   }
@@ -51,64 +43,143 @@ class TextFormatReader {
 
     const cells = line.split(/ {2,}/);
 
-    return cells;
+    return new DataRow(cells);
   }
 
-  private isNameRow(cells: string[]) {
-    return cells[0].startsWith("*");
+  private isTableNameRow(row: DataRow) {
+    return row.cells[0].startsWith("*");
   }
 
-  private parseTableName(cells: string[]) {
-    const nonStarCells = cells.map(cell => cell.replace(/\*/g, ""))
+  private parseTableName(row: DataRow) {
+    const nonStarCells = row.cells.map(cell => cell.replace(/\*/g, "").trim())
       .filter(cell => !_.isEmpty(cell));
 
       return _.first(nonStarCells);
   }
 }
 
-interface IPopulator {
+interface ModelPopulator {
+  model,
+
+  populateRow(row: DataRow)
+};
+
+interface TablePopulator extends ModelPopulator {
   startTable(type: string),
 
-  addRow(cells: string[])
+  endOfFile()
+}
+
+interface Reader {
+
 };
 
-interface IReader {
+class NullPopulator implements ModelPopulator {
+  public model = null;
 
-};
+  populateRow(cells: DataRow) { }
+}
 
-class NullPopulator implements IPopulator {
-  startTable(type: string) {
+class SettingTablePopulator implements ModelPopulator {
+  public name = "settingsTable";
+  public model: SettingsTable;
 
+  constructor() {
+    this.model = new SettingsTable();
   }
 
-  addRow(cells: string[]) {
+  populateRow(row : DataRow) {
+    const parseTable = new Map([
+      ["Resource",       this.populateImport],
+      ["Suite Setup",    this.populateSetting("suiteSetup")],
+      ["Suite Teardown", this.populateSetting("suiteTeardown")],
+      ["Test Setup",     this.populateSetting("testSetup")],
+      ["Test Teardown",  this.populateSetting("testTeardown")],
+    ]);
+
+    const [name, ...rest] = row.cells;
+
+    const parseMethod = parseTable.get(name);
+    if (parseMethod) {
+      parseMethod(name, rest);
+    }
+  }
+
+  populateImport = (name: string, values: string[]) => {
+
+    this.model.addImport(new Import(name, values[0]));
+  }
+
+  populateSetting(propertyName) {
+    return (name: string, values: string[]) => {
+      const [value] = values;
+
+      this.model[propertyName] = new SingleValueSetting(name, value);
+    }
+  }
+}
+
+class VariableTablePopulator implements ModelPopulator {
+  public model: VariableTablePopulator;
+
+  populateRow(row: DataRow) {
 
   }
 }
 
-class FileParser implements IPopulator {
-  private populator : IPopulator;
-  private reader : IReader;
+export class FileParser implements TablePopulator {
+  public name = "file";
+  public model : TestDataFile;
+
+  private populator : ModelPopulator;
+
+  private static populatorsConfig = {
+    "settings": {
+      name: "settingsTable",
+      PopulatorCtor: SettingTablePopulator
+    },
+    "variables": {
+      name: "variablesTable",
+      PopulatorCtor: VariableTablePopulator
+    }
+  };
 
   constructor() {
-
+    this.populator = new NullPopulator();
   }
 
-  parse(data: string) {
+  parse(data: string) : TestDataFile {
+    this.model = new TestDataFile();
+
     const reader = new TextFormatReader(this);
+
+    reader.parse(data);
+
+    return this.model;
   }
 
-  startTable(type: string) {
+  startTable(tableType: string) {
+    const populatorConfig = this.getPopulator(tableType);
+
+    if (populatorConfig) {
+      this.populator = new populatorConfig.PopulatorCtor();
+      this.model[populatorConfig.name] = this.populator.model;
+    } else {
+      this.populator = null;
+    }
+  }
+
+  populateRow(row: DataRow) {
+    if (this.populator) {
+      this.populator.populateRow(row);
+    }
+  }
+
+  endOfFile() {
 
   }
 
-  addRow(cells: string[]) {
-
-  }
-}
-
-class SettingTablePopulator {
-  constructor() {
-
+  private getPopulator(tableType: string) {
+    return FileParser.populatorsConfig[tableType.toLowerCase()];
   }
 }

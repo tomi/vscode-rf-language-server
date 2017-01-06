@@ -3,9 +3,9 @@ export class TestData {
 }
 
 export class DataTable {
-    private header : string;
+    private header: string;
 
-    constructor(private parent : TestData) {
+    constructor(private parent: TestData) {
 
     }
 }

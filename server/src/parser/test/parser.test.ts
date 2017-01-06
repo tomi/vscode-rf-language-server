@@ -3,7 +3,7 @@ import {
   TestDataFile,
   SettingsTable,
   SingleValueSetting,
-  Import
+  Import,
 } from "../models";
 
 import * as chai from "chai";
@@ -30,7 +30,7 @@ describe("RF Parser", () => {
     settingsTable.imports = [
       new Import("Resource", "resources/\${ENVIRONMENT}.robot"),
       new Import("Resource", "resources/smoke_resources.robot"),
-    ]
+    ];
 
     const expected = new TestDataFile();
     expected.settingsTable = settingsTable;
@@ -38,5 +38,5 @@ describe("RF Parser", () => {
     const actual = parser.parse(settings);
 
     chai.assert.deepEqual(actual, expected);
-  })
+  });
 });

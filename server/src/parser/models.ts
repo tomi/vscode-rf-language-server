@@ -1,18 +1,17 @@
 
-
 export class Import {
-  constructor(private name : string, private target : string) {
+  constructor(private name: string, private target: string) {
   }
 }
 
 export class SingleValueSetting {
-  constructor(private name : string, private value: string) {
+  constructor(private name: string, private value: string) {
   }
 
 }
 
 export class Setting {
-  constructor(private name : string, private values: string[]) {
+  constructor(private name: string, private values: string[]) {
   }
 }
 
@@ -21,13 +20,13 @@ export class Table {
 }
 
 export class SettingsTable extends Table {
-  public suiteSetup    : SingleValueSetting;
-  public suiteTeardown : SingleValueSetting;
+  public suiteSetup:    SingleValueSetting;
+  public suiteTeardown: SingleValueSetting;
 
-  public testSetup    : SingleValueSetting;
-  public testTeardown : SingleValueSetting;
+  public testSetup:    SingleValueSetting;
+  public testTeardown: SingleValueSetting;
 
-  public imports : Import[];
+  public imports: Import[];
 
   constructor(options?) {
     super();
@@ -38,18 +37,17 @@ export class SettingsTable extends Table {
   /**
    * addImport
    */
-  public addImport(importToAdd : Import) {
+  public addImport(importToAdd: Import) {
     this.imports.push(importToAdd);
   }
 }
 
 export class TestDataFile {
-  public settingsTable : SettingsTable;
+  public settingsTable: SettingsTable;
 
-  constructor(other? : TestDataFile) {
+  constructor(other?: TestDataFile) {
     if (other !== undefined) {
       this.settingsTable = other.settingsTable;
     }
   }
 }
-

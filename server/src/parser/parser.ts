@@ -4,7 +4,7 @@ import {
   Setting,
   SingleValueSetting,
   TestDataFile,
-  SettingsTable
+  SettingsTable,
 } from "./models";
 
 class DataRow {
@@ -22,10 +22,10 @@ class TextFormatReader {
   constructor(private populator: TablePopulator) {
   }
 
-  parse(data: string) {
+  public parse(data: string) {
     const lines = data.match(/[^\r\n]+/g);
 
-    lines.forEach(line => {
+    lines.forEach((line) => {
       const row = this.parseLine(line);
 
       if (this.isTableNameRow(row)) {
@@ -51,23 +51,23 @@ class TextFormatReader {
   }
 
   private parseTableName(row: DataRow) {
-    const nonStarCells = row.cells.map(cell => cell.replace(/\*/g, "").trim())
-      .filter(cell => !_.isEmpty(cell));
+    const nonStarCells = row.cells.map((cell) => cell.replace(/\*/g, "").trim())
+      .filter((cell) => !_.isEmpty(cell));
 
-      return _.first(nonStarCells);
+    return _.first(nonStarCells);
   }
 }
 
 interface ModelPopulator {
-  model,
+  model;
 
-  populateRow(row: DataRow)
+  populateRow(row: DataRow);
 };
 
 interface TablePopulator extends ModelPopulator {
-  startTable(type: string),
+  startTable(type: string);
 
-  endOfFile()
+  endOfFile();
 }
 
 interface Reader {
@@ -77,7 +77,9 @@ interface Reader {
 class NullPopulator implements ModelPopulator {
   public model = null;
 
-  populateRow(cells: DataRow) { }
+  public populateRow(cells: DataRow) {
+    // TODO
+  }
 }
 
 class SettingTablePopulator implements ModelPopulator {
@@ -88,7 +90,7 @@ class SettingTablePopulator implements ModelPopulator {
     this.model = new SettingsTable();
   }
 
-  populateRow(row : DataRow) {
+  public populateRow(row: DataRow) {
     const parseTable = new Map([
       ["Resource",       this.populateImport],
       ["Suite Setup",    this.populateSetting("suiteSetup")],
@@ -105,50 +107,50 @@ class SettingTablePopulator implements ModelPopulator {
     }
   }
 
-  populateImport = (name: string, values: string[]) => {
+  private populateImport = (name: string, values: string[]) => {
 
     this.model.addImport(new Import(name, values[0]));
   }
 
-  populateSetting(propertyName) {
+  private populateSetting(propertyName) {
     return (name: string, values: string[]) => {
       const [value] = values;
 
       this.model[propertyName] = new SingleValueSetting(name, value);
-    }
+    };
   }
 }
 
 class VariableTablePopulator implements ModelPopulator {
   public model: VariableTablePopulator;
 
-  populateRow(row: DataRow) {
-
+  public populateRow(row: DataRow) {
+    // TODO
   }
 }
 
 export class FileParser implements TablePopulator {
-  public name = "file";
-  public model : TestDataFile;
-
-  private populator : ModelPopulator;
-
   private static populatorsConfig = {
-    "settings": {
+    settings: {
       name: "settingsTable",
-      PopulatorCtor: SettingTablePopulator
+      PopulatorCtor: SettingTablePopulator,
     },
-    "variables": {
+    variables: {
       name: "variablesTable",
-      PopulatorCtor: VariableTablePopulator
-    }
+      PopulatorCtor: VariableTablePopulator,
+    },
   };
+
+  public name = "file";
+  public model: TestDataFile;
+
+  private populator: ModelPopulator;
 
   constructor() {
     this.populator = new NullPopulator();
   }
 
-  parse(data: string) : TestDataFile {
+  public parse(data: string): TestDataFile {
     this.model = new TestDataFile();
 
     const reader = new TextFormatReader(this);
@@ -158,7 +160,7 @@ export class FileParser implements TablePopulator {
     return this.model;
   }
 
-  startTable(tableType: string) {
+  public startTable(tableType: string) {
     const populatorConfig = this.getPopulator(tableType);
 
     if (populatorConfig) {
@@ -169,14 +171,14 @@ export class FileParser implements TablePopulator {
     }
   }
 
-  populateRow(row: DataRow) {
+  public populateRow(row: DataRow) {
     if (this.populator) {
       this.populator.populateRow(row);
     }
   }
 
-  endOfFile() {
-
+  public endOfFile() {
+    // TODO
   }
 
   private getPopulator(tableType: string) {

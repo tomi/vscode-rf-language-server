@@ -59,6 +59,10 @@
       false
     ],
     "object-literal-sort-keys": false,
+    "object-literal-key-quotes": [
+      true,
+      "consistent-as-needed"
+    ],
     "no-console": [
       false
     ],
@@ -83,6 +87,9 @@
     "semicolon": [
       true,
       "always"
+    ],
+    "trailing-comma": [
+      false
     ],
     "triple-equals": [
       true,

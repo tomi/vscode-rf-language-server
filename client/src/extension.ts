@@ -2,7 +2,7 @@
 
 import * as path from "path";
 
-import { workspace, Disposable, ExtensionContext } from "vscode";
+import { commands, workspace, Disposable, ExtensionContext } from "vscode";
 import {
     LanguageClient, LanguageClientOptions,
     SettingMonitor, ServerOptions,
@@ -47,6 +47,11 @@ export function activate(context: ExtensionContext) {
     let disposable = langClient.start();
 
     let intellisense: Intellisense = new Intellisense(langClient);
+
+    context.subscriptions.push(commands.registerCommand("rfIntellisense.rebuildSources", () => {
+		intellisense.parseAll();
+    }));
+
 
 	// Push the disposable to the context"s subscriptions so that the
 	// client can be deactivated on extension deactivation

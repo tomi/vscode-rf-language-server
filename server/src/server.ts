@@ -8,6 +8,12 @@ import {
   CompletionItem, CompletionItemKind, RequestType,
 } from "vscode-languageserver";
 
+import * as fs from "fs";
+
+import { FileParser } from "./parser/parser";
+
+const parser = new FileParser();
+
 // Create a connection for the server. The connection uses Node"s IPC as a transport
 let connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
 
@@ -111,6 +117,11 @@ const buildFromFiles: RequestType<{
 }, any, any> = { method: "buildFromFiles" };
 connection.onRequest(buildFromFiles, (message) => {
   console.log("buildFromFiles", message);
+
+  message.files.forEach(filePath => {
+    const fileData = fs.readFileSync(filePath, "utf-8");
+    const parsedFile = parser.parse(fileData);
+  })
 });
 /*
 connection.onDidOpenTextDocument((params) => {

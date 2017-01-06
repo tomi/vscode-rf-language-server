@@ -20,6 +20,12 @@
         "extensions": [".robot"],
         "aliases": ["robotframework", "RobotFramework"]
     }],
+    "commands": [
+        {
+            "command": "rfIntellisense.rebuildSources",
+            "title": "RF Intellisense - Reindex robot files in the workspace"
+        }
+    ],
     "configuration": {
       "type": "object",
       "title": "Robot Framework language server configuration",

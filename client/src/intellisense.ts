@@ -12,7 +12,9 @@ export default class Intellisense {
 
     constructor(languageClient: LanguageClient) {
         this.langClient = languageClient;
+    }
 
+    parseAll() {
         // const config = Config.includeExclude();
         workspace.findFiles(`**/*.robot`, "").then(files => {
             const filePaths = files.map(file => file.fsPath);

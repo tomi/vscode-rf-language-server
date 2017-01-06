@@ -2,9 +2,13 @@ import * as _ from "lodash";
 import {
   Import,
   Setting,
-  SingleValueSetting,
   TestDataFile,
   SettingsTable,
+  Variable,
+  ScalarVariable,
+  ListVariable,
+  VariableType,
+  VariablesTable
 } from "./models";
 
 class DataRow {
@@ -12,6 +16,14 @@ class DataRow {
 
   constructor(cells: string[]) {
     this.cells = cells;
+  }
+
+  public head() {
+    return this.cells[0];
+  }
+
+  public getCellByIdx(idx) {
+    return this.cells[idx];
   }
 }
 
@@ -116,16 +128,53 @@ class SettingTablePopulator implements ModelPopulator {
     return (name: string, values: string[]) => {
       const [value] = values;
 
-      this.model[propertyName] = new SingleValueSetting(name, value);
+      this.model[propertyName] = new Setting(name, value);
     };
   }
 }
 
 class VariableTablePopulator implements ModelPopulator {
-  public model: VariableTablePopulator;
+  public model: VariablesTable;
+
+  /**
+   *
+   */
+  constructor() {
+    this.model = new VariablesTable();
+  }
 
   public populateRow(row: DataRow) {
-    // TODO
+    const variable = this.parseVariable(row);
+
+    if (variable) {
+      this.model.addVariable(variable);
+    }
+  }
+
+  private parseVariable(row: DataRow): Variable {
+    const typeNameCell = row.head();
+    if (_.isEmpty(typeNameCell)) {
+      return null;
+    }
+
+    // Matches the type ($, @, % or &) and name
+    // For example:
+    // ${var} --> ["${var}", "$", "var"]
+    // @{var2} = --> ["${var2}", "@", "var2"]
+    const [, type, name] = typeNameCell.match(/([$,@,%,&]){([^}]+)}/);
+
+    const typeMapping = {
+      "$": ScalarVariable,
+      "@": ListVariable,
+      // "&": DictionaryVariable,
+      // "%": EnvironmentVariable,
+    };
+
+    if (type === "$") {
+      const value = row.getCellByIdx(1) || "";
+
+      return new ScalarVariable(name, value);
+    }
   }
 }
 

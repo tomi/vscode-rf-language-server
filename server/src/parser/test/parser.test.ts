@@ -1,9 +1,12 @@
 import { FileParser } from "../parser";
 import {
+  Import,
   TestDataFile,
   SettingsTable,
-  SingleValueSetting,
-  Import,
+  Setting,
+  Variable,
+  ScalarVariable,
+  VariablesTable,
 } from "../models";
 
 import * as chai from "chai";
@@ -30,10 +33,32 @@ function createSettingsTable(content): TestDataFile {
 /**
  *
  */
+function createVariablesTable(variables): TestDataFile {
+  const testDataFile = new TestDataFile();
+
+  testDataFile.variablesTable = Object.assign(new VariablesTable(), { variables });
+
+  return testDataFile;
+}
+
+/**
+ *
+ */
 function generateSettingsTableTest(tableDefinition: string, expectedData) {
   const inputData = `*** Settings ***\n${ tableDefinition }`;
 
   const expected = createSettingsTable(expectedData);
+
+  parseAndAssert(inputData, expected);
+}
+
+/**
+ *
+ */
+function generateVariablesTableTest(tableDefinition: string, expectedData) {
+  const inputData = `*** Variables ***\n${ tableDefinition }`;
+
+  const expected = createVariablesTable(expectedData);
 
   parseAndAssert(inputData, expected);
 }
@@ -56,8 +81,8 @@ Resource   resources/\${ENVIRONMENT}.robot
 Resource   resources/smoke_resources.robot
 `, {
   imports: [
-      new Import("Resource", "resources/\${ENVIRONMENT}.robot"),
-      new Import("Resource", "resources/smoke_resources.robot"),
+    new Import("Resource", "resources/\${ENVIRONMENT}.robot"),
+    new Import("Resource", "resources/smoke_resources.robot"),
   ]
 });
     });
@@ -91,4 +116,24 @@ Resource   resources/smoke_resources.robot
     });
 
   });
+
+  describe("Parsing Variables table", () => {
+
+    it("should recognize variables table", () => {
+      const expected = new TestDataFile();
+      expected.variablesTable = new VariablesTable();
+
+      parseAndAssert(`*** Variables ***`, expected);
+      parseAndAssert(`*** Variables`, expected);
+      parseAndAssert(`*Variables`, expected);
+    });
+
+    it("should parse scalar variables", () => {
+      generateVariablesTableTest("${lol}    123", [new ScalarVariable("lol", "123")]);
+      generateVariablesTableTest("${lol}=   123", [new ScalarVariable("lol", "123")]);
+      generateVariablesTableTest("${lol} =  123", [new ScalarVariable("lol", "123")]);
+    });
+
+  });
+
 });

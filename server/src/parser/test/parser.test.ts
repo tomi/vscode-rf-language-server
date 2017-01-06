@@ -1,3 +1,6 @@
+import * as _ from "lodash";
+import * as chai from "chai";
+
 import { FileParser } from "../parser";
 import {
   Import,
@@ -13,8 +16,6 @@ import {
   TestCase,
   TestCasesTable
 } from "../models";
-
-import * as chai from "chai";
 
 const parser = new FileParser();
 
@@ -112,16 +113,19 @@ function generateTestCasesTableTest(tableDefinition: string, expectedData) {
   parseAndAssert(inputData, expected);
 }
 
+function tableRecognitionTest(tableName: string, expectedTable) {
+    parseAndAssert(`*** ${ tableName.toLowerCase() } ***`, expectedTable);
+    parseAndAssert(`***${ tableName.toUpperCase() }`, expectedTable);
+    parseAndAssert(`*${ _.startCase(tableName) }`, expectedTable);
+    parseAndAssert(` *${ tableName }`, expectedTable);
+}
+
 describe("RF Parser", () => {
 
   describe("Parsing Settings table", () => {
 
     it("should recognise a settings table", () => {
-      const expected = createSettingsTable({});
-
-      parseAndAssert(`*** Settings ***`, expected);
-      parseAndAssert(`*** Settings`, expected);
-      parseAndAssert(`*Settings`, expected);
+      tableRecognitionTest("Settings", createSettingsTable({}));
     });
 
     it("should parse resource imports", () => {
@@ -172,9 +176,7 @@ Resource   resources/smoke_resources.robot
       const expected = new TestDataFile();
       expected.variablesTable = new VariablesTable();
 
-      parseAndAssert(`*** Variables ***`, expected);
-      parseAndAssert(`*** Variables`, expected);
-      parseAndAssert(`*Variables`, expected);
+      tableRecognitionTest("Variables", expected);
     });
 
     it("should parse scalar variables", () => {
@@ -191,9 +193,7 @@ Resource   resources/smoke_resources.robot
       const expected = new TestDataFile();
       expected.keywordsTable = new KeywordsTable();
 
-      parseAndAssert(`*** Keywords ***`, expected);
-      parseAndAssert(`*** Keywords`, expected);
-      parseAndAssert(`*Keywords`, expected);
+      tableRecognitionTest("Keywords", expected);
     });
 
     it("should parse empty keyword", () => {
@@ -250,9 +250,7 @@ Keyword Name3
       const expected = new TestDataFile();
       expected.testCasesTable = new TestCasesTable();
 
-      parseAndAssert(`*** Test Cases ***`, expected);
-      parseAndAssert(`*** Test Cases`, expected);
-      parseAndAssert(`*Test Cases`, expected);
+      tableRecognitionTest("Test Cases", expected);
     });
 
     it("should parse empty test case", () => {

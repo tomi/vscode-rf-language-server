@@ -68,7 +68,7 @@ class TextFormatReader {
   }
 
   private isTableNameRow(row: DataRow) {
-    return row.cells[0].startsWith("*");
+    return row.cells[0].trim().startsWith("*");
   }
 
   private parseTableName(row: DataRow) {

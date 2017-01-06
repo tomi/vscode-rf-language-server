@@ -12,6 +12,8 @@ import {
   Step,
   Keyword,
   KeywordsTable,
+  TestCase,
+  TestCasesTable
 } from "./models";
 
 class DataRow {
@@ -234,20 +236,76 @@ class KeywordTablePopulator implements ModelPopulator {
 /**
  *
  */
+class TestCasePopulator implements ModelPopulator {
+  public model: TestCase;
+
+  /**
+   *
+   */
+  constructor(name: string) {
+    this.model = new TestCase(name);
+  }
+
+  public populateRow(row: DataRow) {
+    const stepName = row.getCellByIdx(1);
+    const args = row.drop(2);
+
+    this.model.addStep(new Step(stepName, args));
+  }
+}
+
+/**
+ *
+ */
+class TestCasesTablePopulator implements ModelPopulator {
+  public model: TestCasesTable;
+  private testCasePopulator: TestCasePopulator;
+
+  /**
+   *
+   */
+  constructor() {
+    this.model = new TestCasesTable();
+  }
+
+  public populateRow(row: DataRow) {
+    if (this.startsTestCase(row)) {
+      const testCaseName = row.head();
+
+      this.testCasePopulator = new TestCasePopulator(testCaseName);
+
+      this.model.addTestCase(this.testCasePopulator.model);
+    } else if (this.testCasePopulator) {
+      this.testCasePopulator.populateRow(row);
+    }
+  }
+
+  private startsTestCase(row: DataRow) {
+    return !_.isEmpty(row.head());
+  }
+}
+
+/**
+ *
+ */
 export class FileParser implements TablePopulator {
   private static populatorsConfig = {
-    settings: {
+    "settings": {
       name: "settingsTable",
       PopulatorCtor: SettingTablePopulator,
     },
-    variables: {
+    "variables": {
       name: "variablesTable",
       PopulatorCtor: VariableTablePopulator,
     },
-    keywords: {
+    "keywords": {
       name: "keywordsTable",
       PopulatorCtor: KeywordTablePopulator,
     },
+    "test cases": {
+      name: "testCasesTable",
+      PopulatorCtor: TestCasesTablePopulator
+    }
   };
 
   public name = "file";

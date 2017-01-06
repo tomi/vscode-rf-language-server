@@ -175,10 +175,40 @@ export class KeywordsTable extends Table {
   }
 }
 
+/**
+ * TestCase
+ */
+export class TestCase {
+  constructor(public name: string, public steps: Step[] = []) {
+  }
+
+  public addStep(step: Step) {
+    this.steps.push(step);
+  }
+}
+
+/**
+ * TestCasesTable
+ */
+export class TestCasesTable extends Table {
+  public testCases: TestCase[];
+
+  constructor() {
+    super();
+
+    this.testCases = [];
+  }
+
+  public addTestCase(testCase: TestCase) {
+    this.testCases.push(testCase);
+  }
+}
+
 export class TestDataFile {
   public settingsTable:  SettingsTable;
   public variablesTable: VariablesTable;
   public keywordsTable:  KeywordsTable;
+  public testCasesTable: TestCasesTable;
 
   constructor() {
     // TODO

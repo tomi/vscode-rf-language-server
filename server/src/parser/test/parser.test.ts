@@ -10,6 +10,8 @@ import {
   Step,
   Keyword,
   KeywordsTable,
+  TestCase,
+  TestCasesTable
 } from "../models";
 
 import * as chai from "chai";
@@ -84,6 +86,28 @@ function generateKeywordsTableTest(tableDefinition: string, expectedData) {
   const inputData = `*** Keywords ***\n${ tableDefinition }`;
 
   const expected = createKeywordsTable(expectedData);
+
+  parseAndAssert(inputData, expected);
+}
+
+/**
+ *
+ */
+function createTestCasesTable(testCases) {
+  const testDataFile = new TestDataFile();
+
+  testDataFile.testCasesTable = Object.assign(new TestCasesTable(), { testCases });
+
+  return testDataFile;
+}
+
+/**
+ *
+ */
+function generateTestCasesTableTest(tableDefinition: string, expectedData) {
+  const inputData = `*** Test Cases ***\n${ tableDefinition }`;
+
+  const expected = createTestCasesTable(expectedData);
 
   parseAndAssert(inputData, expected);
 }
@@ -178,7 +202,7 @@ Resource   resources/smoke_resources.robot
       generateKeywordsTableTest(keywordName, [new Keyword(keywordName)]);
     });
 
-    it("should parse keyword steps", () => {
+    it("should parse keyword with steps", () => {
       const keyword = `
 Keyword Name
     Step1   Arg11
@@ -189,6 +213,63 @@ Keyword Name
         new Keyword("Keyword Name", [
           new Step("Step1", ["Arg11"]),
           new Step("Step2", ["arg21", "arg22"])
+        ])
+      ]);
+    });
+
+    it("should parse multiple keywords with steps", () => {
+      const keyword = `
+Keyword Name1
+    Step1   Arg11
+    Step2   arg21   arg22
+Keyword Name2
+    Step1   Arg11
+
+Keyword Name3
+    Step1   Arg11
+`;
+
+      generateKeywordsTableTest(keyword, [
+        new Keyword("Keyword Name1", [
+          new Step("Step1", ["Arg11"]),
+          new Step("Step2", ["arg21", "arg22"])
+        ]),
+        new Keyword("Keyword Name2", [
+          new Step("Step1", ["Arg11"]),
+        ]),
+        new Keyword("Keyword Name3", [
+          new Step("Step1", ["Arg11"]),
+        ]),
+      ]);
+    });
+  });
+
+  describe("Parsing test cases table", () => {
+
+    it("should recognise test cases table", () => {
+      const expected = new TestDataFile();
+      expected.testCasesTable = new TestCasesTable();
+
+      parseAndAssert(`*** Test Cases ***`, expected);
+      parseAndAssert(`*** Test Cases`, expected);
+      parseAndAssert(`*Test Cases`, expected);
+    });
+
+    it("should parse empty test case", () => {
+      const testCaseName = "Empty Test Case";
+
+      generateTestCasesTableTest(testCaseName, [new TestCase(testCaseName)]);
+    });
+
+    it("should parse test case with steps", () => {
+      const testCase = `
+Test Case
+  Step  arg1  arg2
+`;
+
+      generateTestCasesTableTest(testCase, [
+        new TestCase("Test Case", [
+          new Step("Step", ["arg1", "arg2"])
         ])
       ]);
     });

@@ -6,13 +6,18 @@ import {
   TextDocuments, TextDocument, Diagnostic, DiagnosticSeverity,
   InitializeParams, InitializeResult, TextDocumentPositionParams,
   CompletionItem, CompletionItemKind, RequestType,
+  Location, Range
 } from "vscode-languageserver";
+
+import { Uri } from "vscode";
 
 import * as fs from "fs";
 
 import { FileParser } from "./parser/parser";
 
 const parser = new FileParser();
+
+const fileTreeMapper = new Map();
 
 // Create a connection for the server. The connection uses Node"s IPC as a transport
 let connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
@@ -37,6 +42,7 @@ connection.onInitialize((params): InitializeResult => {
       completionProvider: {
         resolveProvider: true,
       },
+      definitionProvider: true
     },
   };
 });
@@ -99,6 +105,19 @@ connection.onCompletion((textDocumentPosition: TextDocumentPositionParams): Comp
   ];
 });
 
+
+connection.onDefinition((textDocumentPosition: TextDocumentPositionParams): Location => {
+  const filePath = Uri.parse(textDocumentPosition.textDocument.uri).path;
+
+  const fileDefinition = fileTreeMapper.get(filePath);
+  if (!fileDefinition) {
+    return null;
+  }
+
+
+  return Location.create(file, Range.create(0, 0, 0, 0));
+});
+
 // This handler resolve additional information for the item selected in
 // the completion list.
 connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
@@ -118,9 +137,13 @@ const buildFromFiles: RequestType<{
 connection.onRequest(buildFromFiles, (message) => {
   console.log("buildFromFiles", message);
 
+  fileTreeMapper.clear();
+
   message.files.forEach(filePath => {
     const fileData = fs.readFileSync(filePath, "utf-8");
     const parsedFile = parser.parse(fileData);
+
+    fileTreeMapper.set(filePath, parsedFile);
   })
 });
 /*

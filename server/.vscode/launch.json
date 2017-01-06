@@ -5,13 +5,13 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Unit Test",
+      "name": "Run Unit Tests",
       "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
       "sourceMaps": true,
       "cwd": "${workspaceRoot}",
 			"outDir": "${workspaceRoot}/../client/server",
       "args": [
-        "../client/server/**/*.test.js"
+        "../client/server/parser/**/*.test.js"
       ]
     },
 		{

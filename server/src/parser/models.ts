@@ -38,6 +38,9 @@ export class Table {
 
 }
 
+/**
+ *
+ */
 export class SettingsTable extends Table {
   public suiteSetup:    Setting;
   public suiteTeardown: Setting;
@@ -130,11 +133,54 @@ export class VariablesTable extends Table {
   }
 }
 
+/**
+ * Step
+ */
+export class Step {
+  public name: string;
+  public arguments: string[];
+
+  constructor(name: string, args: string[]) {
+    this.name = name;
+    this.arguments = args;
+  }
+}
+
+/**
+ * Keyword
+ */
+export class Keyword {
+  constructor(public name: string, public steps: Step[] = []) {
+  }
+
+  public addStep(step: Step) {
+    this.steps.push(step);
+  }
+}
+
+/**
+ * KeywordsTable
+ */
+export class KeywordsTable extends Table {
+  public keywords: Keyword[];
+
+  constructor() {
+    super();
+
+    this.keywords = [];
+  }
+
+  public addKeyword(keyword: Keyword) {
+    this.keywords.push(keyword);
+  }
+}
+
 export class TestDataFile {
   public settingsTable:  SettingsTable;
   public variablesTable: VariablesTable;
+  public keywordsTable:  KeywordsTable;
 
-  constructor(other?: TestDataFile) {
+  constructor() {
     // TODO
   }
 }

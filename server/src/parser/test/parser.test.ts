@@ -7,6 +7,9 @@ import {
   Variable,
   ScalarVariable,
   VariablesTable,
+  Step,
+  Keyword,
+  KeywordsTable,
 } from "../models";
 
 import * as chai from "chai";
@@ -63,11 +66,33 @@ function generateVariablesTableTest(tableDefinition: string, expectedData) {
   parseAndAssert(inputData, expected);
 }
 
+/**
+ *
+ */
+function createKeywordsTable(keywords) {
+  const testDataFile = new TestDataFile();
+
+  testDataFile.keywordsTable = Object.assign(new KeywordsTable(), { keywords });
+
+  return testDataFile;
+}
+
+/**
+ *
+ */
+function generateKeywordsTableTest(tableDefinition: string, expectedData) {
+  const inputData = `*** Keywords ***\n${ tableDefinition }`;
+
+  const expected = createKeywordsTable(expectedData);
+
+  parseAndAssert(inputData, expected);
+}
+
 describe("RF Parser", () => {
 
   describe("Parsing Settings table", () => {
 
-    it("should recognize a settings table", () => {
+    it("should recognise a settings table", () => {
       const expected = createSettingsTable({});
 
       parseAndAssert(`*** Settings ***`, expected);
@@ -119,7 +144,7 @@ Resource   resources/smoke_resources.robot
 
   describe("Parsing Variables table", () => {
 
-    it("should recognize variables table", () => {
+    it("should recognise variables table", () => {
       const expected = new TestDataFile();
       expected.variablesTable = new VariablesTable();
 
@@ -132,6 +157,40 @@ Resource   resources/smoke_resources.robot
       generateVariablesTableTest("${lol}    123", [new ScalarVariable("lol", "123")]);
       generateVariablesTableTest("${lol}=   123", [new ScalarVariable("lol", "123")]);
       generateVariablesTableTest("${lol} =  123", [new ScalarVariable("lol", "123")]);
+    });
+
+  });
+
+  describe("Parsing Keywords table", () => {
+
+    it("should recognise keywords table", () => {
+      const expected = new TestDataFile();
+      expected.keywordsTable = new KeywordsTable();
+
+      parseAndAssert(`*** Keywords ***`, expected);
+      parseAndAssert(`*** Keywords`, expected);
+      parseAndAssert(`*Keywords`, expected);
+    });
+
+    it("should parse empty keyword", () => {
+      const keywordName = "Keyword Name";
+
+      generateKeywordsTableTest(keywordName, [new Keyword(keywordName)]);
+    });
+
+    it("should parse keyword steps", () => {
+      const keyword = `
+Keyword Name
+    Step1   Arg11
+    Step2   arg21   arg22
+`;
+
+      generateKeywordsTableTest(keyword, [
+        new Keyword("Keyword Name", [
+          new Step("Step1", ["Arg11"]),
+          new Step("Step2", ["arg21", "arg22"])
+        ])
+      ]);
     });
 
   });

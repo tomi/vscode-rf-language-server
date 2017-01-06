@@ -8,7 +8,10 @@ import {
   ScalarVariable,
   ListVariable,
   VariableType,
-  VariablesTable
+  VariablesTable,
+  Step,
+  Keyword,
+  KeywordsTable,
 } from "./models";
 
 class DataRow {
@@ -24,6 +27,10 @@ class DataRow {
 
   public getCellByIdx(idx) {
     return this.cells[idx];
+  }
+
+  public drop(n = 1) {
+    return _.drop(this.cells, n);
   }
 }
 
@@ -178,6 +185,55 @@ class VariableTablePopulator implements ModelPopulator {
   }
 }
 
+class KeywordPopulator implements ModelPopulator {
+  public model: Keyword;
+
+  /**
+   *
+   */
+  constructor(name: string) {
+    this.model = new Keyword(name);
+  }
+
+  public populateRow(row: DataRow) {
+    const stepName = row.getCellByIdx(1);
+    const args = row.drop(2);
+
+    this.model.addStep(new Step(stepName, args));
+  }
+}
+
+class KeywordTablePopulator implements ModelPopulator {
+  public model: KeywordsTable;
+  private keywordPopulator: KeywordPopulator;
+
+  /**
+   *
+   */
+  constructor() {
+    this.model = new KeywordsTable();
+  }
+
+  public populateRow(row: DataRow) {
+    if (this.startsKeyword(row)) {
+      const keywordName = row.head();
+
+      this.keywordPopulator = new KeywordPopulator(keywordName);
+
+      this.model.addKeyword(this.keywordPopulator.model);
+    } else if (this.keywordPopulator) {
+      this.keywordPopulator.populateRow(row);
+    }
+  }
+
+  private startsKeyword(row: DataRow) {
+    return !_.isEmpty(row.head());
+  }
+}
+
+/**
+ *
+ */
 export class FileParser implements TablePopulator {
   private static populatorsConfig = {
     settings: {
@@ -187,6 +243,10 @@ export class FileParser implements TablePopulator {
     variables: {
       name: "variablesTable",
       PopulatorCtor: VariableTablePopulator,
+    },
+    keywords: {
+      name: "keywordsTable",
+      PopulatorCtor: KeywordTablePopulator,
     },
   };
 

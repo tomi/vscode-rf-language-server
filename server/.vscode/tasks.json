@@ -12,7 +12,12 @@
     },
     {
       "taskName": "test",
-      "args": ["test"]
+      "args": ["test"],
+      "isTestCommand": true
+    },
+    {
+      "taskName": "lint",
+      "args": ["run", "lint"]
     }
   ]
 }

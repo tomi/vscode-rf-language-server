@@ -2,6 +2,7 @@ import * as _ from "lodash";
 import {
   Import,
   Setting,
+  Table,
   TestDataFile,
   SettingsTable,
   Variable,
@@ -13,13 +14,18 @@ import {
   Keyword,
   KeywordsTable,
   TestCase,
-  TestCasesTable
+  TestCasesTable,
+  Position
 } from "./models";
 
 class DataRow {
+  public lineNumber: number;
   public cells: string[];
+  public row: string;
 
-  constructor(cells: string[]) {
+  constructor(lineNumber: number, row: string, cells: string[]) {
+    this.lineNumber = lineNumber;
+    this.row = row;
     this.cells = cells;
   }
 
@@ -34,6 +40,24 @@ class DataRow {
   public drop(n = 1) {
     return _.drop(this.cells, n);
   }
+
+  public toStartPosition(): Position {
+    const firstNonWhitespaceCharIdx = this.row.search(/\S/);
+
+    return {
+      line: this.lineNumber,
+      column: firstNonWhitespaceCharIdx < 0 ?
+        0 : firstNonWhitespaceCharIdx
+    };
+  }
+
+  public toEndPosition(): Position {
+    return {
+      line: this.lineNumber,
+      // Not length - 1 because the column is the position after last char
+      column: this.row.length === 0 ? 0 : this.row.length
+    };
+  }
 }
 
 /**
@@ -44,27 +68,38 @@ class TextFormatReader {
   }
 
   public parse(data: string) {
-    const lines = data.match(/[^\r\n]+/g);
+    const lines = data.split(/\r\n|\n|\r/);
 
-    lines.forEach((line) => {
-      const row = this.parseLine(line);
+    lines.forEach((line, index) => {
+      if (this.isWhitespace(line)) {
+        return;
+      }
+
+      const row = this.parseLine(index, line);
 
       if (this.isTableNameRow(row)) {
         const tableName = this.parseTableName(row);
 
-        this.populator.startTable(tableName);
+        this.populator.startTable(row, tableName);
       } else {
         this.populator.populateRow(row);
       }
     });
+
+    const lastRow = this.parseLine(lines.length - 1, lines[lines.length - 1]);
+    this.populator.endOfFile(lastRow);
   }
 
-  private parseLine(line: string) {
-    line = line.replace(/\t/g, "  ");
+  private isWhitespace(line: string) {
+    return /^\s*$/.test(line);
+  }
+
+  private parseLine(lineNumber: number, line: string) {
+    const sanitizedLine = line.replace(/\t/g, "  ");
 
     const cells = line.split(/ {2,}/);
 
-    return new DataRow(cells);
+    return new DataRow(lineNumber, line, cells);
   }
 
   private isTableNameRow(row: DataRow) {
@@ -72,8 +107,8 @@ class TextFormatReader {
   }
 
   private parseTableName(row: DataRow) {
-    const nonStarCells = row.cells.map((cell) => cell.replace(/\*/g, "").trim())
-      .filter((cell) => !_.isEmpty(cell));
+    const nonStarCells = row.cells.map(cell => cell.replace(/\*/g, "").trim())
+      .filter(cell => !_.isEmpty(cell));
 
     return _.first(nonStarCells);
   }
@@ -86,20 +121,30 @@ interface ModelPopulator {
 };
 
 interface TablePopulator extends ModelPopulator {
-  startTable(type: string);
+  model: Table;
 
-  endOfFile();
+  startTable(row: DataRow, type: string);
+
+  endOfFile(lastRow: DataRow);
 }
 
 interface Reader {
 
 };
 
-class NullPopulator implements ModelPopulator {
+class NullPopulator implements TablePopulator {
   public model = null;
 
+  public startTable(row: DataRow, type: string) {
+    // Intentionally empty
+  }
+
   public populateRow(cells: DataRow) {
-    // TODO
+    // Intentionally empty
+  }
+
+  public endOfFile() {
+    // Intentionally empty
   }
 }
 
@@ -120,24 +165,35 @@ class SettingTablePopulator implements ModelPopulator {
       ["Test Teardown",  this.populateSetting("testTeardown")],
     ]);
 
-    const [name, ...rest] = row.cells;
+    const name = row.head();
 
     const parseMethod = parseTable.get(name);
     if (parseMethod) {
-      parseMethod(name, rest);
+      parseMethod(row);
     }
   }
 
-  private populateImport = (name: string, values: string[]) => {
+  private populateImport = (row: DataRow) => {
+    const name = row.head();
+    const values = row.cells.slice(1);
 
-    this.model.addImport(new Import(name, values[0]));
+    const parsedImport = new Import(name, values[0]);
+
+    parsedImport.setStartPosition(row.toStartPosition());
+    parsedImport.setEndPosition(row.toEndPosition());
+
+    this.model.addImport(parsedImport);
   }
 
   private populateSetting(propertyName) {
-    return (name: string, values: string[]) => {
-      const [value] = values;
+    return (row: DataRow) => {
+      const [name, value] = row.cells;
 
-      this.model[propertyName] = new Setting(name, value);
+      const setting = new Setting(name, value);
+      setting.setStartPosition(row.toStartPosition());
+      setting.setEndPosition(row.toEndPosition());
+
+      this.model[propertyName] = setting;
     };
   }
 }
@@ -311,10 +367,10 @@ export class FileParser implements TablePopulator {
   public name = "file";
   public model: TestDataFile;
 
-  private populator: ModelPopulator;
+  private populator: TablePopulator;
 
   constructor() {
-    this.populator = new NullPopulator();
+    // this.populator = new NullPopulator();
   }
 
   public parse(data: string): TestDataFile {
@@ -327,12 +383,17 @@ export class FileParser implements TablePopulator {
     return this.model;
   }
 
-  public startTable(tableType: string) {
+  public startTable(row: DataRow, tableType: string) {
     const populatorConfig = this.getPopulator(tableType);
 
     if (populatorConfig) {
+      if (this.populator) {
+        this.populator.model.setEndPosition(row.toEndPosition());
+      }
+
       this.populator = new populatorConfig.PopulatorCtor();
       this.model[populatorConfig.name] = this.populator.model;
+      this.populator.model.setStartPosition(row.toStartPosition());
     } else {
       this.populator = null;
     }
@@ -344,8 +405,10 @@ export class FileParser implements TablePopulator {
     }
   }
 
-  public endOfFile() {
-    // TODO
+  public endOfFile(lastRow: DataRow) {
+    if (this.populator) {
+      this.populator.model.setEndPosition(lastRow.toEndPosition());
+    }
   }
 
   private getPopulator(tableType: string) {

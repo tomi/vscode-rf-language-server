@@ -10,6 +10,7 @@ import {
   Variable,
   ScalarVariable,
   VariablesTable,
+  Table,
   Step,
   Keyword,
   KeywordsTable,
@@ -113,11 +114,22 @@ function generateTestCasesTableTest(tableDefinition: string, expectedData) {
   parseAndAssert(inputData, expected);
 }
 
-function tableRecognitionTest(tableName: string, expectedTable) {
-    parseAndAssert(`*** ${ tableName.toLowerCase() } ***`, expectedTable);
-    parseAndAssert(`***${ tableName.toUpperCase() }`, expectedTable);
-    parseAndAssert(`*${ _.startCase(tableName) }`, expectedTable);
-    parseAndAssert(` *${ tableName }`, expectedTable);
+function tableRecognitionTest(tableName: string, paramName: string, expectedTable: Table) {
+  const expected = new TestDataFile();
+  expected[paramName] = expectedTable;
+
+  const setLocationAndTest = (tableDef: string) => {
+    const firstNonWhitespace = tableDef.search(/\S/);
+    expectedTable.setStartPosition({ line: 0, column: firstNonWhitespace });
+    expectedTable.setEndPosition({ line: 0, column: tableDef.length - 1 });
+
+    parseAndAssert(tableDef, expected);
+  };
+
+  setLocationAndTest(`*** ${ tableName.toLowerCase() } ***`);
+  setLocationAndTest(`***${ tableName.toUpperCase() }`);
+  setLocationAndTest(`*${ _.startCase(tableName) }`);
+  setLocationAndTest(` *${ tableName }`);
 }
 
 describe("RF Parser", () => {
@@ -125,19 +137,42 @@ describe("RF Parser", () => {
   describe("Parsing Settings table", () => {
 
     it("should recognise a settings table", () => {
-      tableRecognitionTest("Settings", createSettingsTable({}));
+      tableRecognitionTest("Settings", "settingsTable", new SettingsTable());
     });
 
     it("should parse resource imports", () => {
-      generateSettingsTableTest(`
+
+      const tableDefinition = `
+*** Settings ***
+
 Resource   resources/\${ENVIRONMENT}.robot
 Resource   resources/smoke_resources.robot
-`, {
-  imports: [
-    new Import("Resource", "resources/\${ENVIRONMENT}.robot"),
-    new Import("Resource", "resources/smoke_resources.robot"),
-  ]
-});
+`;
+
+      const expected = Object.assign(new TestDataFile(), {
+        settingsTable: Object.assign(new SettingsTable(), {
+          location: {
+            start: { line: 1, column: 0 },
+            end:   { line: 5, column: 0 }
+          },
+          imports: [
+            Object.assign(new Import("Resource", "resources/\${ENVIRONMENT}.robot"), {
+              location: {
+                start: { line: 3, column: 0 },
+                end: { line: 3, column: 41 }
+              }
+            }),
+            Object.assign(new Import("Resource", "resources/smoke_resources.robot"), {
+              location: {
+                start: { line: 4, column: 0 },
+                end: { line: 4, column: 42 }
+              }
+            }),
+          ],
+        })
+      });
+
+      parseAndAssert(tableDefinition, expected);
     });
 
     it("should parse suite setup", () => {
@@ -173,10 +208,7 @@ Resource   resources/smoke_resources.robot
   describe("Parsing Variables table", () => {
 
     it("should recognise variables table", () => {
-      const expected = new TestDataFile();
-      expected.variablesTable = new VariablesTable();
-
-      tableRecognitionTest("Variables", expected);
+      tableRecognitionTest("Variables", "variablesTable", new VariablesTable());
     });
 
     it("should parse scalar variables", () => {
@@ -190,10 +222,7 @@ Resource   resources/smoke_resources.robot
   describe("Parsing Keywords table", () => {
 
     it("should recognise keywords table", () => {
-      const expected = new TestDataFile();
-      expected.keywordsTable = new KeywordsTable();
-
-      tableRecognitionTest("Keywords", expected);
+      tableRecognitionTest("Keywords", "keywordsTable", new KeywordsTable());
     });
 
     it("should parse empty keyword", () => {
@@ -247,10 +276,7 @@ Keyword Name3
   describe("Parsing test cases table", () => {
 
     it("should recognise test cases table", () => {
-      const expected = new TestDataFile();
-      expected.testCasesTable = new TestCasesTable();
-
-      tableRecognitionTest("Test Cases", expected);
+      tableRecognitionTest("Test Cases", "testCasesTable", new TestCasesTable());
     });
 
     it("should parse empty test case", () => {

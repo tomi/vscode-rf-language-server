@@ -45,6 +45,7 @@
     ]
   },
   "rules": {
+    "arrow-parens": [true, "ban-single-arg-parens"],
     "class-name": true,
     "comment-format": [
       true,

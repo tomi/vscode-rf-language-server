@@ -9,7 +9,7 @@ import {
   Location, Range
 } from "vscode-languageserver";
 
-import { Uri } from "vscode";
+// import { Uri } from "vscode";
 
 import * as fs from "fs";
 
@@ -32,8 +32,8 @@ documents.listen(connection);
 // After the server has started the client sends an initilize request. The server receives
 // in the passed params the rootPath of the workspace plus the client capabilites.
 let workspaceRoot: string;
-connection.onInitialize((params): InitializeResult => {
-  workspaceRoot = params.rootPath;
+connection.onInitialize((params: InitializeResult) => {
+  // workspaceRoot = params.rootPath;
   return {
     capabilities: {
       // Tell the client that the server works in FULL text document sync mode
@@ -49,7 +49,7 @@ connection.onInitialize((params): InitializeResult => {
 
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
-documents.onDidChangeContent((change) => {
+documents.onDidChangeContent(change => {
   validateDocument(change.document);
 });
 
@@ -81,7 +81,7 @@ function validateDocument(textDocument: TextDocument): void {
   connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 }
 
-connection.onDidChangeWatchedFiles((change) => {
+connection.onDidChangeWatchedFiles(change => {
   // Monitored files have change in VSCode
   connection.console.log("We recevied an file change event");
 });
@@ -105,17 +105,16 @@ connection.onCompletion((textDocumentPosition: TextDocumentPositionParams): Comp
   ];
 });
 
-
 connection.onDefinition((textDocumentPosition: TextDocumentPositionParams): Location => {
-  const filePath = Uri.parse(textDocumentPosition.textDocument.uri).path;
+  const fileUri = textDocumentPosition.textDocument.uri;
+  // const filePath = Uri.parse(fileUri).path;
 
-  const fileDefinition = fileTreeMapper.get(filePath);
-  if (!fileDefinition) {
-    return null;
-  }
+  // const fileDefinition = fileTreeMapper.get(filePath);
+  // if (!fileDefinition) {
+  //   return null;
+  // }
 
-
-  return Location.create(file, Range.create(0, 0, 0, 0));
+  return Location.create(fileUri, Range.create(0, 0, 0, 0));
 });
 
 // This handler resolve additional information for the item selected in
@@ -134,7 +133,7 @@ connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
 const buildFromFiles: RequestType<{
     files: string[],
 }, any, any> = { method: "buildFromFiles" };
-connection.onRequest(buildFromFiles, (message) => {
+connection.onRequest(buildFromFiles, message => {
   console.log("buildFromFiles", message);
 
   fileTreeMapper.clear();
@@ -144,7 +143,7 @@ connection.onRequest(buildFromFiles, (message) => {
     const parsedFile = parser.parse(fileData);
 
     fileTreeMapper.set(filePath, parsedFile);
-  })
+  });
 });
 /*
 connection.onDidOpenTextDocument((params) => {

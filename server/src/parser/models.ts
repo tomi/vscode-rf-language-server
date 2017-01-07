@@ -1,18 +1,49 @@
 import * as _ from "lodash";
 
-export class Import {
+export interface Position {
+  line: number;
+  column: number;
+}
+
+export interface SourceLocation {
+  start: Position;
+  end: Position;
+}
+
+export class BaseModel {
+  private location: SourceLocation;
+
+  constructor() {
+    this.location = {
+      start: null,
+      end: null
+    };
+  }
+
+  public setStartPosition(position: Position) {
+    this.location.start = position;
+  }
+
+  public setEndPosition(position: Position) {
+    this.location.end = position;
+  }
+}
+
+export class Import extends BaseModel {
   private name: string;
   private target: string;
   private arguments: string[];
 
   constructor(name: string, target: string, args: string[] = []) {
+    super();
+
     this.name = name;
     this.target = target;
     this.arguments = args;
   }
 }
 
-export class Setting {
+export class Setting extends BaseModel {
   private name: string;
   private values: string[];
 
@@ -24,18 +55,14 @@ export class Setting {
    * new Setting("name", "arg1", "arg2")
    */
   constructor(name: string, ...args) {
-    this.name = name;
+    super();
 
-    if (_.isArray[args[0]]) {
-      this.values = args[0];
-    } else {
-      this.values = args;
-    }
+    this.name = name;
+    this.values = args;
   }
 }
 
-export class Table {
-
+export class Table extends BaseModel {
 }
 
 /**
@@ -74,11 +101,13 @@ export enum VariableType {
 /**
  * VariableDefinition
  */
-export class Variable {
+export class Variable extends BaseModel {
   private type: VariableType;
   private name: string;
 
   constructor(type: VariableType, name: string) {
+    super();
+
     this.type = type;
     this.name = name;
   }
@@ -136,11 +165,13 @@ export class VariablesTable extends Table {
 /**
  * Step
  */
-export class Step {
+export class Step extends BaseModel {
   public name: string;
   public arguments: string[];
 
   constructor(name: string, args: string[]) {
+    super();
+
     this.name = name;
     this.arguments = args;
   }
@@ -149,8 +180,9 @@ export class Step {
 /**
  * Keyword
  */
-export class Keyword {
+export class Keyword extends BaseModel {
   constructor(public name: string, public steps: Step[] = []) {
+    super();
   }
 
   public addStep(step: Step) {
@@ -178,8 +210,9 @@ export class KeywordsTable extends Table {
 /**
  * TestCase
  */
-export class TestCase {
+export class TestCase extends BaseModel {
   constructor(public name: string, public steps: Step[] = []) {
+    super();
   }
 
   public addStep(step: Step) {
@@ -204,13 +237,9 @@ export class TestCasesTable extends Table {
   }
 }
 
-export class TestDataFile {
+export class TestDataFile extends Table {
   public settingsTable:  SettingsTable;
   public variablesTable: VariablesTable;
   public keywordsTable:  KeywordsTable;
   public testCasesTable: TestCasesTable;
-
-  constructor() {
-    // TODO
-  }
 }

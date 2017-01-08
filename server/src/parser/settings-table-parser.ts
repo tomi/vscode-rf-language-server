@@ -6,12 +6,20 @@ import {
 } from "./table-models";
 
 import {
+  Identifier,
+  EmptyNode,
   SettingsTable,
   LibraryImport,
-  ResourceFileImport,
-  VariableFileImport,
-  Setting
+  ResourceImport,
+  VariableImport,
+  SuiteSetting
 } from "./models";
+
+import {
+  parseIdentifier,
+  parseValueExpression,
+  parseCallExpression,
+} from "./primitive-parsers";
 
 const settingParserMap = new Map([
   ["Library",        parseLibraryImport],
@@ -51,8 +59,8 @@ function getRowParserFn(row: DataRow) {
 }
 
 function parseLibraryImport(settingsTable: SettingsTable, row: DataRow) {
-  const target = row.getCellByIdx(1).content;
-  const args   = row.getCellsByRange(2).map(cell => cell.content);
+  const target = parseIdentifier(row.getCellByIdx(1));
+  const args   = row.getCellsByRange(2).map(parseValueExpression);
 
   // TODO: WITH NAME keyword
 
@@ -61,25 +69,30 @@ function parseLibraryImport(settingsTable: SettingsTable, row: DataRow) {
 }
 
 function parseResourceImport(settingsTable: SettingsTable, row: DataRow) {
-  const target = row.getCellByIdx(1).content;
+  const target = parseIdentifier(row.getCellByIdx(1));
 
-  const resourceImport = new ResourceFileImport(target, row.location);
+  const resourceImport = new ResourceImport(target, row.location);
   settingsTable.addResourceImport(resourceImport);
 }
 
 function parseVariableImport(settingsTable: SettingsTable, row: DataRow) {
-  const target = row.getCellByIdx(1).content;
+  const target = parseIdentifier(row.getCellByIdx(1));
 
-  const variableImport = new VariableFileImport(target, row.location);
+  const variableImport = new VariableImport(target, row.location);
   settingsTable.addVariableImport(variableImport);
 }
 
 function createParseSettingFn(propertyName) {
   return (settingsTable: SettingsTable, row: DataRow) => {
-    const name   = row.first().content;
-    const values = row.getCellsByRange(1).map(cell => cell.content);
+    const nameCell = row.first();
+    const name = parseIdentifier(nameCell);
+    const valueCells = row.getCellsByRange(1);
 
-    const setting = new Setting(name, values, row.location);
+    const value = _.isEmpty(valueCells) ?
+      new EmptyNode(nameCell.location.end) :
+      parseCallExpression(valueCells);
+
+    const setting = new SuiteSetting(name, value, row.location);
     settingsTable[propertyName] = setting;
   };
 }

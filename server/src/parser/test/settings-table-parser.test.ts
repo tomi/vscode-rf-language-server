@@ -4,10 +4,10 @@ import * as chai from "chai";
 import { parseSettingsTable } from "../settings-table-parser";
 import {
   SettingsTable,
-  Setting,
+  SuiteSetting,
   LibraryImport,
-  ResourceFileImport,
-  VariableFileImport
+  ResourceImport,
+  VariableImport
 } from "../models";
 
 import {
@@ -39,7 +39,7 @@ function createSettingTest(settingName, propertyName, values) {
   });
 
   const expected = settingsTable(location(0, 0, 1, 10), {
-    [propertyName]: new Setting(settingName, values, location(1, 0, 1, 10))
+    [propertyName]: new SuiteSetting(settingName, values, location(1, 0, 1, 10))
   });
 
   parseAndAssert(tableDefinition, expected);
@@ -63,8 +63,8 @@ describe("Parsing Settings table", () => {
 
     const expected = settingsTable(location(0, 0, 2, 10), {
       resourceImports: [
-        new ResourceFileImport("resources/\${ENVIRONMENT}.robot", location(1, 0, 1, 10)),
-        new ResourceFileImport("resources/smoke_resources.robot", location(2, 0, 2, 10)),
+        new ResourceImport("resources/\${ENVIRONMENT}.robot", location(1, 0, 1, 10)),
+        new ResourceImport("resources/smoke_resources.robot", location(2, 0, 2, 10)),
       ]
     });
 
@@ -115,8 +115,8 @@ describe("Parsing Settings table", () => {
 
     const expected = settingsTable(location(0, 0, 2, 10), {
       variableImports: [
-        new VariableFileImport("vars/\${ENVIRONMENT}.robot", location(1, 0, 1, 10)),
-        new VariableFileImport("vars/vars.robot", location(2, 0, 2, 10)),
+        new VariableImport("vars/\${ENVIRONMENT}.robot", location(1, 0, 1, 10)),
+        new VariableImport("vars/vars.robot", location(2, 0, 2, 10)),
       ]
     });
 

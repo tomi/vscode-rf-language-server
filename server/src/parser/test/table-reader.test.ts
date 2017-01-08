@@ -18,6 +18,12 @@ import {
 
 const reader = new TableReader();
 
+function header(text) {
+  return row(location(0, 0, 0, text.length), [
+    new DataCell(text, location(0, 0, 0, text.length))
+  ]);
+}
+
 describe("TableReader", () => {
   it("should recognise table name", () => {
     const name = "Table Name";
@@ -42,9 +48,27 @@ describe("TableReader", () => {
     const actual = reader.read(data);
     const expected = [
       table("Table", {
-        header: row(location(0, 0, 0, 9), [
-          new DataCell("*** Table", location(0, 0, 0, 9))
-        ])
+        header: header(`*** Table`)
+      })
+    ];
+
+    chai.assert.deepEqual(actual, expected);
+  });
+
+  it("should parse empty first cell", () => {
+    const data = `*Table\n    cell1`;
+
+    const actual = reader.read(data);
+
+    const expected = [
+      table("Table", {
+        header: header("*Table"),
+        rows: [
+          row(location(1, 0, 1, 9), [
+            new DataCell("", location(1, 0, 1, 0)),
+            new DataCell("cell1", location(1, 4, 1, 9))
+          ])
+        ]
       })
     ];
 
@@ -58,7 +82,7 @@ describe("TableReader", () => {
 
     const expected = [
       table("Table", {
-        header: row(location(0, 0, 0, 9), [new DataCell("*** Table", location(0, 0, 0, 9))]),
+        header: header("*** Table"),
         rows: [
           row(location(1, 0, 1, 14), [
             new DataCell("cell1", location(1, 0, 1, 5)),
@@ -78,9 +102,7 @@ describe("TableReader", () => {
 
     const expected = [
       table("Table", {
-        header: row(location(0, 0, 0, 10), [
-          new DataCell("*** Table ", location(0, 0, 0, 10))
-        ]),
+        header: header("*** Table "),
         rows: [
           row(location(1, 0, 1, 0), [
             new DataCell("", location(1, 0, 1, 0))

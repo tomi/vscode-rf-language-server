@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 
-import { TestDataFile } from "./models";
+import { TestSuite } from "./models";
 
 import { TableReader } from "./table-reader";
 import { parseSettingsTable } from "./settings-table-parser";
@@ -14,7 +14,7 @@ export class FileParser {
     const fileTables = tableReader.read(data);
 
     if (_.isEmpty(fileTables)) {
-      return new TestDataFile({
+      return new TestSuite({
         start: { line: 0, column: 0 },
         end: { line: 0, column: 0 }
       });
@@ -23,7 +23,7 @@ export class FileParser {
     const firstTable = _.first(fileTables);
     const lastTable = _.last(fileTables);
 
-    const testDataFile = new TestDataFile({
+    const testDataFile = new TestSuite({
       start: firstTable.location.start,
       end: lastTable.location.end
     });

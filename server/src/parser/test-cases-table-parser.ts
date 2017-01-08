@@ -8,8 +8,14 @@ import {
 import {
   TestCasesTable,
   TestCase,
-  Step
+  Step,
+  CallExpression
 } from "./models";
+
+import {
+  parseIdentifier,
+  parseValueExpression,
+} from "./primitive-parsers";
 
 export function parseTestCasesTable(dataTable: DataTable): TestCasesTable {
   const testCasesTable = new TestCasesTable(dataTable.location);
@@ -21,9 +27,9 @@ export function parseTestCasesTable(dataTable: DataTable): TestCasesTable {
     }
 
     if (startsTestCase(row)) {
-      const keywordName = row.first().content;
+      const identifier = parseIdentifier(row.first());
 
-      currentTestCase = new TestCase(keywordName, row.location.start);
+      currentTestCase = new TestCase(identifier, row.location.start);
       testCasesTable.addTestCase(currentTestCase);
     } else if (currentTestCase) {
       const step = parseStep(row);
@@ -39,8 +45,12 @@ function startsTestCase(row: DataRow) {
 }
 
 function parseStep(row: DataRow) {
-  const stepName = row.getCellByIdx(1).content;
-  const stepArgs = row.getCellsByRange(2).map(cell => cell.content);
+  // TODO: Variable parsing. Now assumes all are call expressions
+  const identifier = parseIdentifier(row.getCellByIdx(1));
+  const valueExpressions = row.getCellsByRange(2).map(parseValueExpression);
 
-  return new Step(stepName, stepArgs, row.location);
+  return new Step(
+    new CallExpression(identifier, valueExpressions, row.location),
+    row.location
+  );
 }

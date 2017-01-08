@@ -6,11 +6,16 @@ import {
 } from "./table-models";
 
 import {
+  Identifier,
+  ValueExpression,
   VariablesTable,
-  VariableDefinition,
-  ScalarVariable,
-  ListVariable,
+  ScalarDeclaration,
+  ListDeclaration,
 } from "./models";
+
+import {
+  parseValueExpression
+} from "./primitive-parsers";
 
 const variableMapping = new Map([
   ["$", parseScalar],
@@ -41,7 +46,7 @@ function parseRow(variablesTable: VariablesTable, row: DataRow) {
 
   const variableParserFn = getVariableParserFn(type);
 
-  const values = row.getCellsByRange(1).map(cell => cell.content);
+  const values = row.getCellsByRange(1).map(parseValueExpression);
   variableParserFn(variablesTable, name, values, row.location);
 }
 
@@ -51,16 +56,17 @@ function parseTypeAndName(row: DataRow) {
   // ${var} --> ["${var}", "$", "var"]
   // @{var2} = --> ["${var2}", "@", "var2"]
   const typeAndNameRegex = /([$,@,%,&]){([^}]+)}/;
-  const typeNameCell = row.first().content;
+  const typeNameCell = row.first();
+  const typeAndName = typeNameCell.content;
 
-  if (!typeAndNameRegex.test(typeNameCell)) {
+  if (!typeAndNameRegex.test(typeAndName)) {
     return null;
   }
 
-  const result = typeNameCell.match(typeAndNameRegex);
+  const result = typeAndName.match(typeAndNameRegex);
   return {
     type: result[1],
-    name: result[2]
+    name: new Identifier(result[2], typeNameCell.location)
   };
 }
 
@@ -70,24 +76,24 @@ function getVariableParserFn(type: string) {
   return parser || _.noop;
 }
 
-function parseScalar(variablesTable: VariablesTable, name: string, values: string[], location) {
+function parseScalar(variablesTable: VariablesTable, name: Identifier, values: ValueExpression[], location) {
   const value = _.first(values);
 
-  const variable = new ScalarVariable(name, value, location);
+  const variable = new ScalarDeclaration(name, value, location);
 
   variablesTable.addVariable(variable);
 }
 
-function parseList(variablesTable: VariablesTable, name: string, values: string[], location) {
-  const variable = new ListVariable(name, values, location);
+function parseList(variablesTable: VariablesTable, name: Identifier, values: ValueExpression[], location) {
+  const variable = new ListDeclaration(name, values, location);
 
   variablesTable.addVariable(variable);
 }
 
-function parseDictionary(variablesTable: VariablesTable, name: string, values: string[], location) {
+function parseDictionary(variablesTable: VariablesTable, name: Identifier, values: ValueExpression[], location) {
   // TODO
 }
 
-function parseEnvironment(variablesTable: VariablesTable, name: string, values: string[], location) {
+function parseEnvironment(variablesTable: VariablesTable, name: Identifier, values: ValueExpression[], location) {
   // TODO
 }

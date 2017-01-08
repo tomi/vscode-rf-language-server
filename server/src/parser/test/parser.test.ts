@@ -3,9 +3,9 @@ import * as chai from "chai";
 
 import { FileParser } from "../parser";
 import {
-  TestDataFile,
+  TestSuite,
   SettingsTable,
-  ResourceFileImport
+  ResourceImport
 } from "../models";
 
 import {
@@ -29,7 +29,7 @@ function shouldRecogniseTable(tableDef, tableProperty) {
 }
 
 function testDataFile(location, content) {
-  return Object.assign(new TestDataFile(location), content);
+  return Object.assign(new TestSuite(location), content);
 }
 
 function settingsTable(location, content) {
@@ -55,8 +55,8 @@ Resource   resources/smoke_resources.robot
       const expected = testDataFile(location(0, 0, 4, 0), {
         settingsTable: settingsTable(location(0, 0, 4, 0), {
           resourceImports: [
-            new ResourceFileImport("resources/\${ENVIRONMENT}.robot", location(2, 0, 2, 41)),
-            new ResourceFileImport("resources/smoke_resources.robot", location(3, 0, 3, 42)),
+            new ResourceImport("resources/\${ENVIRONMENT}.robot", location(2, 0, 2, 41)),
+            new ResourceImport("resources/smoke_resources.robot", location(3, 0, 3, 42)),
           ]
         })
       });

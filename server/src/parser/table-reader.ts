@@ -111,8 +111,9 @@ class LineReader {
     const separatorIndexes = cellSeparators
       .map(sep => this.line.indexOf(sep, this.position))
       .filter(index => index !== -1);
+    const smallestIdx = _.min(separatorIndexes);
 
-    return _.min(separatorIndexes) || this.line.length;
+    return smallestIdx !== undefined ? smallestIdx : this.line.length;
   }
 
   /**

@@ -4,8 +4,8 @@ import * as chai from "chai";
 import { parseVariablesTable } from "../variables-table-parser";
 import {
   VariablesTable,
-  ScalarVariable,
-  ListVariable
+  ScalarDeclaration,
+  ListDeclaration
 } from "../models";
 
 import {
@@ -63,8 +63,8 @@ describe("Parsing Variables table", () => {
     });
 
     const expected = variablesTable(location(0, 0, 2, 10), [
-      new ScalarVariable("var1", "value", location(1, 0, 1, 10)),
-      new ScalarVariable("var2", "More complex ${variable}", location(2, 0, 2, 10))
+      new ScalarDeclaration("var1", "value", location(1, 0, 1, 10)),
+      new ScalarDeclaration("var2", "More complex ${variable}", location(2, 0, 2, 10))
     ]);
 
     parseAndAssert(tableDefinition, expected);

@@ -1,5 +1,7 @@
 "use strict";
 
+import * as _ from "lodash";
+
 import {
   IPCMessageReader, IPCMessageWriter,
   createConnection, IConnection, TextDocumentSyncKind,
@@ -10,7 +12,8 @@ import {
 } from "vscode-languageserver";
 
 import { Position } from "./parser/table-models";
-import { TestDataFile } from "./parser/models";
+import { TestSuite } from "./parser/models";
+import { isInRange } from "./parser/position-helper";
 
 import Uri from "vscode-uri";
 
@@ -48,6 +51,32 @@ connection.onInitialize((params: InitializeResult) => {
     },
   };
 });
+
+function find(pos: Position, data: TestSuite) {
+  if (data.keywordsTable && isInRange(pos, data.keywordsTable)) {
+    const keyword = _.find(data.keywordsTable.keywords, kw => isInRange(pos, kw));
+    if (keyword) {
+      const step = _.find(keyword.steps, s => isInRange(pos, s));
+      if (step) {
+        return step;
+      }
+    }
+  } else if (data.settingsTable && isInRange(pos, data.settingsTable)) {
+
+  } else if (data.testCasesTable && isInRange(pos, data.testCasesTable)) {
+    const testCase = _.find(data.testCasesTable.testCases, tc => isInRange(pos, tc));
+    if (testCase) {
+      const step = _.find(testCase.steps, s => isInRange(pos, s));
+      if (step) {
+        return step;
+      }
+    }
+  } else if (data.variablesTable && isInRange(pos, data.variablesTable)) {
+
+  }
+
+  return null;
+}
 
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
@@ -115,6 +144,13 @@ connection.onDefinition((textDocumentPosition: TextDocumentPositionParams): Loca
   if (!fileDefinition) {
     return null;
   }
+
+  const step = find({
+    line: textDocumentPosition.position.line,
+    column: textDocumentPosition.position.character
+  }, fileDefinition);
+
+  console.log(step);
 
   return Location.create(fileUri, Range.create(0, 0, 0, 0));
 });

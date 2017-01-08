@@ -4,7 +4,7 @@ import * as chai from "chai";
 import { parseKeywordsTable } from "../keywords-table-parser";
 import {
   KeywordsTable,
-  Keyword,
+  UserKeyword,
   Step
 } from "../models";
 
@@ -27,7 +27,7 @@ function keywordsTable(location, keywords) {
 }
 
 function keyword(startPosition, name, steps) {
-  return Object.assign(new Keyword(name, startPosition), { steps });
+  return Object.assign(new UserKeyword(name, startPosition), { steps });
 }
 
 describe("Parsing Keywords table", () => {

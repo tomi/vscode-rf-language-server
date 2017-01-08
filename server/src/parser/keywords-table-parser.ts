@@ -6,14 +6,20 @@ import {
 } from "./table-models";
 
 import {
+  CallExpression,
   KeywordsTable,
-  Keyword,
+  UserKeyword,
   Step
 } from "./models";
 
+import {
+  parseIdentifier,
+  parseValueExpression,
+} from "./primitive-parsers";
+
 export function parseKeywordsTable(dataTable: DataTable): KeywordsTable {
   const keywordsTable = new KeywordsTable(dataTable.location);
-  let currentKeyword: Keyword;
+  let currentKeyword: UserKeyword;
 
   dataTable.rows.forEach(row => {
     if (row.isEmpty()) {
@@ -21,9 +27,9 @@ export function parseKeywordsTable(dataTable: DataTable): KeywordsTable {
     }
 
     if (startsKeyword(row)) {
-      const keywordName = row.first().content;
+      const identifier = parseIdentifier(row.first());
 
-      currentKeyword = new Keyword(keywordName, row.location.start);
+      currentKeyword = new UserKeyword(identifier, row.location.start);
       keywordsTable.addKeyword(currentKeyword);
     } else if (currentKeyword) {
       const step = parseStep(row);
@@ -39,8 +45,12 @@ function startsKeyword(row: DataRow) {
 }
 
 function parseStep(row: DataRow) {
-  const stepName = row.getCellByIdx(1).content;
-  const stepArgs = row.getCellsByRange(2).map(cell => cell.content);
+  // TODO: Variable parsing. Now assumes all are call expressions
+  const identifier = parseIdentifier(row.getCellByIdx(1));
+  const valueExpressions = row.getCellsByRange(2).map(parseValueExpression);
 
-  return new Step(stepName, stepArgs, row.location);
+  return new Step(
+    new CallExpression(identifier, valueExpressions, row.location),
+    row.location
+  );
 }

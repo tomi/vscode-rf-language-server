@@ -1,46 +1,136 @@
 import * as _ from "lodash";
 
 import {
-  SourceBlock,
+  // SourceBlock,
   SourceLocation,
   Position
 } from "./table-models";
 
-export class LibraryImport implements SourceBlock {
-  /**
-   *
-   */
-  constructor(
-    public target: string,
-    public args: string[],
-    public location: SourceLocation
-  ) { }
+export interface Node {
+  type: string;
+  location: SourceLocation;
 }
 
-export class ResourceFileImport implements SourceBlock {
-  /**
-   *
-   */
-  constructor(
-    public target: string,
-    public location: SourceLocation
-  ) { }
+export interface Expression extends Node {
 }
 
-export class VariableFileImport implements SourceBlock {
-  /**
-   *
-   */
-  constructor(
-    public target: string,
-    public location: SourceLocation
-  ) { }
+export interface ValueExpression extends Expression {
 }
 
-export class Setting implements SourceBlock {
+export class Identifier implements Node, Expression {
+  public type = "Identifier";
+
   constructor(
     public name: string,
-    public values: string[],
+    public location: SourceLocation
+  ) { }
+}
+
+export class Literal implements ValueExpression {
+  public type = "Literal";
+
+  constructor(
+    public value: string,
+    public location: SourceLocation
+  ) { }
+}
+
+export class KeyValueLiteral extends Literal {
+  public type = "KeyValueLiteral";
+
+  /**
+   *
+   */
+  constructor(
+    public name: string,
+    value: string,
+    location: SourceLocation
+  ) {
+    super(value, location);
+  }
+}
+
+export interface TemplateElement extends Node {
+  value: string;
+}
+
+export interface TemplateLiteral extends ValueExpression {
+  quasis: TemplateElement[];
+  identifiers: Identifier[];
+}
+
+export class CallExpression implements Expression {
+  public type = "CallExpression";
+
+  constructor(
+    public callee: Identifier,
+    public args: ValueExpression[],
+    public location: SourceLocation,
+  ) { }
+}
+
+export class EmptyNode implements Node {
+  public type = "EmptyNode";
+
+  public location: SourceLocation;
+
+  constructor(
+    public position: Position,
+  ) {
+    this.location = {
+      start: position,
+      end: position
+    };
+  }
+}
+
+export interface Import extends Node {
+  target: Identifier;
+}
+
+export class LibraryImport implements Import {
+  public type = "LibraryImport";
+
+  /**
+   *
+   */
+  constructor(
+    public target: Identifier,
+    public args: ValueExpression[],
+    public location: SourceLocation
+  ) { }
+}
+
+export class ResourceImport implements Import {
+  public type = "ResourceImport";
+
+  /**
+   *
+   */
+  constructor(
+    public target: Identifier,
+    public location: SourceLocation
+  ) { }
+}
+
+export class VariableImport implements Import {
+  public type = "VariableImport";
+
+  /**
+   *
+   */
+  constructor(
+    public target: Identifier,
+    public location: SourceLocation
+  ) { }
+}
+
+export class SuiteSetting implements Node {
+  public type = "SuiteSetting";
+
+  constructor(
+    public name: Identifier,
+    public value: CallExpression | EmptyNode,
     public location: SourceLocation
   ) { }
 }
@@ -48,16 +138,18 @@ export class Setting implements SourceBlock {
 /**
  *
  */
-export class SettingsTable implements SourceBlock {
-  public suiteSetup:    Setting;
-  public suiteTeardown: Setting;
+export class SettingsTable implements Node {
+  public type = "SettingsTable";
 
-  public testSetup:    Setting;
-  public testTeardown: Setting;
+  public suiteSetup:    SuiteSetting;
+  public suiteTeardown: SuiteSetting;
+
+  public testSetup:    SuiteSetting;
+  public testTeardown: SuiteSetting;
 
   public libraryImports: LibraryImport[] = [];
-  public resourceImports: ResourceFileImport[] = [];
-  public variableImports: VariableFileImport[] = [];
+  public resourceImports: ResourceImport[] = [];
+  public variableImports: VariableImport[] = [];
 
   constructor(public location: SourceLocation) {
   }
@@ -66,76 +158,91 @@ export class SettingsTable implements SourceBlock {
     this.libraryImports.push(importToAdd);
   }
 
-  public addResourceImport(importToAdd: ResourceFileImport) {
+  public addResourceImport(importToAdd: ResourceImport) {
     this.resourceImports.push(importToAdd);
   }
 
-  public addVariableImport(importToAdd: VariableFileImport) {
+  public addVariableImport(importToAdd: VariableImport) {
     this.variableImports.push(importToAdd);
   }
 }
 
-export enum VariableType {
-  Scalar = 1,
-  List,
-  Dictionary,
-  Environment
-};
+// export enum VariableType {
+//   Scalar = "1",
+//   List,
+//   Dictionary,
+//   Environment
+// };
 
 /**
- * VariableDefinition
+ *
  */
-export class VariableDefinition implements SourceBlock {
+interface Declaration extends Node {
+  name: Identifier;
+}
 
+interface FunctionDeclaration extends Declaration {
+  steps: Step[];
+}
+
+/**
+ *
+ */
+export class ScalarDeclaration implements Declaration {
+  public type = "ScalarDeclaration";
+
+  /**
+   *
+   */
   constructor(
-    public type: VariableType,
-    public name: string,
+    public name: Identifier,
+    public value: Expression,
     public location: SourceLocation
   ) { }
 }
 
 /**
- * ScalarVariable
+ *
  */
-export class ScalarVariable extends VariableDefinition {
+export class ListDeclaration implements Declaration {
+  public type = "ListDeclaration";
+
   /**
    *
    */
   constructor(
-    name: string,
-    public value: string,
-    location: SourceLocation
-  ) {
-    super(VariableType.Scalar, name, location);
-
-    this.value = value;
-  }
+    public name: Identifier,
+    public values: Expression[],
+    public location: SourceLocation
+  ) { }
 }
 
-/**
- * ListVariable
- */
-export class ListVariable extends VariableDefinition {
+export class DictionaryDeclaration implements Declaration {
+  public type = "DictionaryDeclaration";
+
+  /**
+   *
+   */
   constructor(
-    name: string,
-    public values: string[],
-    location: SourceLocation
-  ) {
-    super(VariableType.List, name, location);
-  }
+    public name: Identifier,
+    public values: Identifier[] | KeyValueLiteral[],
+    public location: SourceLocation
+  ) { }
 }
 
 /**
  * VariablesTable
  */
-export class VariablesTable implements SourceBlock {
-  public variables: VariableDefinition[] = [];
+export class VariablesTable implements Node {
+  public type = "VariablesTable";
+
+  public variables: Declaration[] = [];
 
   constructor(
     public location: SourceLocation
   ) { }
 
-  public addVariable(variable: VariableDefinition) {
+  public addVariable(variable: Declaration) {
     this.variables.push(variable);
   }
 }
@@ -143,22 +250,24 @@ export class VariablesTable implements SourceBlock {
 /**
  * Step
  */
-export class Step implements SourceBlock {
+export class Step implements Node {
+  public type = "Step";
+
   constructor(
-    public name: string,
-    public args: string[],
+    public body: Declaration | CallExpression,
     public location: SourceLocation
   ) { }
 }
 
 /**
- * Keyword
+ *
  */
-export class Keyword implements SourceBlock {
+export class UserKeyword implements FunctionDeclaration {
+  public type = "UserKeyword";
   public steps: Step[] = [];
 
   constructor(
-    public name: string,
+    public name: Identifier,
     private startPosition: Position
   ) {}
 
@@ -172,7 +281,7 @@ export class Keyword implements SourceBlock {
         start: this.startPosition,
         end: {
           line: this.startPosition.line,
-          column: this.startPosition.column + this.name.length
+          column: this.startPosition.column + this.name.name.length
         }
       };
     }
@@ -187,26 +296,29 @@ export class Keyword implements SourceBlock {
 /**
  * KeywordsTable
  */
-export class KeywordsTable implements SourceBlock {
-  public keywords: Keyword[] = [];
+export class KeywordsTable implements Node {
+  public type = "KeywordsTable";
+
+  public keywords: UserKeyword[] = [];
 
   constructor(
     public location: SourceLocation
   ) { }
 
-  public addKeyword(keyword: Keyword) {
+  public addKeyword(keyword: UserKeyword) {
     this.keywords.push(keyword);
   }
 }
 
 /**
- * TestCase
+ *
  */
-export class TestCase implements SourceBlock {
+export class TestCase implements FunctionDeclaration {
+  public type = "TestCase";
   public steps: Step[] = [];
 
   constructor(
-    public name: string,
+    public name: Identifier,
     private startPosition: Position
   ) { }
 
@@ -220,7 +332,7 @@ export class TestCase implements SourceBlock {
         start: this.startPosition,
         end: {
           line: this.startPosition.line,
-          column: this.startPosition.column + this.name.length
+          column: this.startPosition.column + this.name.name.length
         }
       };
     }
@@ -233,9 +345,10 @@ export class TestCase implements SourceBlock {
 }
 
 /**
- * TestCasesTable
+ *
  */
-export class TestCasesTable implements SourceBlock {
+export class TestCasesTable implements Node {
+  public type = "TestCaseTable";
   public testCases: TestCase[] = [];
 
   constructor(
@@ -247,7 +360,9 @@ export class TestCasesTable implements SourceBlock {
   }
 }
 
-export class TestDataFile implements SourceBlock {
+export class TestSuite implements Node {
+  public type = "Suite";
+
   public settingsTable:  SettingsTable;
   public variablesTable: VariablesTable;
   public keywordsTable:  KeywordsTable;

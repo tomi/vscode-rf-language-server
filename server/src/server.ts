@@ -9,12 +9,14 @@ import {
   Location, Range
 } from "vscode-languageserver";
 
-// import { Uri } from "vscode";
+import { Position } from "./parser/table-models";
+import { TestDataFile } from "./parser/models";
+
+import Uri from "vscode-uri";
 
 import * as fs from "fs";
 
 import { FileParser } from "./parser/parser";
-
 const parser = new FileParser();
 
 const fileTreeMapper = new Map();
@@ -107,12 +109,12 @@ connection.onCompletion((textDocumentPosition: TextDocumentPositionParams): Comp
 
 connection.onDefinition((textDocumentPosition: TextDocumentPositionParams): Location => {
   const fileUri = textDocumentPosition.textDocument.uri;
-  // const filePath = Uri.parse(fileUri).path;
+  const filePath = Uri.parse(fileUri).path;
 
-  // const fileDefinition = fileTreeMapper.get(filePath);
-  // if (!fileDefinition) {
-  //   return null;
-  // }
+  const fileDefinition = fileTreeMapper.get(filePath);
+  if (!fileDefinition) {
+    return null;
+  }
 
   return Location.create(fileUri, Range.create(0, 0, 0, 0));
 });
@@ -140,7 +142,7 @@ connection.onRequest(buildFromFiles, message => {
 
   message.files.forEach(filePath => {
     const fileData = fs.readFileSync(filePath, "utf-8");
-    const parsedFile = parser.parse(fileData);
+    const parsedFile = parser.parseFile(fileData);
 
     fileTreeMapper.set(filePath, parsedFile);
   });

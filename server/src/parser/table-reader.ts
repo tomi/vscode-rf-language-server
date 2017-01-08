@@ -1,96 +1,10 @@
 import * as _ from "lodash";
 
-/**
- * A position in a text
- */
-export interface Position {
-  line: number;
-  column: number;
-}
-
-/**
- * A range with start and end position in a text
- */
-export interface SourceLocation {
-  start: Position;
-  end: Position;
-}
-
-/**
- * Represents a table with rows
- */
-export class DataTable {
-  public rows: DataRow[] = [];
-
-  /**
-   *
-   */
-  constructor(
-    public name: string,
-    private header: DataRow
-  ) { }
-
-  public get location(): SourceLocation {
-    if (_.isEmpty(this.rows)) {
-      return this.header.location;
-    }
-
-    const lastRow = _.last(this.rows);
-
-    return {
-      start: this.header.location.start,
-      end: lastRow.location.end
-    };
-  }
-
-  public addRow(row: DataRow) {
-    this.rows.push(row);
-  }
-}
-
-/**
- * Represents a row with zero or more cells
- */
-export class DataRow {
-  public cells: DataCell[] = [];
-
-  constructor(
-    public location: SourceLocation
-  ) { }
-
-  public first() {
-    return _.first(this.cells);
-  }
-
-  public last() {
-    return _.last(this.cells);
-  }
-
-  public isEmpty() {
-    return _.every(this.cells, cell => cell.isEmpty());
-  }
-
-  public addCell(cell: DataCell) {
-    this.cells.push(cell);
-  }
-}
-
-/**
- * Represents a single cell in a table
- */
-export class DataCell {
-  /**
-   *
-   */
-  constructor(
-    public content: string,
-    public location: SourceLocation
-  ) { }
-
-  public isEmpty() {
-    return /\s/.test(this.content);
-  }
-};
+import {
+  DataTable,
+  DataRow,
+  DataCell
+} from "./table-models";
 
 /**
  * Parses a string of text into data tables
@@ -180,6 +94,7 @@ class LineReader {
     let possibleStartIdx = line.indexOf("#", 0);
 
     while (possibleStartIdx > -1) {
+      // Escaped number sign doesn't start a comment
       if (line.charAt(possibleStartIdx - 1) !== "\\") {
         return possibleStartIdx;
       }
@@ -200,6 +115,10 @@ class LineReader {
     return _.min(separatorIndexes) || this.line.length;
   }
 
+  /**
+   * Reads a cell starting from current position and
+   * advances the position.
+   */
   private readCell() {
     const endOfCellIdx = this.endOfCellIdx();
 

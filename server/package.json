@@ -12,7 +12,8 @@
   },
   "dependencies": {
     "lodash": "4.17.4",
-    "vscode-languageserver": "2.6.2"
+    "vscode-languageserver": "2.6.2",
+    "vscode-uri": "1.0.0"
   },
   "devDependencies": {
     "@types/chai": "^3.4.34",

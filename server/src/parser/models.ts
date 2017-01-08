@@ -1,93 +1,77 @@
 import * as _ from "lodash";
 
-export interface Position {
-  line: number;
-  column: number;
-}
+import {
+  SourceBlock,
+  SourceLocation,
+  Position
+} from "./table-models";
 
-export interface SourceLocation {
-  start: Position;
-  end: Position;
-}
-
-export class BaseModel {
-  private location: SourceLocation;
-
-  constructor() {
-    this.location = {
-      start: null,
-      end: null
-    };
-  }
-
-  public setStartPosition(position: Position) {
-    this.location.start = position;
-  }
-
-  public setEndPosition(position: Position) {
-    this.location.end = position;
-  }
-}
-
-export class Import extends BaseModel {
-  private name: string;
-  private target: string;
-  private arguments: string[];
-
-  constructor(name: string, target: string, args: string[] = []) {
-    super();
-
-    this.name = name;
-    this.target = target;
-    this.arguments = args;
-  }
-}
-
-export class Setting extends BaseModel {
-  private name: string;
-  private values: string[];
-
+export class LibraryImport implements SourceBlock {
   /**
-   * @example
-   * new Setting("name", ["arg1", "arg2"])
    *
-   * @example
-   * new Setting("name", "arg1", "arg2")
    */
-  constructor(name: string, ...args) {
-    super();
-
-    this.name = name;
-    this.values = args;
-  }
+  constructor(
+    public target: string,
+    public args: string[],
+    public location: SourceLocation
+  ) { }
 }
 
-export class Table extends BaseModel {
+export class ResourceFileImport implements SourceBlock {
+  /**
+   *
+   */
+  constructor(
+    public target: string,
+    public location: SourceLocation
+  ) { }
+}
+
+export class VariableFileImport implements SourceBlock {
+  /**
+   *
+   */
+  constructor(
+    public target: string,
+    public location: SourceLocation
+  ) { }
+}
+
+export class Setting implements SourceBlock {
+  constructor(
+    public name: string,
+    public values: string[],
+    public location: SourceLocation
+  ) { }
 }
 
 /**
  *
  */
-export class SettingsTable extends Table {
+export class SettingsTable implements SourceBlock {
   public suiteSetup:    Setting;
   public suiteTeardown: Setting;
 
   public testSetup:    Setting;
   public testTeardown: Setting;
 
-  public imports: Import[];
+  public libraryImports: LibraryImport[] = [];
+  public resourceImports: ResourceFileImport[] = [];
+  public variableImports: VariableFileImport[] = [];
 
-  constructor(options?) {
-    super();
-
-    this.imports = [];
+  constructor(public location: SourceLocation) {
   }
 
-  /**
-   * addImport
-   */
-  public addImport(importToAdd: Import) {
-    this.imports.push(importToAdd);
+  public addLibraryImport(importToAdd: LibraryImport) {
+    this.libraryImports.push(importToAdd);
+  }
+
+  public addResourceImport(importToAdd: ResourceFileImport) {
+    this.resourceImports.push(importToAdd);
+  }
+
+  public addVariableImport(importToAdd: VariableFileImport) {
+    this.variableImports.push(importToAdd);
   }
 }
 
@@ -101,29 +85,28 @@ export enum VariableType {
 /**
  * VariableDefinition
  */
-export class Variable extends BaseModel {
-  private type: VariableType;
-  private name: string;
+export class VariableDefinition implements SourceBlock {
 
-  constructor(type: VariableType, name: string) {
-    super();
-
-    this.type = type;
-    this.name = name;
-  }
+  constructor(
+    public type: VariableType,
+    public name: string,
+    public location: SourceLocation
+  ) { }
 }
 
 /**
  * ScalarVariable
  */
-export class ScalarVariable extends Variable {
-  private value: string;
-
+export class ScalarVariable extends VariableDefinition {
   /**
    *
    */
-  constructor(name: string, value: string) {
-    super(VariableType.Scalar, name);
+  constructor(
+    name: string,
+    public value: string,
+    location: SourceLocation
+  ) {
+    super(VariableType.Scalar, name, location);
 
     this.value = value;
   }
@@ -132,32 +115,27 @@ export class ScalarVariable extends Variable {
 /**
  * ListVariable
  */
-export class ListVariable extends Variable {
-  private values: string[];
-
-  constructor(name: string, values: string[]) {
-    super(VariableType.List, name);
-
-    this.values = values;
+export class ListVariable extends VariableDefinition {
+  constructor(
+    name: string,
+    public values: string[],
+    location: SourceLocation
+  ) {
+    super(VariableType.List, name, location);
   }
 }
 
 /**
  * VariablesTable
  */
-export class VariablesTable extends Table {
-  public variables: Variable[];
+export class VariablesTable implements SourceBlock {
+  public variables: VariableDefinition[] = [];
 
-  /**
-   *
-   */
-  constructor() {
-    super();
+  constructor(
+    public location: SourceLocation
+  ) { }
 
-    this.variables = [];
-  }
-
-  public addVariable(variable: Variable) {
+  public addVariable(variable: VariableDefinition) {
     this.variables.push(variable);
   }
 }
@@ -165,42 +143,56 @@ export class VariablesTable extends Table {
 /**
  * Step
  */
-export class Step extends BaseModel {
-  public name: string;
-  public arguments: string[];
-
-  constructor(name: string, args: string[]) {
-    super();
-
-    this.name = name;
-    this.arguments = args;
-  }
+export class Step implements SourceBlock {
+  constructor(
+    public name: string,
+    public args: string[],
+    public location: SourceLocation
+  ) { }
 }
 
 /**
  * Keyword
  */
-export class Keyword extends BaseModel {
-  constructor(public name: string, public steps: Step[] = []) {
-    super();
-  }
+export class Keyword implements SourceBlock {
+  public steps: Step[] = [];
+
+  constructor(
+    public name: string,
+    private startPosition: Position
+  ) {}
 
   public addStep(step: Step) {
     this.steps.push(step);
+  }
+
+  public get location(): SourceLocation {
+    if (_.isEmpty(this.steps)) {
+      return {
+        start: this.startPosition,
+        end: {
+          line: this.startPosition.line,
+          column: this.startPosition.column + this.name.length
+        }
+      };
+    }
+
+    return {
+      start: this.startPosition,
+      end: _.last(this.steps).location.end
+    };
   }
 }
 
 /**
  * KeywordsTable
  */
-export class KeywordsTable extends Table {
-  public keywords: Keyword[];
+export class KeywordsTable implements SourceBlock {
+  public keywords: Keyword[] = [];
 
-  constructor() {
-    super();
-
-    this.keywords = [];
-  }
+  constructor(
+    public location: SourceLocation
+  ) { }
 
   public addKeyword(keyword: Keyword) {
     this.keywords.push(keyword);
@@ -210,36 +202,61 @@ export class KeywordsTable extends Table {
 /**
  * TestCase
  */
-export class TestCase extends BaseModel {
-  constructor(public name: string, public steps: Step[] = []) {
-    super();
-  }
+export class TestCase implements SourceBlock {
+  public steps: Step[] = [];
+
+  constructor(
+    public name: string,
+    private startPosition: Position
+  ) { }
 
   public addStep(step: Step) {
     this.steps.push(step);
+  }
+
+  public get location(): SourceLocation {
+    if (_.isEmpty(this.steps)) {
+      return {
+        start: this.startPosition,
+        end: {
+          line: this.startPosition.line,
+          column: this.startPosition.column + this.name.length
+        }
+      };
+    }
+
+    return {
+      start: this.startPosition,
+      end: _.last(this.steps).location.end
+    };
   }
 }
 
 /**
  * TestCasesTable
  */
-export class TestCasesTable extends Table {
-  public testCases: TestCase[];
+export class TestCasesTable implements SourceBlock {
+  public testCases: TestCase[] = [];
 
-  constructor() {
-    super();
-
-    this.testCases = [];
-  }
+  constructor(
+    public location: SourceLocation
+  ) { }
 
   public addTestCase(testCase: TestCase) {
     this.testCases.push(testCase);
   }
 }
 
-export class TestDataFile extends Table {
+export class TestDataFile implements SourceBlock {
   public settingsTable:  SettingsTable;
   public variablesTable: VariablesTable;
   public keywordsTable:  KeywordsTable;
   public testCasesTable: TestCasesTable;
+
+  /**
+   *
+   */
+  constructor(
+    public location: SourceLocation
+  ) { }
 }

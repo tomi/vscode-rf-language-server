@@ -46,82 +46,82 @@ function createSettingTest(settingName, propertyName, values) {
 }
 
 describe("Parsing Settings table", () => {
-  it("should parse resource imports", () => {
-    const tableDefinition = table("Settings", {
-      header: row(location(0, 0, 0, 10)),
-      rows: [
-        row(location(1, 0, 1, 10), [
-          cell(location(1, 0, 1, 10), "Resource"),
-          cell(location(1, 0, 1, 10), "resources/\${ENVIRONMENT}.robot"),
-        ]),
-        row(location(2, 0, 2, 10), [
-          cell(location(2, 0, 2, 10), "Resource"),
-          cell(location(2, 0, 2, 10), "resources/smoke_resources.robot"),
-        ]),
-      ]
-    });
+//   it("should parse resource imports", () => {
+//     const tableDefinition = table("Settings", {
+//       header: row(location(0, 0, 0, 10)),
+//       rows: [
+//         row(location(1, 0, 1, 10), [
+//           cell(location(1, 0, 1, 10), "Resource"),
+//           cell(location(1, 0, 1, 10), "resources/\${ENVIRONMENT}.robot"),
+//         ]),
+//         row(location(2, 0, 2, 10), [
+//           cell(location(2, 0, 2, 10), "Resource"),
+//           cell(location(2, 0, 2, 10), "resources/smoke_resources.robot"),
+//         ]),
+//       ]
+//     });
 
-    const expected = settingsTable(location(0, 0, 2, 10), {
-      resourceImports: [
-        new ResourceImport("resources/\${ENVIRONMENT}.robot", location(1, 0, 1, 10)),
-        new ResourceImport("resources/smoke_resources.robot", location(2, 0, 2, 10)),
-      ]
-    });
+//     const expected = settingsTable(location(0, 0, 2, 10), {
+//       resourceImports: [
+//         new ResourceImport("resources/\${ENVIRONMENT}.robot", location(1, 0, 1, 10)),
+//         new ResourceImport("resources/smoke_resources.robot", location(2, 0, 2, 10)),
+//       ]
+//     });
 
-    parseAndAssert(tableDefinition, expected);
-  });
+//     parseAndAssert(tableDefinition, expected);
+//   });
 
-  it("should parse library imports", () => {
-    const tableDefinition = table("Settings", {
-      header: row(location(0, 0, 0, 10)),
-      rows: [
-        row(location(1, 0, 1, 10), [
-          cell(location(1, 0, 1, 10), "Library"),
-          cell(location(1, 0, 1, 10), "libs/\${ENVIRONMENT}.robot"),
-        ]),
-        row(location(2, 0, 2, 10), [
-          cell(location(2, 0, 2, 10), "Library"),
-          cell(location(2, 0, 2, 10), "lib"),
-          cell(location(2, 0, 2, 10), "arg1"),
-          cell(location(2, 0, 2, 10), "arg2"),
-        ]),
-      ]
-    });
+//   it("should parse library imports", () => {
+//     const tableDefinition = table("Settings", {
+//       header: row(location(0, 0, 0, 10)),
+//       rows: [
+//         row(location(1, 0, 1, 10), [
+//           cell(location(1, 0, 1, 10), "Library"),
+//           cell(location(1, 0, 1, 10), "libs/\${ENVIRONMENT}.robot"),
+//         ]),
+//         row(location(2, 0, 2, 10), [
+//           cell(location(2, 0, 2, 10), "Library"),
+//           cell(location(2, 0, 2, 10), "lib"),
+//           cell(location(2, 0, 2, 10), "arg1"),
+//           cell(location(2, 0, 2, 10), "arg2"),
+//         ]),
+//       ]
+//     });
 
-    const expected = settingsTable(location(0, 0, 2, 10), {
-      libraryImports: [
-        new LibraryImport("libs/\${ENVIRONMENT}.robot", [], location(1, 0, 1, 10)),
-        new LibraryImport("lib", ["arg1", "arg2"], location(2, 0, 2, 10)),
-      ]
-    });
+//     const expected = settingsTable(location(0, 0, 2, 10), {
+//       libraryImports: [
+//         new LibraryImport("libs/\${ENVIRONMENT}.robot", [], location(1, 0, 1, 10)),
+//         new LibraryImport("lib", ["arg1", "arg2"], location(2, 0, 2, 10)),
+//       ]
+//     });
 
-    parseAndAssert(tableDefinition, expected);
-  });
+//     parseAndAssert(tableDefinition, expected);
+//   });
 
-  it("should parse variable imports", () => {
-    const tableDefinition = table("Settings", {
-      header: row(location(0, 0, 0, 10)),
-      rows: [
-        row(location(1, 0, 1, 10), [
-          cell(location(1, 0, 1, 10), "Variables"),
-          cell(location(1, 0, 1, 10), "vars/\${ENVIRONMENT}.robot"),
-        ]),
-        row(location(2, 0, 2, 10), [
-          cell(location(2, 0, 2, 10), "Variables"),
-          cell(location(2, 0, 2, 10), "vars/vars.robot"),
-        ]),
-      ]
-    });
+//   it("should parse variable imports", () => {
+//     const tableDefinition = table("Settings", {
+//       header: row(location(0, 0, 0, 10)),
+//       rows: [
+//         row(location(1, 0, 1, 10), [
+//           cell(location(1, 0, 1, 10), "Variables"),
+//           cell(location(1, 0, 1, 10), "vars/\${ENVIRONMENT}.robot"),
+//         ]),
+//         row(location(2, 0, 2, 10), [
+//           cell(location(2, 0, 2, 10), "Variables"),
+//           cell(location(2, 0, 2, 10), "vars/vars.robot"),
+//         ]),
+//       ]
+//     });
 
-    const expected = settingsTable(location(0, 0, 2, 10), {
-      variableImports: [
-        new VariableImport("vars/\${ENVIRONMENT}.robot", location(1, 0, 1, 10)),
-        new VariableImport("vars/vars.robot", location(2, 0, 2, 10)),
-      ]
-    });
+//     const expected = settingsTable(location(0, 0, 2, 10), {
+//       variableImports: [
+//         new VariableImport("vars/\${ENVIRONMENT}.robot", location(1, 0, 1, 10)),
+//         new VariableImport("vars/vars.robot", location(2, 0, 2, 10)),
+//       ]
+//     });
 
-    parseAndAssert(tableDefinition, expected);
-  });
+//     parseAndAssert(tableDefinition, expected);
+//   });
 
   it("should parse suite setup", () => {
     createSettingTest("Suite Setup", "suiteSetup", ["arg1", "arg2"]);

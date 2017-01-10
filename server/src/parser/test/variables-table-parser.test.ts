@@ -47,28 +47,28 @@ describe("Parsing Variables table", () => {
     parseAndAssert(tableDefinition, expected);
   });
 
-  it("should parse scalar variables", () => {
-    const tableDefinition = table("Variables", {
-      header: row(location(0, 0, 0, 10)),
-      rows: [
-        row(location(1, 0, 1, 10), [
-          cell(location(1, 0, 1, 10), "${var1}"),
-          cell(location(1, 0, 1, 10), "value")
-        ]),
-        row(location(2, 0, 2, 10), [
-          cell(location(2, 0, 2, 10), "${var2}"),
-          cell(location(2, 0, 2, 10), "More complex ${variable}")
-        ]),
-      ]
-    });
+  // it("should parse scalar variables", () => {
+  //   const tableDefinition = table("Variables", {
+  //     header: row(location(0, 0, 0, 10)),
+  //     rows: [
+  //       row(location(1, 0, 1, 10), [
+  //         cell(location(1, 0, 1, 10), "${var1}"),
+  //         cell(location(1, 0, 1, 10), "value")
+  //       ]),
+  //       row(location(2, 0, 2, 10), [
+  //         cell(location(2, 0, 2, 10), "${var2}"),
+  //         cell(location(2, 0, 2, 10), "More complex ${variable}")
+  //       ]),
+  //     ]
+  //   });
 
-    const expected = variablesTable(location(0, 0, 2, 10), [
-      new ScalarDeclaration("var1", "value", location(1, 0, 1, 10)),
-      new ScalarDeclaration("var2", "More complex ${variable}", location(2, 0, 2, 10))
-    ]);
+  //   const expected = variablesTable(location(0, 0, 2, 10), [
+  //     new ScalarDeclaration("var1", "value", location(1, 0, 1, 10)),
+  //     new ScalarDeclaration("var2", "More complex ${variable}", location(2, 0, 2, 10))
+  //   ]);
 
-    parseAndAssert(tableDefinition, expected);
-  });
+  //   parseAndAssert(tableDefinition, expected);
+  // });
 
   it("should parse list variables", () => {
     // TODO

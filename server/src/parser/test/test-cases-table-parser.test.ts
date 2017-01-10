@@ -54,34 +54,34 @@ describe("Parsing Test Cases table", () => {
     parseAndAssert(tableDefinition, expected);
   });
 
-  it("should parse test case", () => {
-    const tableDefinition = table("Test Cases", {
-      header: row(location(0, 0, 0, 10)),
-      rows: [
-        row(location(1, 0, 1, 10), [cell(location(1, 0, 1, 10), "Test Case Name")]),
-        row(location(2, 0, 2, 10), [
-          cell(location(2, 0, 2, 10), ""),
-          cell(location(2, 0, 2, 10), "Step 1"),
-          cell(location(2, 0, 2, 10), "arg1"),
-          cell(location(2, 0, 2, 10), "arg2"),
-        ]),
-        row(location(3, 0, 3, 10), [
-          cell(location(3, 0, 3, 10), ""),
-          cell(location(3, 0, 3, 10), "Step 2"),
-          cell(location(3, 0, 3, 10), "${VAR}"),
-          cell(location(3, 0, 3, 10), "more complex arg"),
-        ]),
-      ]
-    });
+  // it("should parse test case", () => {
+  //   const tableDefinition = table("Test Cases", {
+  //     header: row(location(0, 0, 0, 10)),
+  //     rows: [
+  //       row(location(1, 0, 1, 10), [cell(location(1, 0, 1, 10), "Test Case Name")]),
+  //       row(location(2, 0, 2, 10), [
+  //         cell(location(2, 0, 2, 10), ""),
+  //         cell(location(2, 0, 2, 10), "Step 1"),
+  //         cell(location(2, 0, 2, 10), "arg1"),
+  //         cell(location(2, 0, 2, 10), "arg2"),
+  //       ]),
+  //       row(location(3, 0, 3, 10), [
+  //         cell(location(3, 0, 3, 10), ""),
+  //         cell(location(3, 0, 3, 10), "Step 2"),
+  //         cell(location(3, 0, 3, 10), "${VAR}"),
+  //         cell(location(3, 0, 3, 10), "more complex arg"),
+  //       ]),
+  //     ]
+  //   });
 
-    const expected = testCasesTable(location(0, 0, 3, 10), [
-      testCase(position(1, 0), "Test Case Name", [
-        new Step("Step 1", ["arg1", "arg2"], location(2, 0, 2, 10)),
-        new Step("Step 2", ["${VAR}", "more complex arg"], location(3, 0, 3, 10)),
-      ])
-    ]);
+  //   const expected = testCasesTable(location(0, 0, 3, 10), [
+  //     testCase(position(1, 0), "Test Case Name", [
+  //       new Step("Step 1", ["arg1", "arg2"], location(2, 0, 2, 10)),
+  //       new Step("Step 2", ["${VAR}", "more complex arg"], location(3, 0, 3, 10)),
+  //     ])
+  //   ]);
 
-    parseAndAssert(tableDefinition, expected);
-  });
+  //   parseAndAssert(tableDefinition, expected);
+  // });
 
 });

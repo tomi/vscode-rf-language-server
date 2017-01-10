@@ -59,7 +59,7 @@ function getRowParserFn(row: DataRow) {
 }
 
 function parseLibraryImport(settingsTable: SettingsTable, row: DataRow) {
-  const target = parseIdentifier(row.getCellByIdx(1));
+  const target = parseValueExpression(row.getCellByIdx(1));
   const args   = row.getCellsByRange(2).map(parseValueExpression);
 
   // TODO: WITH NAME keyword
@@ -69,14 +69,14 @@ function parseLibraryImport(settingsTable: SettingsTable, row: DataRow) {
 }
 
 function parseResourceImport(settingsTable: SettingsTable, row: DataRow) {
-  const target = parseIdentifier(row.getCellByIdx(1));
+  const target = parseValueExpression(row.getCellByIdx(1));
 
   const resourceImport = new ResourceImport(target, row.location);
   settingsTable.addResourceImport(resourceImport);
 }
 
 function parseVariableImport(settingsTable: SettingsTable, row: DataRow) {
-  const target = parseIdentifier(row.getCellByIdx(1));
+  const target = parseValueExpression(row.getCellByIdx(1));
 
   const variableImport = new VariableImport(target, row.location);
   settingsTable.addVariableImport(variableImport);

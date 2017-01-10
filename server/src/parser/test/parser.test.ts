@@ -5,7 +5,11 @@ import { FileParser } from "../parser";
 import {
   TestSuite,
   SettingsTable,
-  ResourceImport
+  ResourceImport,
+  Identifier,
+  Literal,
+  SuiteSetting,
+  CallExpression
 } from "../models";
 
 import {
@@ -28,55 +32,87 @@ function shouldRecogniseTable(tableDef, tableProperty) {
   chai.assert.isObject(parsed[tableProperty]);
 }
 
-function testDataFile(location, content) {
+function testSuite(location, content) {
   return Object.assign(new TestSuite(location), content);
 }
 
-function settingsTable(location, content) {
-  return Object.assign(new SettingsTable(location), content);
+function settingsTable(content) {
+  return Object.assign(new SettingsTable(null), content);
 }
 
 describe("RF Parser", () => {
 
   describe("Parsing Settings table", () => {
 
+    function settingsTableTest(row: string) {
+      const tableDefinition = `*Settings\n${ row }`;
+      const parsed = parser.parseFile(tableDefinition);
+
+      chai.assert.isObject(parsed);
+      chai.assert.isObject(parsed.settingsTable);
+      chai.assert.deepEqual(
+        parsed.settingsTable.location,
+        location(0, 0, 1, row.length)
+      );
+
+      parsed.settingsTable.location = null;
+      return parsed.settingsTable;
+    }
+
     it("should recognise a settings table", () => {
       shouldRecogniseTable("*Settings", "settingsTable");
     });
 
     it("should parse resource imports", () => {
+      const actualTable = settingsTableTest("Resource   resources/smoke_resources.robot");
 
-      const tableDefinition = `*** Settings ***
-
-Resource   resources/\${ENVIRONMENT}.robot
-Resource   resources/smoke_resources.robot
-`;
-
-      const expected = testDataFile(location(0, 0, 4, 0), {
-        settingsTable: settingsTable(location(0, 0, 4, 0), {
-          resourceImports: [
-            new ResourceImport("resources/\${ENVIRONMENT}.robot", location(2, 0, 2, 41)),
-            new ResourceImport("resources/smoke_resources.robot", location(3, 0, 3, 42)),
-          ]
-        })
+      const expected = settingsTable({
+        resourceImports: [
+          new ResourceImport(
+            new Literal("resources/smoke_resources.robot", location(1, 11, 1, 42)),
+            location(1, 0, 1, 42)
+          )
+        ]
       });
 
-      parseAndAssert(tableDefinition, expected);
+      chai.assert.deepEqual(actualTable, expected);
     });
 
-//     it("should parse suite setup", () => {
-//       generateSettingsTableTest(
-//         `Suite Setup         Open Default Browser`,
-//         { suiteSetup: new Setting("Suite Setup", "Open Default Browser") }
-//       );
-//     });
+    it("should parse suite setup", () => {
+      const actualTable = settingsTableTest("Suite Setup  Open Default Browser");
 
-//     it("should parse suite teardown", () => {
-//       generateSettingsTableTest(
-//         `Suite Teardown         Open Default Browser`,
-//         { suiteTeardown: new Setting("Suite Teardown", "Open Default Browser") }
-//       );
-//     });
+      const expected = settingsTable({
+        suiteSetup: new SuiteSetting(
+          new Identifier("Suite Setup", location(1, 0, 1, 11)),
+          new CallExpression(
+            new Identifier("Open Default Browser", location(1, 13, 1, 33)),
+            [],
+            location(1, 13, 1, 33)
+          ),
+          location(1, 0, 1, 33)
+        )
+      });
+
+      chai.assert.deepEqual(actualTable, expected);
+    });
+
+    it("should parse suite teardown", () => {
+      const actualTable = settingsTableTest("Suite Teardown  Open Default Browser");
+
+      const expected = settingsTable({
+        suiteTeardown: new SuiteSetting(
+          new Identifier("Suite Teardown", location(1, 0, 1, 14)),
+          new CallExpression(
+            new Identifier("Open Default Browser", location(1, 16, 1, 36)),
+            [],
+            location(1, 16, 1, 36)
+          ),
+          location(1, 0, 1, 36)
+        )
+      });
+
+      chai.assert.deepEqual(actualTable, expected);
+    });
 
 //     it("should parse test setup", () => {
 //       generateSettingsTableTest(

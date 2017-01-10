@@ -5,7 +5,9 @@ import { parseKeywordsTable } from "../keywords-table-parser";
 import {
   KeywordsTable,
   UserKeyword,
-  Step
+  Step,
+  CallExpression,
+  Identifier
 } from "../models";
 
 import {
@@ -76,8 +78,8 @@ describe("Parsing Keywords table", () => {
 
     const expected = keywordsTable(location(0, 0, 3, 10), [
       keyword(position(1, 0), "Keyword Name", [
-        new Step("Step 1", ["arg1", "arg2"], location(2, 0, 2, 10)),
-        new Step("Step 2", ["${VAR}", "more complex arg"], location(3, 0, 3, 10)),
+        // new Step(new CallExpression(new Identifier() "Step 1", ["arg1", "arg2"], location(2, 0, 2, 10)),
+        // new Step("Step 2", ["${VAR}", "more complex arg"], location(3, 0, 3, 10)),
       ])
     ]);
 

@@ -17,11 +17,23 @@ export interface Expression extends Node {
 export interface ValueExpression extends Expression {
 }
 
-export class Identifier implements Node, Expression {
+export class Identifier implements Node {
   public type = "Identifier";
 
   constructor(
     public name: string,
+    public location: SourceLocation
+  ) { }
+}
+
+type VariableKind = "Scalar" | "List" | "Dictionary";
+
+export class VariableExpression implements ValueExpression {
+  public type = "VariableExpression";
+
+  constructor(
+    public id: Identifier,
+    public kind: VariableKind,
     public location: SourceLocation
   ) { }
 }
@@ -50,13 +62,23 @@ export class KeyValueLiteral extends Literal {
   }
 }
 
-export interface TemplateElement extends Node {
-  value: string;
+export class TemplateElement implements Node {
+  public type = "TemplateElement";
+
+  constructor(
+    public value: string,
+    public location: SourceLocation
+  ) { }
 }
 
-export interface TemplateLiteral extends ValueExpression {
-  quasis: TemplateElement[];
-  identifiers: Identifier[];
+export class TemplateLiteral implements ValueExpression {
+  public type = "TemplateLiteral";
+
+  constructor(
+    public quasis: TemplateElement[],
+    public expressions: VariableExpression[],
+    public location: SourceLocation
+  ) { }
 }
 
 export class CallExpression implements Expression {
@@ -75,7 +97,7 @@ export class EmptyNode implements Node {
   public location: SourceLocation;
 
   constructor(
-    public position: Position,
+    position: Position,
   ) {
     this.location = {
       start: position,
@@ -85,7 +107,7 @@ export class EmptyNode implements Node {
 }
 
 export interface Import extends Node {
-  target: Identifier;
+  target: ValueExpression;
 }
 
 export class LibraryImport implements Import {
@@ -95,7 +117,7 @@ export class LibraryImport implements Import {
    *
    */
   constructor(
-    public target: Identifier,
+    public target: ValueExpression,
     public args: ValueExpression[],
     public location: SourceLocation
   ) { }
@@ -108,7 +130,7 @@ export class ResourceImport implements Import {
    *
    */
   constructor(
-    public target: Identifier,
+    public target: ValueExpression,
     public location: SourceLocation
   ) { }
 }
@@ -120,7 +142,7 @@ export class VariableImport implements Import {
    *
    */
   constructor(
-    public target: Identifier,
+    public target: ValueExpression,
     public location: SourceLocation
   ) { }
 }
@@ -178,7 +200,10 @@ export class SettingsTable implements Node {
  *
  */
 interface Declaration extends Node {
-  name: Identifier;
+  id: Identifier;
+}
+
+interface VariableDeclaration extends Declaration {
 }
 
 interface FunctionDeclaration extends Declaration {
@@ -190,12 +215,13 @@ interface FunctionDeclaration extends Declaration {
  */
 export class ScalarDeclaration implements Declaration {
   public type = "ScalarDeclaration";
+  public kind: VariableKind = "Scalar";
 
   /**
    *
    */
   constructor(
-    public name: Identifier,
+    public id: Identifier,
     public value: Expression,
     public location: SourceLocation
   ) { }
@@ -206,12 +232,13 @@ export class ScalarDeclaration implements Declaration {
  */
 export class ListDeclaration implements Declaration {
   public type = "ListDeclaration";
+  public kind: VariableKind = "List";
 
   /**
    *
    */
   constructor(
-    public name: Identifier,
+    public id: Identifier,
     public values: Expression[],
     public location: SourceLocation
   ) { }
@@ -219,12 +246,13 @@ export class ListDeclaration implements Declaration {
 
 export class DictionaryDeclaration implements Declaration {
   public type = "DictionaryDeclaration";
+  public kind: VariableKind = "Dictionary";
 
   /**
    *
    */
   constructor(
-    public name: Identifier,
+    public id: Identifier,
     public values: Identifier[] | KeyValueLiteral[],
     public location: SourceLocation
   ) { }
@@ -236,13 +264,13 @@ export class DictionaryDeclaration implements Declaration {
 export class VariablesTable implements Node {
   public type = "VariablesTable";
 
-  public variables: Declaration[] = [];
+  public variables: VariableDeclaration[] = [];
 
   constructor(
     public location: SourceLocation
   ) { }
 
-  public addVariable(variable: Declaration) {
+  public addVariable(variable: VariableDeclaration) {
     this.variables.push(variable);
   }
 }
@@ -254,7 +282,7 @@ export class Step implements Node {
   public type = "Step";
 
   constructor(
-    public body: Declaration | CallExpression,
+    public body: VariableDeclaration | CallExpression,
     public location: SourceLocation
   ) { }
 }
@@ -267,7 +295,7 @@ export class UserKeyword implements FunctionDeclaration {
   public steps: Step[] = [];
 
   constructor(
-    public name: Identifier,
+    public id: Identifier,
     private startPosition: Position
   ) {}
 
@@ -281,7 +309,7 @@ export class UserKeyword implements FunctionDeclaration {
         start: this.startPosition,
         end: {
           line: this.startPosition.line,
-          column: this.startPosition.column + this.name.name.length
+          column: this.startPosition.column + this.id.name.length
         }
       };
     }
@@ -318,7 +346,7 @@ export class TestCase implements FunctionDeclaration {
   public steps: Step[] = [];
 
   constructor(
-    public name: Identifier,
+    public id: Identifier,
     private startPosition: Position
   ) { }
 
@@ -332,7 +360,7 @@ export class TestCase implements FunctionDeclaration {
         start: this.startPosition,
         end: {
           line: this.startPosition.line,
-          column: this.startPosition.column + this.name.name.length
+          column: this.startPosition.column + this.id.name.length
         }
       };
     }
@@ -348,7 +376,7 @@ export class TestCase implements FunctionDeclaration {
  *
  */
 export class TestCasesTable implements Node {
-  public type = "TestCaseTable";
+  public type = "TestCasesTable";
   public testCases: TestCase[] = [];
 
   constructor(
@@ -361,7 +389,7 @@ export class TestCasesTable implements Node {
 }
 
 export class TestSuite implements Node {
-  public type = "Suite";
+  public type = "TestSuite";
 
   public settingsTable:  SettingsTable;
   public variablesTable: VariablesTable;

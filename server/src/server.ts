@@ -14,6 +14,8 @@ import {
 import { Position } from "./parser/table-models";
 import { TestSuite } from "./parser/models";
 import { isInRange } from "./parser/position-helper";
+import { traverse, VisitorOption } from "./traverse/traverse";
+import { Node } from "./parser/models";
 
 import Uri from "vscode-uri";
 
@@ -52,30 +54,23 @@ connection.onInitialize((params: InitializeResult) => {
   };
 });
 
-function find(pos: Position, data: TestSuite) {
-  if (data.keywordsTable && isInRange(pos, data.keywordsTable)) {
-    const keyword = _.find(data.keywordsTable.keywords, kw => isInRange(pos, kw));
-    if (keyword) {
-      const step = _.find(keyword.steps, s => isInRange(pos, s));
-      if (step) {
-        return step;
+function findNodeInPos(pos: Position, data: TestSuite) {
+  let foundNode;
+
+  traverse(null, data, {
+    enter: (node: Node, parent) => {
+      if (!isInRange(pos, node)) {
+        return VisitorOption.Skip;
       }
+
+      foundNode = {
+        node,
+        parent
+      };
     }
-  } else if (data.settingsTable && isInRange(pos, data.settingsTable)) {
+  });
 
-  } else if (data.testCasesTable && isInRange(pos, data.testCasesTable)) {
-    const testCase = _.find(data.testCasesTable.testCases, tc => isInRange(pos, tc));
-    if (testCase) {
-      const step = _.find(testCase.steps, s => isInRange(pos, s));
-      if (step) {
-        return step;
-      }
-    }
-  } else if (data.variablesTable && isInRange(pos, data.variablesTable)) {
-
-  }
-
-  return null;
+  return foundNode;
 }
 
 // The content of a text document has changed. This event is emitted
@@ -145,7 +140,7 @@ connection.onDefinition((textDocumentPosition: TextDocumentPositionParams): Loca
     return null;
   }
 
-  const step = find({
+  const step = findNodeInPos({
     line: textDocumentPosition.position.line,
     column: textDocumentPosition.position.character
   }, fileDefinition);

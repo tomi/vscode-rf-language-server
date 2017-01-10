@@ -16,14 +16,10 @@ export interface SourceLocation {
   end: Position;
 }
 
-export interface SourceBlock {
-  location: SourceLocation;
-};
-
 /**
  * Represents a table with rows
  */
-export class DataTable implements SourceBlock {
+export class DataTable {
   public rows: DataRow[] = [];
 
   /**
@@ -55,7 +51,7 @@ export class DataTable implements SourceBlock {
 /**
  * Represents a row with zero or more cells
  */
-export class DataRow implements SourceBlock {
+export class DataRow {
   public cells: DataCell[] = [];
 
   constructor(
@@ -108,7 +104,7 @@ export class DataRow implements SourceBlock {
 /**
  * Represents a single cell in a table
  */
-export class DataCell implements SourceBlock {
+export class DataCell {
   /**
    *
    */

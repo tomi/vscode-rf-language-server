@@ -1,11 +1,14 @@
 
 import {
   Position,
-  SourceLocation,
-  SourceBlock
+  SourceLocation
 } from "./table-models";
 
-export function isInRange(position: Position, range: SourceBlock) {
+import {
+  Node
+} from "./models";
+
+export function isInRange(position: Position, range: Node) {
   const location = range.location;
 
   return (location.start.line < position.line ||

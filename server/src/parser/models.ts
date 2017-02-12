@@ -26,7 +26,7 @@ export class Identifier implements Node {
   ) { }
 }
 
-type VariableKind = "Scalar" | "List" | "Dictionary";
+export type VariableKind = "Scalar" | "List" | "Dictionary";
 
 export class VariableExpression implements ValueExpression {
   public type = "VariableExpression";

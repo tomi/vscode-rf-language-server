@@ -10,16 +10,50 @@ import {
   Identifier,
   Literal,
   ValueExpression,
-  CallExpression
+  CallExpression,
+  VariableExpression,
+  VariableKind
 } from "./models";
+
+const VARIABLE_KINDS = new Map([
+  ["$", "Scalar"],
+  ["@", "List"],
+  ["&", "Dictionary"],
+  ["%", "Environment"]
+]);
 
 export function parseIdentifier(cell: DataCell): Identifier {
   return new Identifier(cell.content, cell.location);
 }
 
 export function parseValueExpression(cell: DataCell): ValueExpression {
-  // TODO: Parse identifiers and template literals
-  return new Literal(cell.content, cell.location);
+  const typeAndNameRegex = /([$,@,%,&]){([^}]+)}/;
+
+  if (!typeAndNameRegex.test(cell.content)) {
+    return new Literal(cell.content, cell.location);
+  }
+
+  const result = cell.content.match(typeAndNameRegex);
+  if (result[0] === result.input) {
+    const [__, type, name] = result;
+
+    return new VariableExpression(
+      new Identifier(name, {
+        start: {
+          line: cell.location.start.line,
+          column: cell.location.start.column + 2
+        },
+        end: {
+          line: cell.location.start.line,
+          column: cell.location.start.column + 2 + name.length
+        }
+      }),
+      VARIABLE_KINDS.get(type) as VariableKind,
+      cell.location
+    );
+  } else {
+    // TODO: Parse TemplateLiteral
+  }
 }
 
 export function parseCallExpression(cells: DataCell[]): CallExpression {

@@ -6,10 +6,10 @@ import { traverse } from "./traverse/traverse";
 const parser = new FileParser();
 
 const paths = [
-  "../test-data/smoke.robot",
-  "../test-data/resources/common_resources.robot",
-  "../test-data/resources/production.robot",
-  "../test-data/resources/smoke_resources.robot"
+  "../../server/test-data/smoke.robot",
+  "../../server/test-data/resources/common_resources.robot",
+  "../../server/test-data/resources/production.robot",
+  "../../server/test-data/resources/smoke_resources.robot"
 ];
 
 const fileTreeMapper = new Map();

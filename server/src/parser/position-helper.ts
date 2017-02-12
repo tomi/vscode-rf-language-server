@@ -1,3 +1,4 @@
+import * as _ from "lodash";
 
 import {
   Position,
@@ -7,6 +8,28 @@ import {
 import {
   Node
 } from "./models";
+
+
+export function position(line, column) {
+  return {
+    line,
+    column
+  };
+}
+
+export function location(startLine, startColumn, endLine?, endColumn?): SourceLocation {
+  if (_.isObject(startLine) && _.isObject(startColumn)) {
+    return {
+      start: startLine,
+      end: startColumn
+    };
+  }
+
+  return {
+    start: { line: startLine, column: startColumn },
+    end:   { line: endLine, column:   endColumn },
+  };
+}
 
 export function isInRange(position: Position, range: Node) {
   const location = range.location;

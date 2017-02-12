@@ -4,9 +4,6 @@ import * as chai from "chai";
 import { parseValueExpression } from "../primitive-parsers";
 
 import {
-  SourceLocation,
-  DataTable,
-  DataRow,
   DataCell,
 } from "../table-models";
 
@@ -17,20 +14,12 @@ import {
 } from "../models";
 
 import {
-  location,
-  table,
-  row,
+  location
 } from "./test-helper";
 
-function header(text) {
-  return row(location(0, 0, 0, text.length), [
-    new DataCell(text, location(0, 0, 0, text.length))
-  ]);
-}
-
 describe.only("parseValueExpression", () => {
-  it("should parse literals", () => {
-    const shouldParseLiteral = cellContent => {
+  describe("should parse single literals", () => {
+    function shouldParseLiteral(cellContent) {
       const loc = location(0, 0, 0, cellContent.length);
       const cell = new DataCell(cellContent, loc);
 
@@ -38,12 +27,15 @@ describe.only("parseValueExpression", () => {
       const expected = new Literal(cellContent, loc);
 
       chai.assert.deepEqual(parsed, expected);
-    };
+    }
 
-    shouldParseLiteral("Just some text");
+    it("should parse simple literals", () => {
+      shouldParseLiteral("Just some text");
+      shouldParseLiteral("Another part of text");
+    });
   });
 
-  describe("should parse variable expressions", () => {
+  describe("should parse single variable expressions", () => {
     it("should parse scalar variable expressions", () => {
       const expected = new VariableExpression(
         new Identifier("VAR", location(0, 2, 0, 5)),
@@ -52,6 +44,18 @@ describe.only("parseValueExpression", () => {
       );
 
       const actual = parseValueExpression(new DataCell("${VAR}", location(0, 0, 0, 6)));
+
+      chai.assert.deepEqual(actual, expected);
+    });
+
+    it("should parse list variable expressions", () => {
+      const expected = new VariableExpression(
+        new Identifier("VAR", location(0, 2, 0, 5)),
+        "List",
+        location(0, 0, 0, 6)
+      );
+
+      const actual = parseValueExpression(new DataCell("@{VAR}", location(0, 0, 0, 6)));
 
       chai.assert.deepEqual(actual, expected);
     });

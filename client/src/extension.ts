@@ -16,7 +16,7 @@ export function activate(context: ExtensionContext) {
 	// The server is implemented in node
 	let serverModule = context.asAbsolutePath(path.join("server", "server.js"));
 	// The debug options for the server
-	let debugOptions = { execArgv: ["--nolazy", "--debug=6004"] };
+	let debugOptions = { execArgv: ["--nolazy", "--debug=6009"] };
 
 	// If the extension is launched in debug mode then the debug server options are used
 	// Otherwise the run options are used
@@ -46,12 +46,13 @@ export function activate(context: ExtensionContext) {
 
     let disposable = langClient.start();
 
-    let intellisense: Intellisense = new Intellisense(langClient);
+	langClient.onReady().then(() => {
+		let intellisense: Intellisense = new Intellisense(langClient);
 
-    context.subscriptions.push(commands.registerCommand("rfIntellisense.rebuildSources", () => {
-		intellisense.parseAll();
-    }));
-
+		context.subscriptions.push(commands.registerCommand("rfIntellisense.rebuildSources", () => {
+			intellisense.parseAll();
+		}));
+	});
 
 	// Push the disposable to the context"s subscriptions so that the
 	// client can be deactivated on extension deactivation

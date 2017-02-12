@@ -36,11 +36,15 @@ let documents: TextDocuments = new TextDocuments();
 // for open, change and close text document events
 documents.listen(connection);
 
+const logger = console;
+
 // After the server has started the client sends an initilize request. The server receives
 // in the passed params the rootPath of the workspace plus the client capabilites.
 let workspaceRoot: string;
 connection.onInitialize((params: InitializeResult) => {
   // workspaceRoot = params.rootPath;
+  logger.log("Initializing...");
+
   return {
     capabilities: {
       // Tell the client that the server works in FULL text document sync mode
@@ -76,6 +80,7 @@ function findNodeInPos(pos: Position, data: TestSuite) {
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
 documents.onDidChangeContent(change => {
+  logger.log("onDidChangeContent...");
   validateDocument(change.document);
 });
 
@@ -95,6 +100,8 @@ let maxNumberOfProblems: number;
 // The settings have changed. Is send on server activation
 // as well.
 connection.onDidChangeConfiguration((change) => {
+  logger.log("onDidChangeConfiguration...");
+
   let settings = <Settings>change.settings;
   maxNumberOfProblems = settings.languageServerExample.maxNumberOfProblems || 100;
   // Revalidate any open text documents
@@ -132,6 +139,8 @@ connection.onCompletion((textDocumentPosition: TextDocumentPositionParams): Comp
 });
 
 connection.onDefinition((textDocumentPosition: TextDocumentPositionParams): Location => {
+  logger.log("onDefinition...");
+
   const fileUri = textDocumentPosition.textDocument.uri;
   const filePath = Uri.parse(fileUri).path;
 

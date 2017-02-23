@@ -17,6 +17,12 @@ import {
   parseValueExpression,
 } from "./primitive-parsers";
 
+import {
+  isVariable,
+  parseTypeAndName,
+  parseVariableDeclaration
+} from "./variable-parsers";
+
 export function parseTestCasesTable(dataTable: DataTable): TestCasesTable {
   const testCasesTable = new TestCasesTable(dataTable.location);
   let currentTestCase: TestCase;
@@ -45,12 +51,20 @@ function startsTestCase(row: DataRow) {
 }
 
 function parseStep(row: DataRow) {
-  // TODO: Variable parsing. Now assumes all are call expressions
-  const identifier = parseIdentifier(row.getCellByIdx(1));
+  const firstDataCell = row.getCellByIdx(1);
   const valueExpressions = row.getCellsByRange(2).map(parseValueExpression);
 
-  return new Step(
-    new CallExpression(identifier, valueExpressions, row.location),
-    row.location
-  );
+  let stepContent;
+
+  if (isVariable(firstDataCell)) {
+    const typeAndName = parseTypeAndName(firstDataCell);
+    stepContent =
+      parseVariableDeclaration(typeAndName, valueExpressions, row.location);
+  } else {
+    const identifier = parseIdentifier(row.getCellByIdx(1));
+
+    stepContent = new CallExpression(identifier, valueExpressions, row.location);
+  }
+
+  return new Step(stepContent, row.location);
 }

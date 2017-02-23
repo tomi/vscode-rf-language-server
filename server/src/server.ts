@@ -16,6 +16,8 @@ import { TestSuite } from "./parser/models";
 import { isInRange } from "./parser/position-helper";
 import { traverse, VisitorOption } from "./traverse/traverse";
 import { Node } from "./parser/models";
+import { WorkspaceTree } from "./intellisense/workspace-tree";
+import { findDefinition } from "./intellisense/definition-finder";
 
 import Uri from "vscode-uri";
 
@@ -24,7 +26,7 @@ import * as fs from "fs";
 import { FileParser } from "./parser/parser";
 const parser = new FileParser();
 
-const fileTreeMapper = new Map();
+const workspaceMap = new WorkspaceTree();
 
 // Create a connection for the server. The connection uses Node"s IPC as a transport
 let connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
@@ -144,17 +146,25 @@ connection.onDefinition((textDocumentPosition: TextDocumentPositionParams): Loca
   const fileUri = textDocumentPosition.textDocument.uri;
   const filePath = Uri.parse(fileUri).path;
 
-  const fileDefinition = fileTreeMapper.get(filePath);
-  if (!fileDefinition) {
-    return null;
+  const found = findDefinition({
+    filePath,
+    position: {
+      line: textDocumentPosition.position.line,
+      column: textDocumentPosition.position.character,
+    }
+  }, workspaceMap);
+
+  if (found) {
+    return Location.create(
+      Uri.file(found.filePath).toString(),
+      Range.create(
+        found.location.start.line,
+        found.location.start.column,
+        found.location.end.line,
+        found.location.end.column
+      )
+    );
   }
-
-  const step = findNodeInPos({
-    line: textDocumentPosition.position.line,
-    column: textDocumentPosition.position.character
-  }, fileDefinition);
-
-  console.log(step);
 
   return Location.create(fileUri, Range.create(0, 0, 0, 0));
 });
@@ -172,19 +182,22 @@ connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
   return item;
 });
 
-const buildFromFiles: RequestType<{
-    files: string[],
-}, any, any> = { method: "buildFromFiles" };
-connection.onRequest(buildFromFiles, message => {
+export interface BuildFromFilesParam {
+  files: string[];
+}
+
+export const BuildFromFilesRequest = new RequestType<BuildFromFilesParam, void, void, void>("buildFromFiles");
+
+connection.onRequest(BuildFromFilesRequest, message => {
   console.log("buildFromFiles", message);
 
-  fileTreeMapper.clear();
+  workspaceMap.clear();
 
   message.files.forEach(filePath => {
     const fileData = fs.readFileSync(filePath, "utf-8");
     const parsedFile = parser.parseFile(fileData);
 
-    fileTreeMapper.set(filePath, parsedFile);
+    workspaceMap.addFileTree(filePath, parsedFile);
   });
 });
 /*

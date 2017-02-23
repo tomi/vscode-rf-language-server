@@ -203,10 +203,11 @@ interface Declaration extends Node {
   id: Identifier;
 }
 
-interface VariableDeclaration extends Declaration {
+export interface VariableDeclaration extends Declaration {
+  kind: VariableKind;
 }
 
-interface FunctionDeclaration extends Declaration {
+export interface FunctionDeclaration extends Declaration {
   steps: Step[];
 }
 

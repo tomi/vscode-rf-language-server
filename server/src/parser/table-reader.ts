@@ -99,7 +99,7 @@ class LineReader {
         return possibleStartIdx;
       }
 
-      possibleStartIdx = line.indexOf("#", possibleStartIdx);
+      possibleStartIdx = line.indexOf("#", possibleStartIdx + 1);
     }
 
     return -1;

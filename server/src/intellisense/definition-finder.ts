@@ -1,3 +1,4 @@
+import * as _ from "lodash";
 import {
   Node,
   Identifier,
@@ -9,7 +10,7 @@ import {
   DictionaryDeclaration,
   TestSuite
 } from "../parser/models";
-import { WorkspaceTree } from "./workspace-tree";
+import { WorkspaceFile, WorkspaceTree } from "./workspace-tree";
 // import { traverse as workspaceTraverse } from "./workspace-traverse";
 import {
   traverse,
@@ -20,7 +21,8 @@ import {
   isIdentifier,
   isVariableExpression,
   isCallExpression,
-  isVariableDeclaration
+  isVariableDeclaration,
+  isFunctionDeclaration
 } from "./type-guards";
 
 function isInRange(position: Position, range: Node) {
@@ -32,38 +34,107 @@ function isInRange(position: Position, range: Node) {
     (position.line === location.end.line && position.column <= location.end.column));
 }
 
-function findNodeInPos(pos: Position, data: TestSuite) {
-  let foundNode: { node: Node, parent: Node };
+interface FileNode {
+  file: WorkspaceFile,
+  path: Node[],
+  node: Node
+}
 
-  traverse(null, data, {
+function findNodeInPos(pos: Position, fileToSearch: WorkspaceFile): FileNode {
+  const pathToNode = [];
+  let leafNode = null;
+
+  traverse(null, fileToSearch.fileTree, {
     enter: (node: Node, parent: Node) => {
       if (!isInRange(pos, node)) {
         return VisitorOption.Skip;
-      }
+      } else {
+        if (leafNode) {
+          pathToNode.push(leafNode);
+        }
 
-      foundNode = {
-        node,
-        parent
-      };
+        leafNode = node;
+      }
     }
   });
 
-  return foundNode;
+  return {
+    file: fileToSearch,
+    path: pathToNode,
+    node: leafNode
+  };
+}
+
+function tryFindVarDefStartingFromNode(
+  variable: VariableExpression, location: FileNode
+): VariableDeclaration {
+  let foundVariableDefinition = null;
+
+  _.reverse(location.path).find(node => {
+    if (!isFunctionDeclaration(node)) {
+      return false;
+    }
+
+    return node.steps.find(nodeInStep => {
+      const { body } = nodeInStep;
+
+      if (isVariableDeclaration(body) &&
+        body.kind === variable.kind &&
+        body.id.name === variable.id.name) {
+          foundVariableDefinition = body;
+          return true;
+      } else {
+        return false;
+      }
+    }) !== undefined;
+  });
+
+  if (foundVariableDefinition) {
+    return foundVariableDefinition;
+  }
+
+  if (location.file.fileTree.variablesTable) {
+    location.file.fileTree.variablesTable.variables.find(varTableVar => {
+      if (varTableVar.kind === variable.kind &&
+        varTableVar.id.name === variable.id.name) {
+        foundVariableDefinition = varTableVar;
+        return true;
+      } else {
+        return false;
+      }
+    });
+  }
+
+  return foundVariableDefinition;
 }
 
 function findVariableDefinition(
   variable: VariableExpression,
-  initialLocation: Location,
+  variableLocation: FileNode,
   workspaceTree: WorkspaceTree
 ) {
-  const fileTree = workspaceTree.getTreeForFile(initialLocation.filePath);
+  let foundVariableDefinition =
+    tryFindVarDefStartingFromNode(variable, variableLocation);
 
-  const foundVariableDefinition = findVariableDefinitionFromFile(variable, fileTree);
+  if (foundVariableDefinition) {
+    return {
+      filePath: variableLocation.file.filePath,
+      location: foundVariableDefinition.location
+    };
+  }
 
-  return foundVariableDefinition ? {
-    filePath: initialLocation.filePath,
-    location: foundVariableDefinition.location
-  } : null;
+  // TODO: iterate in import order
+  for (const file of workspaceTree.getFiles()) {
+    foundVariableDefinition = findVariableDefinitionFromFile(variable, file.fileTree);
+    if (foundVariableDefinition) {
+      return {
+        filePath: file.filePath,
+        location: foundVariableDefinition.location
+      };
+    }
+  }
+
+  return null;
 }
 
 function findVariableDefinitionFromFile(variable: VariableExpression, file: TestSuite): VariableDeclaration {
@@ -103,22 +174,22 @@ function findKeywordDefinition(
 }
 
 export function findDefinition(location: Location, workspaceTree: WorkspaceTree) {
-  const fileTree = workspaceTree.getTreeForFile(location.filePath);
-  if (!fileTree) {
+  const file = workspaceTree.getFile(location.filePath);
+  if (!file) {
     return null;
   }
 
-  const foundNode = findNodeInPos(location.position, fileTree);
-  if (!foundNode || !isIdentifier(foundNode.node)) {
+  const nodeInPos = findNodeInPos(location.position, file);
+  if (!isIdentifier(nodeInPos.node)) {
     return;
   }
 
-  const { parent } = foundNode;
+  const parentOfNode = _.last(nodeInPos.path);
   let foundDefinition = null;
-  if (isVariableExpression(parent)) {
-    foundDefinition = findVariableDefinition(parent, location, workspaceTree);
-  } else if (isCallExpression(parent)) {
-    foundDefinition = findKeywordDefinition(parent, location, workspaceTree);
+  if (isVariableExpression(parentOfNode)) {
+    foundDefinition = findVariableDefinition(parentOfNode, nodeInPos, workspaceTree);
+  } else if (isCallExpression(parentOfNode)) {
+    // foundDefinition = findKeywordDefinition(nodeInPos, location, workspaceTree);
   }
 
   return foundDefinition;

@@ -16,7 +16,7 @@ import { TestSuite } from "./parser/models";
 import { isInRange } from "./parser/position-helper";
 import { traverse, VisitorOption } from "./traverse/traverse";
 import { Node } from "./parser/models";
-import { WorkspaceTree } from "./intellisense/workspace-tree";
+import { WorkspaceFile, WorkspaceTree } from "./intellisense/workspace-tree";
 import { findDefinition } from "./intellisense/definition-finder";
 
 import Uri from "vscode-uri";
@@ -194,10 +194,18 @@ connection.onRequest(BuildFromFilesRequest, message => {
   workspaceMap.clear();
 
   message.files.forEach(filePath => {
-    const fileData = fs.readFileSync(filePath, "utf-8");
-    const parsedFile = parser.parseFile(fileData);
+    try {
+      console.log("Parsing", filePath);
+      const fileData = fs.readFileSync(filePath, "utf-8");
+      const parsedFile = parser.parseFile(fileData);
 
-    workspaceMap.addFileTree(filePath, parsedFile);
+      const file = new WorkspaceFile(filePath, parsedFile);
+
+      workspaceMap.addFile(file);
+    } catch (error) {
+      logger.error("Failed to parse", filePath);
+      logger.error(error);
+    }
   });
 });
 /*

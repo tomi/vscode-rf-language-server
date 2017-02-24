@@ -24,6 +24,10 @@
         {
             "command": "rfIntellisense.rebuildSources",
             "title": "RF Intellisense - Reindex robot files in the workspace"
+        },
+        {
+            "command": "rfIntellisense.rebuildCurrentSource",
+            "title": "RF Intellisense - Reindex the currently active robot file"
         }
     ],
     "configuration": {

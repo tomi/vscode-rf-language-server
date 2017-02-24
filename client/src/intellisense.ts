@@ -1,4 +1,4 @@
-import { workspace, Disposable, ExtensionContext } from "vscode";
+import { window, workspace, Disposable, ExtensionContext } from "vscode";
 import {
   LanguageClient, LanguageClientOptions,
   SettingMonitor, ServerOptions,
@@ -20,6 +20,17 @@ export default class Intellisense {
 
   constructor(languageClient: LanguageClient) {
     this.langClient = languageClient;
+  }
+
+  parseCurrent() {
+    if (!window.activeTextEditor) {
+      return;
+    }
+
+    const filePath = window.activeTextEditor.document.fileName;
+    this.langClient.sendRequest(BuildFromFilesRequest.type, {
+      files: [filePath]
+    });
   }
 
   parseAll() {

@@ -52,6 +52,10 @@ export function activate(context: ExtensionContext) {
 		context.subscriptions.push(commands.registerCommand("rfIntellisense.rebuildSources", () => {
 			intellisense.parseAll();
 		}));
+
+		context.subscriptions.push(commands.registerCommand("rfIntellisense.rebuildCurrentSource", () => {
+			intellisense.parseCurrent();
+		}))
 	});
 
 	// Push the disposable to the context"s subscriptions so that the

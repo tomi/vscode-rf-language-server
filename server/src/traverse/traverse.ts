@@ -12,6 +12,14 @@ const NodeSettings = {
     orderEnsured: false,
     children: ["settingsTable", "variablesTable", "keywordsTable", "testCasesTable"]
   },
+  KeywordsTable: {
+    orderEnsured: true,
+    children: ["keywords"]
+  },
+  UserKeyword: {
+    orderEnsured: true,
+    children: ["steps"]
+  },
   SettingsTable: {
     orderEnsured: false,
     children: [

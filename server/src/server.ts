@@ -154,19 +154,19 @@ connection.onDefinition((textDocumentPosition: TextDocumentPositionParams): Loca
     }
   }, workspaceMap);
 
-  if (found) {
-    return Location.create(
-      Uri.file(found.filePath).toString(),
-      Range.create(
-        found.location.start.line,
-        found.location.start.column,
-        found.location.end.line,
-        found.location.end.column
-      )
-    );
+  if (!found) {
+    return null;
   }
 
-  return Location.create(fileUri, Range.create(0, 0, 0, 0));
+  return Location.create(
+    Uri.file(found.filePath).toString(),
+    Range.create(
+      found.location.start.line,
+      found.location.start.column,
+      found.location.end.line,
+      found.location.end.column
+    )
+  );
 });
 
 // This handler resolve additional information for the item selected in

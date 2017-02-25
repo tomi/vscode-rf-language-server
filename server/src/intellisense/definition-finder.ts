@@ -8,6 +8,7 @@ import {
   ScalarDeclaration,
   ListDeclaration,
   DictionaryDeclaration,
+  UserKeyword,
   TestSuite
 } from "../parser/models";
 import { WorkspaceFile, WorkspaceTree } from "./workspace-tree";
@@ -22,7 +23,8 @@ import {
   isVariableExpression,
   isCallExpression,
   isVariableDeclaration,
-  isFunctionDeclaration
+  isFunctionDeclaration,
+  isUserKeyword
 } from "./type-guards";
 
 function isInRange(position: Position, range: Node) {
@@ -166,11 +168,60 @@ function findVariableDefinitionFromFile(variable: VariableExpression, file: Test
 
 function findKeywordDefinition(
   keyword: CallExpression,
-  initialLocation: Location,
+  keywordLocation: FileNode,
   workspaceTree: WorkspaceTree
 ) {
   const identifier = keyword.callee;
 
+  let foundDefinition = findKeywordDefinitionFromFile(keyword, keywordLocation.file.fileTree);
+  if (foundDefinition) {
+    return {
+      filePath: keywordLocation.file.filePath,
+      location: foundDefinition.location
+    };
+  }
+
+  // TODO: iterate in import order
+  for (const file of workspaceTree.getFiles()) {
+    if (file.filePath === keywordLocation.file.filePath) {
+      continue;
+    }
+
+    const foundDefinition = findKeywordDefinitionFromFile(keyword, file.fileTree);
+    if (foundDefinition) {
+      return {
+        filePath: file.filePath,
+        location: foundDefinition.location
+      };
+    }
+  }
+
+  return null;
+}
+
+function findKeywordDefinitionFromFile(keyword: CallExpression, file: TestSuite): UserKeyword {
+ const nodesToEnter = new Set([
+    "TestSuite", "KeywordsTable"
+  ]);
+
+  let foundKeyword = null;
+  const isNodeSearchedKeyword = node =>
+    isUserKeyword(node) &&
+    node.id.name === keyword.callee.name;
+
+  traverse(null, file, {
+    enter: (node: Node, parent: Node) => {
+      if (isNodeSearchedKeyword(node)) {
+        foundKeyword = node;
+
+        return VisitorOption.Break;
+      } else if (!nodesToEnter.has(node.type)) {
+        return VisitorOption.Skip;
+      }
+    }
+  });
+
+  return foundKeyword;
 }
 
 export function findDefinition(location: Location, workspaceTree: WorkspaceTree) {
@@ -189,7 +240,7 @@ export function findDefinition(location: Location, workspaceTree: WorkspaceTree)
   if (isVariableExpression(parentOfNode)) {
     foundDefinition = findVariableDefinition(parentOfNode, nodeInPos, workspaceTree);
   } else if (isCallExpression(parentOfNode)) {
-    // foundDefinition = findKeywordDefinition(nodeInPos, location, workspaceTree);
+    foundDefinition = findKeywordDefinition(parentOfNode, nodeInPos, workspaceTree);
   }
 
   return foundDefinition;

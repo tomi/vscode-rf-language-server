@@ -8,6 +8,11 @@ import { parseKeywordsTable } from "./keywords-table-parser";
 import { parseVariablesTable } from "./variables-table-parser";
 import { parseTestCasesTable } from "./test-cases-table-parser";
 
+const SETTINGS_TABLES   = new Set(["setting", "settings"]);
+const VARIABLES_TABLES  = new Set(["variable", "variables"]);
+const KEYWORDS_TABLES   = new Set(["keyword", "keywords"]);
+const TEST_CASES_TABLES = new Set(["test case", "test cases"]);
+
 export class FileParser {
   public parseFile(data: string) {
     const tableReader = new TableReader();
@@ -29,19 +34,21 @@ export class FileParser {
     });
 
     fileTables.forEach(dataTable => {
-      if (dataTable.name === "Settings") {
+      const lowerCaseTableName = dataTable.name.toLowerCase();
+
+      if (SETTINGS_TABLES.has(lowerCaseTableName)) {
         const parsedTable = parseSettingsTable(dataTable);
 
         testDataFile.settingsTable = parsedTable;
-      } else if (dataTable.name === "Variables") {
+      } else if (VARIABLES_TABLES.has(lowerCaseTableName)) {
         const parsedTable = parseVariablesTable(dataTable);
 
         testDataFile.variablesTable = parsedTable;
-      } else if (dataTable.name === "Keywords") {
+      } else if (KEYWORDS_TABLES.has(lowerCaseTableName)) {
         const parsedTable = parseKeywordsTable(dataTable);
 
         testDataFile.keywordsTable = parsedTable;
-      } else if (dataTable.name === "Test Cases") {
+      } else if (TEST_CASES_TABLES.has(lowerCaseTableName)) {
         const parsedTable = parseTestCasesTable(dataTable);
 
         testDataFile.testCasesTable = parsedTable;

@@ -8,7 +8,7 @@ import {
   TextDocuments, TextDocument, Diagnostic, DiagnosticSeverity,
   InitializeParams, InitializeResult, TextDocumentPositionParams,
   CompletionItem, CompletionItemKind, RequestType,
-  Location, Range
+  Location, Range, DocumentSymbolParams, SymbolInformation
 } from "vscode-languageserver";
 
 import { Position } from "./parser/table-models";
@@ -18,6 +18,7 @@ import { traverse, VisitorOption } from "./traverse/traverse";
 import { Node } from "./parser/models";
 import { WorkspaceFile, WorkspaceTree } from "./intellisense/workspace-tree";
 import { findDefinition } from "./intellisense/definition-finder";
+import { getFileSymbols } from "./intellisense/symbol-provider";
 
 import Uri from "vscode-uri";
 
@@ -55,29 +56,11 @@ connection.onInitialize((params: InitializeResult) => {
       completionProvider: {
         resolveProvider: true,
       },
-      definitionProvider: true
+      definitionProvider: true,
+      documentSymbolProvider: true
     },
   };
 });
-
-function findNodeInPos(pos: Position, data: TestSuite) {
-  let foundNode;
-
-  traverse(null, data, {
-    enter: (node: Node, parent) => {
-      if (!isInRange(pos, node)) {
-        return VisitorOption.Skip;
-      }
-
-      foundNode = {
-        node,
-        parent
-      };
-    }
-  });
-
-  return foundNode;
-}
 
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
@@ -138,6 +121,28 @@ connection.onCompletion((textDocumentPosition: TextDocumentPositionParams): Comp
       data: 2,
     },
   ];
+});
+
+connection.onDocumentSymbol((documentSymbol: DocumentSymbolParams): SymbolInformation[] => {
+  logger.log("onDocumentSymbol...");
+
+  const fileUri = documentSymbol.textDocument.uri;
+  const filePath = Uri.parse(fileUri).path;
+
+  const symbols = getFileSymbols(filePath, workspaceMap);
+  return symbols.map(symbol => {
+    symbol.location = Location.create(
+      Uri.file(filePath).toString(),
+      Range.create(
+        symbol.location.start.line,
+        symbol.location.start.column,
+        symbol.location.end.line,
+        symbol.location.end.column
+      )
+    );
+
+    return symbol;
+  })
 });
 
 connection.onDefinition((textDocumentPosition: TextDocumentPositionParams): Location => {

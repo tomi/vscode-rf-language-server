@@ -1,6 +1,7 @@
 "use strict";
 
 import * as _ from "lodash";
+import * as BPromise from "bluebird";
 
 import {
   IPCMessageReader, IPCMessageWriter,
@@ -23,14 +24,22 @@ import { getFileSymbols } from "./intellisense/symbol-provider";
 import Uri from "vscode-uri";
 
 import * as fs from "fs";
+const readFileAsync: (filename: string, encoding: string) => Promise<string>
+  = <(...all: any[]) => any>(BPromise.promisify(fs.readFile));
+// const promisifiedFs = BPromise.promisifyAll(fs);
 
 import { FileParser } from "./parser/parser";
 const parser = new FileParser();
 
 const workspaceMap = new WorkspaceTree();
 
+function filePathFromUri(uri: string): string {
+  return Uri.parse(uri).path;
+}
+
 // Create a connection for the server. The connection uses Node"s IPC as a transport
-let connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
+let connection: IConnection = createConnection(
+  new IPCMessageReader(process), new IPCMessageWriter(process));
 
 // Create a simple text document manager. The text document manager
 // supports full document sync only
@@ -84,7 +93,7 @@ interface ExampleSettings {
 let maxNumberOfProblems: number;
 // The settings have changed. Is send on server activation
 // as well.
-connection.onDidChangeConfiguration((change) => {
+connection.onDidChangeConfiguration(change => {
   logger.log("onDidChangeConfiguration...");
 
   let settings = <Settings>change.settings;
@@ -106,6 +115,8 @@ connection.onDidChangeWatchedFiles(change => {
 
 // This handler provides the initial list of the completion items.
 connection.onCompletion((textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
+  logger.log("onCompletion...");
+
   // The pass parameter contains the position of the text document in
   // which code complete got requested. For the example we ignore this
   // info and always provide the same completion items.
@@ -126,8 +137,7 @@ connection.onCompletion((textDocumentPosition: TextDocumentPositionParams): Comp
 connection.onDocumentSymbol((documentSymbol: DocumentSymbolParams): SymbolInformation[] => {
   logger.log("onDocumentSymbol...");
 
-  const fileUri = documentSymbol.textDocument.uri;
-  const filePath = Uri.parse(fileUri).path;
+  const filePath = filePathFromUri(documentSymbol.textDocument.uri);
 
   const symbols = getFileSymbols(filePath, workspaceMap);
   return symbols.map(symbol => {
@@ -142,14 +152,13 @@ connection.onDocumentSymbol((documentSymbol: DocumentSymbolParams): SymbolInform
     );
 
     return symbol;
-  })
+  });
 });
 
 connection.onDefinition((textDocumentPosition: TextDocumentPositionParams): Location => {
   logger.log("onDefinition...");
 
-  const fileUri = textDocumentPosition.textDocument.uri;
-  const filePath = Uri.parse(fileUri).path;
+  const filePath = filePathFromUri(textDocumentPosition.textDocument.uri);
 
   const found = findDefinition({
     filePath,
@@ -194,46 +203,63 @@ export interface BuildFromFilesParam {
 export const BuildFromFilesRequest = new RequestType<BuildFromFilesParam, void, void, void>("buildFromFiles");
 
 connection.onRequest(BuildFromFilesRequest, message => {
-  console.log("buildFromFiles", message);
-
-  workspaceMap.clear();
+  logger.log("buildFromFiles", message);
 
   message.files.forEach(filePath => {
-    try {
-      console.log("Parsing", filePath);
-      const fileData = fs.readFileSync(filePath, "utf-8");
-      const parsedFile = parser.parseFile(fileData);
+    logger.info("Parsing", filePath);
 
-      const file = new WorkspaceFile(filePath, parsedFile);
+    readFileAsync(filePath, "utf-8")
+      .then(fileData => parser.parseFile(fileData))
+      .then(parsedFile => {
+        const file = new WorkspaceFile(filePath, parsedFile);
 
-      workspaceMap.addFile(file);
-    } catch (error) {
-      logger.error("Failed to parse", filePath);
-      logger.error(error);
-    }
+        workspaceMap.addFile(file);
+      })
+      .catch(error => {
+        logger.error("Failed to parse", filePath, error);
+      });
   });
 });
-/*
+
 connection.onDidOpenTextDocument((params) => {
   // A text document got opened in VSCode.
   // params.uri uniquely identifies the document. For documents store on disk this is a file URI.
   // params.text the initial full content of the document.
-  connection.console.log(`${params.textDocument.uri} opened.`);
+  logger.log(`${params.textDocument.uri} opened.`);
 });
 
-connection.onDidChangeTextDocument((params) => {
-  // The content of a text document did change in VSCode.
+/**
+ * Message sent when the content of a text document did change in VSCode.
+ */
+connection.onDidChangeTextDocument(params => {
+  logger.log("onDidChangeTextDocument");
+
+  // Because syncKind is set to Full, entire file content is received
+  const filePath = filePathFromUri(params.textDocument.uri);
+  const fileData = _.first(params.contentChanges).text;
+
+  debouncedParseFile(filePath, fileData);
   // params.uri uniquely identifies the document.
   // params.contentChanges describe the content changes to the document.
-  connection.console.log(`${params.textDocument.uri} changed: ${JSON.stringify(params.contentChanges)}`);
+  // logger.log(`${params.textDocument.uri} changed: ${JSON.stringify(params.contentChanges)}`);
 });
 
 connection.onDidCloseTextDocument((params) => {
   // A text document got closed in VSCode.
   // params.uri uniquely identifies the document.
-  connection.console.log(`${params.textDocument.uri} closed.`);
+  logger.log(`${params.textDocument.uri} closed.`);
 });
-*/
+
+const debouncedParseFile = _.debounce((filePath: string, fileData: string) => {
+    try {
+      const parsedFile = parser.parseFile(fileData);
+      const file = new WorkspaceFile(filePath, parsedFile);
+
+      workspaceMap.addFile(file);
+    } catch (error) {
+      logger.error("Failed to parse", filePath, error);
+    }
+  }, 3000);
 
 // Listen on the connection
 connection.listen();

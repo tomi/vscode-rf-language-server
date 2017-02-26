@@ -7,13 +7,12 @@ import {
 
 import { Config } from "./utils/config";
 
-export namespace BuildFromFilesRequest {
-  export interface BuildFromFilesParam {
-    files: string[];
-  }
-
-  export const type = new RequestType<BuildFromFilesParam, void, void, void>("buildFromFiles");
+export interface BuildFromFilesParam {
+  files: string[];
 }
+
+export const BuildFromFilesRequestType =
+  new RequestType<BuildFromFilesParam, void, void, void>("buildFromFiles");
 
 export default class Intellisense {
   private langClient: LanguageClient;
@@ -22,24 +21,24 @@ export default class Intellisense {
     this.langClient = languageClient;
   }
 
-  parseCurrent() {
+  public parseCurrent() {
     if (!window.activeTextEditor) {
       return;
     }
 
     const filePath = window.activeTextEditor.document.fileName;
-    this.langClient.sendRequest(BuildFromFilesRequest.type, {
+    this.langClient.sendRequest(BuildFromFilesRequestType, {
       files: [filePath]
     });
   }
 
-  parseAll() {
+  public parseAll() {
     // const config = Config.includeExclude();
     workspace.findFiles(`**/*.robot`, "").then(files => {
       const filePaths = files.map(file => file.fsPath);
 
       // Send the array of paths to the language server
-      this.langClient.sendRequest(BuildFromFilesRequest.type, {
+      this.langClient.sendRequest(BuildFromFilesRequestType, {
         files: filePaths
       });
     });

@@ -22,8 +22,8 @@ export class Config {
         }
 
         return {
-            include: Config.settings.get<Array<string>>("include"),
-            exclude: Config.settings.get<Array<string>>("exclude")
+            include: Config.settings.get<string[]>("include"),
+            exclude: Config.settings.get<string[]>("exclude")
         };
     }
 }

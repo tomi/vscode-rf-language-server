@@ -13,6 +13,10 @@ export class WorkspaceTree {
     this.fileTreeMap.set(file.filePath, file);
   }
 
+  public removeFileByPath(filePath: string) {
+    this.fileTreeMap.delete(filePath);
+  }
+
   public getFile(filename) {
     return this.fileTreeMap.get(filename);
   }

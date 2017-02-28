@@ -33,7 +33,7 @@ export function activate(context: ExtensionContext) {
       // Synchronize the setting section "rfLanguageServer" to the server
       configurationSection: "rfLanguageServer",
       // Notify the server about file changes to ".clientrc files contain in the workspace
-      fileEvents: workspace.createFileSystemWatcher("**/.clientrc")
+      fileEvents: workspace.createFileSystemWatcher("**/*.robot")
     }
   };
 

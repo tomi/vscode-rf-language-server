@@ -9,7 +9,8 @@ import {
   TextDocuments, TextDocument, Diagnostic, DiagnosticSeverity,
   InitializeParams, InitializeResult, TextDocumentPositionParams,
   CompletionItem, CompletionItemKind, RequestType,
-  Location, Range, DocumentSymbolParams, SymbolInformation
+  Location, Range, DocumentSymbolParams, SymbolInformation,
+  FileEvent
 } from "vscode-languageserver";
 
 import { Position } from "./parser/table-models";
@@ -108,11 +109,6 @@ function validateDocument(textDocument: TextDocument): void {
   connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 }
 
-connection.onDidChangeWatchedFiles(change => {
-  // Monitored files have change in VSCode
-  connection.console.log("We recevied an file change event");
-});
-
 // This handler provides the initial list of the completion items.
 connection.onCompletion((textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
   logger.log("onCompletion...");
@@ -205,20 +201,7 @@ export const BuildFromFilesRequest = new RequestType<BuildFromFilesParam, void, 
 connection.onRequest(BuildFromFilesRequest, message => {
   logger.log("buildFromFiles", message);
 
-  message.files.forEach(filePath => {
-    logger.info("Parsing", filePath);
-
-    readFileAsync(filePath, "utf-8")
-      .then(fileData => parser.parseFile(fileData))
-      .then(parsedFile => {
-        const file = new WorkspaceFile(filePath, parsedFile);
-
-        workspaceMap.addFile(file);
-      })
-      .catch(error => {
-        logger.error("Failed to parse", filePath, error);
-      });
-  });
+  message.files.forEach(readAndParseFile);
 });
 
 connection.onDidOpenTextDocument((params) => {
@@ -250,6 +233,25 @@ connection.onDidCloseTextDocument((params) => {
   logger.log(`${params.textDocument.uri} closed.`);
 });
 
+connection.onDidChangeWatchedFiles(params => {
+  logger.log(`onDidChangeWatchedFiles ${ params.changes }`);
+
+  // Remove deleted files
+  params.changes
+    .filter(change => change.type === 3)
+    .map(deletedFile => filePathFromUri(deletedFile.uri))
+    .forEach(deletedFilePath => {
+      logger.info("Removing file", deletedFilePath);
+      workspaceMap.removeFileByPath(deletedFilePath);
+    });
+
+  // Parse created files
+  params.changes
+    .filter(change => change.type === 1)
+    .map(createdFile => filePathFromUri(createdFile.uri))
+    .forEach(readAndParseFile);
+});
+
 const debouncedParseFile = _.debounce((filePath: string, fileData: string) => {
     try {
       const parsedFile = parser.parseFile(fileData);
@@ -260,6 +262,21 @@ const debouncedParseFile = _.debounce((filePath: string, fileData: string) => {
       logger.error("Failed to parse", filePath, error);
     }
   }, 3000);
+
+function readAndParseFile(filePath: string) {
+  logger.info("Parsing", filePath);
+
+  readFileAsync(filePath, "utf-8")
+    .then(fileData => parser.parseFile(fileData))
+    .then(parsedFile => {
+      const file = new WorkspaceFile(filePath, parsedFile);
+
+      workspaceMap.addFile(file);
+    })
+    .catch(error => {
+      logger.error("Failed to parse", filePath, error);
+    });
+}
 
 // Listen on the connection
 connection.listen();

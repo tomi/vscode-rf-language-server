@@ -19,6 +19,8 @@ export default class Intellisense {
 
   constructor(languageClient: LanguageClient) {
     this.langClient = languageClient;
+
+    this.initialize();
   }
 
   public parseCurrent() {
@@ -43,4 +45,9 @@ export default class Intellisense {
       });
     });
   }
+
+  private initialize() {
+    this.parseAll();
+  }
+
 };

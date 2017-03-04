@@ -45,15 +45,18 @@ export function getFileSymbols(filePath: string, workspaceTree: WorkspaceTree) {
   }
 
   const fileSymbols = [];
+  let lastKeywordOrTestCase;
 
   traverse(null, file.fileTree, {
     enter: (node: Node, parent: Node) => {
       let symbol;
       if (isVariableDeclaration(node)) {
-        symbol = getVariableSymbol(node, parent);
+        symbol = getVariableSymbol(node, lastKeywordOrTestCase);
       } else if (isTestCase(node)) {
+        lastKeywordOrTestCase = node;
         symbol = getTestCaseSymbol(node, parent);
       } else if (isUserKeyword(node)) {
+        lastKeywordOrTestCase = node;
         symbol = getUserKeywordSymbol(node, parent);
       }
 
@@ -66,12 +69,12 @@ export function getFileSymbols(filePath: string, workspaceTree: WorkspaceTree) {
   return fileSymbols;
 }
 
-function getVariableSymbol(node: VariableDeclaration, parent: Node) {
+function getVariableSymbol(node: VariableDeclaration, container: Node) {
   let containerName = undefined;
-  if (isUserKeyword(parent)) {
-    containerName = parent.id.name;
-  } else if (isTestCase(parent)) {
-    containerName = parent.id.name;
+  if (isUserKeyword(container)) {
+    containerName = container.id.name;
+  } else if (isTestCase(container)) {
+    containerName = container.id.name;
   }
 
   return {
@@ -86,7 +89,8 @@ function getTestCaseSymbol(node: TestCase, parent: Node) {
   return {
     name: node.id.name,
     kind: SymbolKind.Function,
-    location: node.location
+    location: node.location,
+    containerName: "<test case>"
   };
 }
 
@@ -94,6 +98,7 @@ function getUserKeywordSymbol(node: UserKeyword, parent: Node) {
   return {
     name: node.id.name,
     kind: SymbolKind.Function,
-    location: node.location
-  }
+    location: node.location,
+    containerName: "<keyword>"
+  };
 }

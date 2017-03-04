@@ -141,8 +141,7 @@ function findVariableDefinition(
 
 function findVariableDefinitionFromFile(variable: VariableExpression, file: TestSuite): VariableDeclaration {
   const nodesToEnter = new Set([
-    "TestSuite", "VariablesTable", "KeywordsTable", "TestCasesTable",
-    "Step", "UserKeyword", "TestCase"
+    "TestSuite", "VariablesTable"
   ]);
 
   let foundVariable = null;

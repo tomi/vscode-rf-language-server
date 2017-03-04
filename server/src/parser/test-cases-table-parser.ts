@@ -23,6 +23,8 @@ import {
   parseVariableDeclaration
 } from "./variable-parsers";
 
+import { parseStep } from "./function-parsers";
+
 export function parseTestCasesTable(dataTable: DataTable): TestCasesTable {
   const testCasesTable = new TestCasesTable(dataTable.location);
   let currentTestCase: TestCase;
@@ -48,23 +50,4 @@ export function parseTestCasesTable(dataTable: DataTable): TestCasesTable {
 
 function startsTestCase(row: DataRow) {
   return !row.first().isEmpty();
-}
-
-function parseStep(row: DataRow) {
-  const firstDataCell = row.getCellByIdx(1);
-  const valueExpressions = row.getCellsByRange(2).map(parseValueExpression);
-
-  let stepContent;
-
-  if (isVariable(firstDataCell)) {
-    const typeAndName = parseTypeAndName(firstDataCell);
-    stepContent =
-      parseVariableDeclaration(typeAndName, valueExpressions, row.location);
-  } else {
-    const identifier = parseIdentifier(row.getCellByIdx(1));
-
-    stepContent = new CallExpression(identifier, valueExpressions, row.location);
-  }
-
-  return new Step(stepContent, row.location);
 }

@@ -17,6 +17,8 @@ import {
   parseValueExpression,
 } from "./primitive-parsers";
 
+import { parseStep } from "./function-parsers";
+
 export function parseKeywordsTable(dataTable: DataTable): KeywordsTable {
   const keywordsTable = new KeywordsTable(dataTable.location);
   let currentKeyword: UserKeyword;
@@ -42,15 +44,4 @@ export function parseKeywordsTable(dataTable: DataTable): KeywordsTable {
 
 function startsKeyword(row: DataRow) {
   return !row.first().isEmpty();
-}
-
-function parseStep(row: DataRow) {
-  // TODO: Variable parsing. Now assumes all are call expressions
-  const identifier = parseIdentifier(row.getCellByIdx(1));
-  const valueExpressions = row.getCellsByRange(2).map(parseValueExpression);
-
-  return new Step(
-    new CallExpression(identifier, valueExpressions, row.location),
-    row.location
-  );
 }

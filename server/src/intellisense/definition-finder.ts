@@ -33,13 +33,13 @@ function isInRange(position: Position, range: Node) {
   return (location.start.line < position.line ||
     (location.start.line === position.line && location.start.column <= position.column)) &&
     (position.line < location.end.line ||
-    (position.line === location.end.line && position.column <= location.end.column));
+      (position.line === location.end.line && position.column <= location.end.column));
 }
 
 interface FileNode {
-  file: WorkspaceFile,
-  path: Node[],
-  node: Node
+  file: WorkspaceFile;
+  path: Node[];
+  node: Node;
 }
 
 function findNodeInPos(pos: Position, fileToSearch: WorkspaceFile): FileNode {
@@ -83,8 +83,8 @@ function tryFindVarDefStartingFromNode(
       if (isVariableDeclaration(body) &&
         body.kind === variable.kind &&
         body.id.name === variable.id.name) {
-          foundVariableDefinition = body;
-          return true;
+        foundVariableDefinition = body;
+        return true;
       } else {
         return false;
       }
@@ -187,7 +187,7 @@ function findKeywordDefinition(
       continue;
     }
 
-    const foundDefinition = findKeywordDefinitionFromFile(keyword, file.fileTree);
+    foundDefinition = findKeywordDefinitionFromFile(keyword, file.fileTree);
     if (foundDefinition) {
       return {
         filePath: file.filePath,
@@ -200,7 +200,7 @@ function findKeywordDefinition(
 }
 
 function findKeywordDefinitionFromFile(keyword: CallExpression, file: TestSuite): UserKeyword {
- const nodesToEnter = new Set([
+  const nodesToEnter = new Set([
     "TestSuite", "KeywordsTable"
   ]);
 

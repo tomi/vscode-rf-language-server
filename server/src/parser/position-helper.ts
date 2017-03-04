@@ -9,7 +9,6 @@ import {
   Node
 } from "./models";
 
-
 export function position(line, column) {
   return {
     line,

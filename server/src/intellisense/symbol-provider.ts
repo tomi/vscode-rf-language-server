@@ -17,26 +17,26 @@ import {
 /**
  * A symbol kind.
  */
-namespace SymbolKind {
-    export const File = 1;
-    export const Module = 2;
-    export const Namespace = 3;
-    export const Package = 4;
-    export const Class = 5;
-    export const Method = 6;
-    export const Property = 7;
-    export const Field = 8;
-    export const Constructor = 9;
-    export const Enum = 10;
-    export const Interface = 11;
-    export const Function = 12;
-    export const Variable = 13;
-    export const Constant = 14;
-    export const String = 15;
-    export const Number = 16;
-    export const Boolean = 17;
-    export const Array = 18;
-}
+const SymbolKind = {
+    File:        1,
+    Module:      2,
+    Namespace:   3,
+    Package:     4,
+    Class:       5,
+    Method:      6,
+    Property:    7,
+    Field:       8,
+    Constructor: 9,
+    Enum:        10,
+    Interface:   11,
+    Function:    12,
+    Variable:    13,
+    Constant:    14,
+    String:      15,
+    Number:      16,
+    Boolean:     17,
+    Array:       18,
+};
 
 export function getFileSymbols(filePath: string, workspaceTree: WorkspaceTree) {
   const file = workspaceTree.getFile(filePath);

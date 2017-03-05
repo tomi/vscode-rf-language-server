@@ -26,10 +26,6 @@
             "title": "RF Intellisense - Reindex robot files in the workspace"
         },
         {
-            "command": "rfIntellisense.rebuildCurrentSource",
-            "title": "RF Intellisense - Reindex the currently active robot file"
-        },
-        {
           "command": "rfIntellisense.reportBug",
           "title": "RF Intellisense - Report a bug"
         }

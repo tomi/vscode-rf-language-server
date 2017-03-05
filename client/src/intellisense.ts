@@ -42,17 +42,6 @@ export default class Intellisense {
     this.initialize();
   }
 
-  public parseCurrent() {
-    if (!window.activeTextEditor) {
-      return;
-    }
-
-    const filePath = window.activeTextEditor.document.fileName;
-    this.langClient.sendRequest(BuildFromFilesRequestType, {
-      files: [filePath]
-    });
-  }
-
   public parseAll() {
     // const config = Config.includeExclude();
     workspace.findFiles(`**/*.robot`, "").then(files => {

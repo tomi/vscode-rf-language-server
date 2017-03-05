@@ -1,18 +1,25 @@
 {
   "name": "rf-intellisense",
+  "displayName": "Robot Framework Intellisense",
   "description": "Robot Framework Intellisense",
   "version": "0.0.1",
   "license": "GPL-3.0",
-  "publisher": "vscode",
+  "publisher": "TomiTurtiainen",
   "engines": {
     "vscode": "^1.8.0"
   },
   "categories": [
+    "Languages",
     "Other"
   ],
   "activationEvents": [
     "onLanguage:robot"
   ],
+  "galleryBanner": {
+      "theme": "dark",
+      "color": "#232d33"
+  },
+  "private": true,
   "main": "./out/src/extension",
   "contributes": {
     "languages": [{
@@ -34,11 +41,6 @@
       "type": "object",
       "title": "Robot Framework language server configuration",
       "properties": {
-        "rfLanguageServer.maxNumberOfProblems": {
-          "type": "number",
-          "default": 100,
-          "description": "Controls the maximum number of problems produced by the server."
-        },
         "rfLanguageServer.trace.server": {
           "type": "string",
           "enum": [
@@ -76,7 +78,8 @@
   "keywords": [
     "RF",
     "RobotFramework",
-    "Intellisense"
+    "intellisense",
+    "code-completion"
   ],
   "author": "Tomi Turtiainen",
   "bugs": {

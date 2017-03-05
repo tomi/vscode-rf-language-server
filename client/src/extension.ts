@@ -50,6 +50,7 @@ export function activate(context: ExtensionContext) {
   langClient.onReady().then(() => {
     let intellisense: Intellisense = new Intellisense(langClient);
 
+    context.subscriptions.push(commands.registerCommand("rfIntellisense.reportBug", intellisense.reportBug));
     context.subscriptions.push(commands.registerCommand("rfIntellisense.rebuildSources", () => {
       intellisense.parseAll();
     }));

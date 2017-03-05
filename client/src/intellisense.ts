@@ -6,6 +6,7 @@ import {
 } from "vscode-languageclient";
 
 import { Config } from "./utils/config";
+import { exec } from "child_process";
 
 export interface BuildFromFilesParam {
   files: string[];
@@ -15,6 +16,24 @@ export const BuildFromFilesRequestType =
   new RequestType<BuildFromFilesParam, void, void, void>("buildFromFiles");
 
 export default class Intellisense {
+  private static openLinkInBrowser(url: string) {
+    let openCommand: string = "";
+
+    switch (process.platform) {
+      case "darwin":
+      case "linux":
+        openCommand = "open ";
+        break;
+      case "win32":
+        openCommand = "start ";
+        break;
+      default:
+        return;
+    }
+
+    exec(openCommand + url);
+  }
+
   private langClient: LanguageClient;
 
   constructor(languageClient: LanguageClient) {
@@ -44,6 +63,10 @@ export default class Intellisense {
         files: filePaths
       });
     });
+  }
+
+  public reportBug() {
+    Intellisense.openLinkInBrowser("https://github.com/tomi/vscode-rf-language-server/issues");
   }
 
   private initialize() {

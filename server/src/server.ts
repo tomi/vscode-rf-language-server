@@ -10,7 +10,7 @@ import {
   InitializeParams, InitializeResult, TextDocumentPositionParams,
   CompletionItem, CompletionItemKind, RequestType,
   Location, Range, DocumentSymbolParams, SymbolInformation,
-  FileEvent
+  FileEvent, FileChangeType
 } from "vscode-languageserver";
 
 import { Position } from "./parser/table-models";
@@ -74,10 +74,10 @@ connection.onInitialize((params: InitializeResult) => {
 
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
-documents.onDidChangeContent(change => {
-  logger.log("onDidChangeContent...");
-  validateDocument(change.document);
-});
+// documents.onDidChangeContent(change => {
+//   logger.log("onDidChangeContent...");
+//   validateDocument(change.document);
+// });
 
 // The settings interface describe the server relevant settings part
 interface Settings {
@@ -110,25 +110,14 @@ function validateDocument(textDocument: TextDocument): void {
 }
 
 // This handler provides the initial list of the completion items.
-connection.onCompletion((textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
-  logger.log("onCompletion...");
+// connection.onCompletion((textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
+//   logger.log("onCompletion...");
 
-  // The pass parameter contains the position of the text document in
-  // which code complete got requested. For the example we ignore this
-  // info and always provide the same completion items.
-  return [
-    {
-      label: "TypeScript",
-      kind: CompletionItemKind.Text,
-      data: 1,
-    },
-    {
-      label: "JavaScript",
-      kind: CompletionItemKind.Text,
-      data: 2,
-    },
-  ];
-});
+//   // The pass parameter contains the position of the text document in
+//   // which code complete got requested. For the example we ignore this
+//   // info and always provide the same completion items.
+//   return [];
+// });
 
 connection.onDocumentSymbol((documentSymbol: DocumentSymbolParams): SymbolInformation[] => {
   logger.log("onDocumentSymbol...");
@@ -181,16 +170,8 @@ connection.onDefinition((textDocumentPosition: TextDocumentPositionParams): Loca
 
 // This handler resolve additional information for the item selected in
 // the completion list.
-connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
-  if (item.data === 1) {
-    item.detail = "TypeScript details",
-    item.documentation = "TypeScript documentation";
-  } else if (item.data === 2) {
-    item.detail = "JavaScript details",
-    item.documentation = "JavaScript documentation";
-  }
-  return item;
-});
+// connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
+// });
 
 export interface BuildFromFilesParam {
   files: string[];
@@ -204,12 +185,12 @@ connection.onRequest(BuildFromFilesRequest, message => {
   message.files.forEach(readAndParseFile);
 });
 
-connection.onDidOpenTextDocument(params => {
-  // A text document got opened in VSCode.
-  // params.uri uniquely identifies the document. For documents store on disk this is a file URI.
-  // params.text the initial full content of the document.
-  logger.log(`${params.textDocument.uri} opened.`);
-});
+// connection.onDidOpenTextDocument(params => {
+//   // A text document got opened in VSCode.
+//   // params.uri uniquely identifies the document. For documents store on disk this is a file URI.
+//   // params.text the initial full content of the document.
+//   logger.log(`${params.textDocument.uri} opened.`);
+// });
 
 /**
  * Message sent when the content of a text document did change in VSCode.
@@ -227,18 +208,18 @@ connection.onDidChangeTextDocument(params => {
   // logger.log(`${params.textDocument.uri} changed: ${JSON.stringify(params.contentChanges)}`);
 });
 
-connection.onDidCloseTextDocument(params => {
-  // A text document got closed in VSCode.
-  // params.uri uniquely identifies the document.
-  logger.log(`${params.textDocument.uri} closed.`);
-});
+// connection.onDidCloseTextDocument(params => {
+//   // A text document got closed in VSCode.
+//   // params.uri uniquely identifies the document.
+//   logger.log(`${params.textDocument.uri} closed.`);
+// });
 
 connection.onDidChangeWatchedFiles(params => {
   logger.log(`onDidChangeWatchedFiles ${ params.changes }`);
 
   // Remove deleted files
   params.changes
-    .filter(change => change.type === 3)
+    .filter(change => change.type === FileChangeType.Deleted)
     .map(deletedFile => filePathFromUri(deletedFile.uri))
     .forEach(deletedFilePath => {
       logger.info("Removing file", deletedFilePath);
@@ -247,7 +228,7 @@ connection.onDidChangeWatchedFiles(params => {
 
   // Parse created files
   params.changes
-    .filter(change => change.type === 1)
+    .filter(change => change.type === FileChangeType.Created)
     .map(createdFile => filePathFromUri(createdFile.uri))
     .forEach(readAndParseFile);
 });

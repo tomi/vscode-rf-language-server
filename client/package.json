@@ -50,6 +50,16 @@
           ],
           "default": "off",
           "description": "Traces the communication between VSCode and the rfLanguageServer service."
+        },
+        "rfLanguageServer.includePaths": {
+          "type": "array",
+          "default": [],
+          "description": "An array of files/folders that should be included by the parser. Glob patterns are accepted (eg. test/*.robot)"
+        },
+        "rfLanguageServer.excludePaths": {
+          "type": "array",
+          "default": [],
+          "description": "An array of files/folders that should be ignored by the parser. Glob patterns are accepted (eg. **/*bad.robot)"
         }
       }
     }

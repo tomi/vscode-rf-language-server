@@ -7,6 +7,7 @@ import {
 
 import { Config } from "./utils/config";
 import { exec } from "child_process";
+import * as path from "path";
 
 export interface BuildFromFilesParam {
   files: string[];
@@ -14,6 +15,26 @@ export interface BuildFromFilesParam {
 
 export const BuildFromFilesRequestType =
   new RequestType<BuildFromFilesParam, void, void, void>("buildFromFiles");
+
+function createGlob(patterns: string[]) {
+  switch (patterns.length) {
+    case 0:
+      return "";
+    case 1:
+      return patterns[0];
+    default:
+      return `{${ patterns.join(",") }}`;
+  }
+};
+
+function getIncludeExcludePattern() {
+  const { include, exclude } = Config.getIncludeExclude();
+
+  return {
+    include: createGlob(include.length === 0 ? ["**/*.robot"] : include),
+    exclude: createGlob(exclude)
+  };
+}
 
 export default class Intellisense {
   private static openLinkInBrowser(url: string) {
@@ -43,9 +64,14 @@ export default class Intellisense {
   }
 
   public parseAll() {
-    // const config = Config.includeExclude();
-    workspace.findFiles(`**/*.robot`, "").then(files => {
-      const filePaths = files.map(file => file.fsPath);
+    const includeExclude = getIncludeExcludePattern();
+
+    workspace.findFiles(includeExclude.include, includeExclude.exclude).then(files => {
+      const filePaths = files
+        // User can configure patterns that include other files than .robot.
+        // Filter those out.
+        .filter(file => path.extname(file.fsPath) === ".robot")
+        .map(file => file.fsPath);
 
       // Send the array of paths to the language server
       this.langClient.sendRequest(BuildFromFilesRequestType, {

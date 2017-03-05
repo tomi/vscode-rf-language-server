@@ -8,10 +8,10 @@ export class Config {
     public static settings = workspace.getConfiguration(CONFIG_BLOCK_NAME);
 
     public static reloadConfig() {
-        Config.settings = workspace.getConfiguration("crane");
+        Config.settings = workspace.getConfiguration(CONFIG_BLOCK_NAME);
     }
 
-    public static get includeExclude() {
+    public static getIncludeExclude() {
         Config.reloadConfig();
 
         if (!Config.settings) {
@@ -22,8 +22,8 @@ export class Config {
         }
 
         return {
-            include: Config.settings.get<string[]>("include"),
-            exclude: Config.settings.get<string[]>("exclude")
+            include: Config.settings.get<string[]>("includePaths"),
+            exclude: Config.settings.get<string[]>("excludePaths")
         };
     }
 }

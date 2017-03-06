@@ -17,7 +17,7 @@ import {
   location
 } from "./test-helper";
 
-describe.only("parseValueExpression", () => {
+describe("parseValueExpression", () => {
   describe("should parse single literals", () => {
     function shouldParseLiteral(cellContent) {
       const loc = location(0, 0, 0, cellContent.length);

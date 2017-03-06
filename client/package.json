@@ -3,7 +3,7 @@
   "displayName": "Robot Framework Intellisense",
   "description": "Robot Framework Intellisense",
   "version": "0.0.1",
-  "license": "GPL-3.0",
+  "license": "MIT",
   "publisher": "TomiTurtiainen",
   "engines": {
     "vscode": "^1.8.0"
@@ -98,7 +98,7 @@
     "intellisense",
     "code-completion"
   ],
-  "author": "Tomi Turtiainen",
+  "author": "Tomi Turtiainen <tomi.turtiainen@gmail.com>",
   "bugs": {
     "url": "https://github.com/tomi/vscode-rf-language-server/issues"
   },

@@ -2,7 +2,7 @@
   "name": "rf-intellisense",
   "version": "0.0.1",
   "description": "Robot Framework Intellisense",
-  "license": "GPL-3.0",
+  "license": "MIT",
   "author": {
     "name": "Tomi Turtiainen",
     "email": "tomi.turtiainen@gmail.com"

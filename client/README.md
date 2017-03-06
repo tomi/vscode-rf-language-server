@@ -29,7 +29,7 @@ Report them [here](https://github.com/tomi/vscode-rf-language-server/issues).
 
 ## License
 
-[GPL-3.0](https://github.com/tomi/vscode-rf-language-server/blob/master/LICENSE)
+[MIT](https://github.com/tomi/vscode-rf-language-server/blob/master/LICENSE)
 
 
 ## Acknowledgements

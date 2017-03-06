@@ -4,6 +4,9 @@ A [Visual Studio Code](https://code.visualstudio.com/) extension that supports R
 
 ## Features
 
+### Syntax highlighting
+* Supports `.robot` files
+
 ### Goto definition
 * For variables
 * For user keywords
@@ -13,6 +16,7 @@ A [Visual Studio Code](https://code.visualstudio.com/) extension that supports R
 
 ## Known issues
 
+Can be found [here](https://github.com/tomi/vscode-rf-language-server/blob/master/client/KNOWNISSUES.md)
 
 ## Changelog
 
@@ -31,3 +35,5 @@ Report them [here](https://github.com/tomi/vscode-rf-language-server/issues).
 ## Acknowledgements
 
 This project is a grateful recipient of the [Futurice Open Source sponsorship program](https://spiceprogram.org). ♥
+
+Syntax highlighting grammar is based on [work](https://bitbucket.org/jussimalinen/robot.tmbundle/wiki/Home) by Jussi Malinen.

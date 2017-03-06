@@ -14,52 +14,56 @@ import {
   VariablesTable
 } from "../parser/models";
 
+function isOfType(node: Node, typeName: string) {
+  return node && node.type === typeName;
+}
+
 export function isIdentifier(node: Node): node is Identifier {
-  return node && (<Identifier>node).type === "Identifier";
+  return isOfType(node, "Identifier");
 }
 
 export function isVariableExpression(node: Node): node is VariableExpression {
-  return node && (<VariableExpression>node).type === "VariableExpression";
+  return isOfType(node, "VariableExpression");
 }
 
 export function isCallExpression(node: Node): node is CallExpression {
-  return node && (<CallExpression>node).type === "CallExpression";
+  return isOfType(node, "CallExpression");
 }
 
 export function isScalarDeclaration(node: Node): node is ScalarDeclaration {
-  return node && (<ScalarDeclaration>node).type === "ScalarDeclaration";
+  return isOfType(node, "ScalarDeclaration");
 }
 
 export function isListDeclaration(node: Node): node is ListDeclaration {
-  return node && (<ListDeclaration>node).type === "ListDeclaration";
+  return isOfType(node, "ListDeclaration");
 }
 
 export function isDictionaryDeclaration(node: Node): node is DictionaryDeclaration {
-  return node && (<DictionaryDeclaration>node).type === "DictionaryDeclaration";
+  return isOfType(node, "DictionaryDeclaration");
 }
 
 export function isVariableDeclaration(node: Node): node is VariableDeclaration {
-    return node && isScalarDeclaration(node) ||
+    return isScalarDeclaration(node) ||
       isListDeclaration(node) ||
       isDictionaryDeclaration(node);
 }
 
 export function isStep(node: Node): node is Step {
-  return node && (<Step>node).type === "Step";
+  return isOfType(node, "Step");
 }
 
 export function isUserKeyword(node: Node): node is UserKeyword {
-  return node && (<UserKeyword>node).type === "UserKeyword";
+  return isOfType(node, "UserKeyword");
 }
 
 export function isTestCase(node: Node): node is TestCase {
-  return node && (<TestCase>node).type === "TestCase";
+  return isOfType(node, "TestCase");
 }
 
 export function isFunctionDeclaration(node: Node): node is FunctionDeclaration {
-  return node && isUserKeyword(node) || isTestCase(node);
+  return isUserKeyword(node) || isTestCase(node);
 }
 
 export function isVariablesTable(node: Node): node is VariablesTable {
-  return node && (<VariablesTable>node).type === "VariablesTable";
+  return isOfType(node, "VariablesTable");
 }

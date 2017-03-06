@@ -1,7 +1,6 @@
 "use strict";
 
 import * as _ from "lodash";
-import * as BPromise from "bluebird";
 
 import {
   IPCMessageReader, IPCMessageWriter,
@@ -24,10 +23,7 @@ import { getFileSymbols } from "./intellisense/symbol-provider";
 
 import Uri from "vscode-uri";
 
-import * as fs from "fs";
-const readFileAsync: (filename: string, encoding: string) => Promise<string>
-  = <(...all: any[]) => any>(BPromise.promisify(fs.readFile));
-// const promisifiedFs = BPromise.promisifyAll(fs);
+import * as asyncFs from "./utils/async-fs";
 
 import { FileParser } from "./parser/parser";
 const parser = new FileParser();
@@ -247,7 +243,7 @@ const debouncedParseFile = _.debounce((filePath: string, fileData: string) => {
 function readAndParseFile(filePath: string) {
   logger.info("Parsing", filePath);
 
-  readFileAsync(filePath, "utf-8")
+  asyncFs.readFileAsync(filePath, "utf-8")
     .then(fileData => parser.parseFile(fileData))
     .then(parsedFile => {
       const file = new WorkspaceFile(filePath, parsedFile);

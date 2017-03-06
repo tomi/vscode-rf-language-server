@@ -4,7 +4,7 @@ import { DataCell } from "./table-models";
 
 import {
   Identifier,
-  ValueExpression,
+  Expression,
   VariableDeclaration,
   ScalarDeclaration,
   ListDeclaration,
@@ -44,7 +44,11 @@ export function parseTypeAndName(cell: DataCell) {
   };
 }
 
-export function parseVariableDeclaration(typeAndName, values: ValueExpression[], location): VariableDeclaration {
+export function parseVariableDeclaration(
+  typeAndName,
+  values: Expression[],
+  location
+): VariableDeclaration {
   const { type, name } = typeAndName;
 
   const variableParserFn = getVariableParserFn(type);
@@ -61,22 +65,22 @@ function getVariableParserFn(type: string): Function {
   return parser;
 }
 
-function parseScalar(name: Identifier, values: ValueExpression[], location): VariableDeclaration {
+function parseScalar(name: Identifier, values: Expression[], location): VariableDeclaration {
   const value = _.first(values);
 
   return new ScalarDeclaration(name, value, location);
 }
 
-function parseList(name: Identifier, values: ValueExpression[], location): VariableDeclaration {
+function parseList(name: Identifier, values: Expression[], location): VariableDeclaration {
   return new ListDeclaration(name, values, location);
 }
 
-function parseDictionary(name: Identifier, values: ValueExpression[], location): VariableDeclaration {
+function parseDictionary(name: Identifier, values: Expression[], location): VariableDeclaration {
   // TODO
   return new DictionaryDeclaration(name, null, location);
 }
 
-function parseEnvironment(name: Identifier, values: ValueExpression[], location): VariableDeclaration {
+function parseEnvironment(name: Identifier, values: Expression[], location): VariableDeclaration {
   // TODO
   return;
 }

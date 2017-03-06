@@ -11,6 +11,7 @@ import {
 } from "./models";
 
 import {
+  parseCallExpression,
   parseIdentifier,
   parseValueExpression,
 } from "./primitive-parsers";
@@ -23,18 +24,17 @@ import {
 
 export function parseStep(row: DataRow) {
   const firstDataCell = row.getCellByIdx(1);
-  const valueExpressions = row.getCellsByRange(2).map(parseValueExpression);
 
   let stepContent;
 
   if (isVariable(firstDataCell)) {
     const typeAndName = parseTypeAndName(firstDataCell);
-    stepContent =
-      parseVariableDeclaration(typeAndName, valueExpressions, row.location);
-  } else {
-    const identifier = parseIdentifier(row.getCellByIdx(1));
+    const callExpression = parseCallExpression(row.getCellsByRange(2));
 
-    stepContent = new CallExpression(identifier, valueExpressions, row.location);
+    stepContent =
+      parseVariableDeclaration(typeAndName, [callExpression], row.location);
+  } else {
+    stepContent = parseCallExpression(row.getCellsByRange(1));
   }
 
   return new Step(stepContent, row.location);

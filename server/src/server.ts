@@ -1,6 +1,7 @@
 "use strict";
 
 import * as _ from "lodash";
+import * as minimatch from "minimatch";
 
 import {
   IPCMessageReader, IPCMessageWriter,
@@ -12,14 +13,10 @@ import {
   FileEvent, FileChangeType
 } from "vscode-languageserver";
 
-import { Position } from "./parser/table-models";
-import { TestSuite } from "./parser/models";
-import { isInRange } from "./parser/position-helper";
-import { traverse, VisitorOption } from "./traverse/traverse";
-import { Node } from "./parser/models";
 import { WorkspaceFile, WorkspaceTree } from "./intellisense/workspace-tree";
 import { findDefinition } from "./intellisense/definition-finder";
 import { getFileSymbols } from "./intellisense/symbol-provider";
+import { Settings, Config } from "./utils/settings";
 
 import Uri from "vscode-uri";
 
@@ -75,35 +72,15 @@ connection.onInitialize((params: InitializeResult) => {
 //   validateDocument(change.document);
 // });
 
-// The settings interface describe the server relevant settings part
-interface Settings {
-  languageServerExample: ExampleSettings;
-}
-
-// These are the example settings we defined in the client"s package.json
-// file
-interface ExampleSettings {
-  maxNumberOfProblems: number;
-}
-
-// hold the maxNumberOfProblems setting
-let maxNumberOfProblems: number;
 // The settings have changed. Is send on server activation
 // as well.
 connection.onDidChangeConfiguration(change => {
   logger.log("onDidChangeConfiguration...");
 
-  let settings = <Settings>change.settings;
-  maxNumberOfProblems = settings.languageServerExample.maxNumberOfProblems || 100;
-  // Revalidate any open text documents
-  documents.all().forEach(validateDocument);
+  if (change.settings && change.settings.rfLanguageServer) {
+    Config.setSettings(change.settings.rfLanguageServer);
+  }
 });
-
-function validateDocument(textDocument: TextDocument): void {
-  let diagnostics: Diagnostic[] = [];
-  // Send the computed diagnostics to VSCode.
-  connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
-}
 
 // This handler provides the initial list of the completion items.
 // connection.onCompletion((textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
@@ -226,8 +203,23 @@ connection.onDidChangeWatchedFiles(params => {
   params.changes
     .filter(change => change.type === FileChangeType.Created)
     .map(createdFile => filePathFromUri(createdFile.uri))
+    .filter(matchFilePathToConfig)
     .forEach(readAndParseFile);
 });
+
+function matchFilePathToConfig(filePath: string) {
+  const { include, exclude } = Config.getIncludeExclude();
+
+  const hasIncludePatterns = include.length > 0;
+  const hasExcludePatterns = exclude.length > 0;
+
+  const shouldInclude = !hasIncludePatterns ||
+    _.some(include, pattern => minimatch(filePath, pattern));
+  const shouldExclude = hasExcludePatterns &&
+    _.some(exclude, pattern => minimatch(filePath, pattern));
+
+  return shouldInclude && !shouldExclude;
+}
 
 const debouncedParseFile = _.debounce((filePath: string, fileData: string) => {
     try {

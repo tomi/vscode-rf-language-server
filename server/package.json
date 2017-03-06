@@ -13,7 +13,7 @@
   "dependencies": {
     "bluebird": "3.4.7",
     "lodash": "4.17.4",
-    "vscode-languageserver": "3.0.4",
+    "vscode-languageserver": "~3.1.0",
     "vscode-uri": "1.0.0"
   },
   "devDependencies": {
@@ -25,7 +25,7 @@
     "chai": "^3.5.0",
     "mocha": "^3.2.0",
     "ts-node": "~2.1.0",
-    "tslint": "~4.4.2",
+    "tslint": "~4.5.1",
     "typescript": "2.1.6"
   },
   "main": "index.js",

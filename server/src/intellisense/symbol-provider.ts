@@ -5,6 +5,7 @@ import {
   isVariableDeclaration,
   isTestCase,
   isUserKeyword,
+  isVariablesTable
 } from "./type-guards";
 
 import {
@@ -45,19 +46,16 @@ export function getFileSymbols(filePath: string, workspaceTree: WorkspaceTree) {
   }
 
   const fileSymbols = [];
-  let lastKeywordOrTestCase;
 
   traverse(null, file.fileTree, {
     enter: (node: Node, parent: Node) => {
       let symbol;
-      if (isVariableDeclaration(node)) {
-        symbol = getVariableSymbol(node, lastKeywordOrTestCase);
+      if (isVariableDeclaration(node) && isVariablesTable(parent)) {
+        symbol = getVariableSymbol(node);
       } else if (isTestCase(node)) {
-        lastKeywordOrTestCase = node;
-        symbol = getTestCaseSymbol(node, parent);
+        symbol = getTestCaseSymbol(node);
       } else if (isUserKeyword(node)) {
-        lastKeywordOrTestCase = node;
-        symbol = getUserKeywordSymbol(node, parent);
+        symbol = getUserKeywordSymbol(node);
       }
 
       if (symbol) {
@@ -69,23 +67,15 @@ export function getFileSymbols(filePath: string, workspaceTree: WorkspaceTree) {
   return fileSymbols;
 }
 
-function getVariableSymbol(node: VariableDeclaration, container: Node) {
-  let containerName = undefined;
-  if (isUserKeyword(container)) {
-    containerName = container.id.name;
-  } else if (isTestCase(container)) {
-    containerName = container.id.name;
-  }
-
+function getVariableSymbol(node: VariableDeclaration) {
   return {
     name: node.id.name,
     kind: SymbolKind.Variable,
-    location: node.location,
-    containerName
+    location: node.location
   };
 }
 
-function getTestCaseSymbol(node: TestCase, parent: Node) {
+function getTestCaseSymbol(node: TestCase) {
   return {
     name: node.id.name,
     kind: SymbolKind.Function,
@@ -94,7 +84,7 @@ function getTestCaseSymbol(node: TestCase, parent: Node) {
   };
 }
 
-function getUserKeywordSymbol(node: UserKeyword, parent: Node) {
+function getUserKeywordSymbol(node: UserKeyword) {
   return {
     name: node.id.name,
     kind: SymbolKind.Function,

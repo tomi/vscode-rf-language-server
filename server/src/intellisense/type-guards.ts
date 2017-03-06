@@ -10,7 +10,8 @@ import {
   DictionaryDeclaration,
   UserKeyword,
   TestCase,
-  FunctionDeclaration
+  FunctionDeclaration,
+  VariablesTable
 } from "../parser/models";
 
 export function isIdentifier(node: Node): node is Identifier {
@@ -57,4 +58,8 @@ export function isTestCase(node: Node): node is TestCase {
 
 export function isFunctionDeclaration(node: Node): node is FunctionDeclaration {
   return node && isUserKeyword(node) || isTestCase(node);
+}
+
+export function isVariablesTable(node: Node): node is VariablesTable {
+  return node && (<VariablesTable>node).type === "VariablesTable";
 }

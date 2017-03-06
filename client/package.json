@@ -2,7 +2,7 @@
   "name": "rf-intellisense",
   "displayName": "Robot Framework Intellisense",
   "description": "Robot Framework Intellisense",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "license": "MIT",
   "publisher": "TomiTurtiainen",
   "engines": {
@@ -48,16 +48,6 @@
       "type": "object",
       "title": "Robot Framework language server configuration",
       "properties": {
-        "rfLanguageServer.trace.server": {
-          "type": "string",
-          "enum": [
-            "off",
-            "messages",
-            "verbose"
-          ],
-          "default": "off",
-          "description": "Traces the communication between VSCode and the rfLanguageServer service."
-        },
         "rfLanguageServer.includePaths": {
           "type": "array",
           "default": [],

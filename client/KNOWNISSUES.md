@@ -4,3 +4,4 @@
 * Rows that are split to multiple rows are not parsed correctly
 * For loops are not parsed correctly
 * Goto definition doesn't work with keywords with embedded arguments
+* Can't find keywords defined in python or java libraries

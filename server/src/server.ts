@@ -2,23 +2,20 @@
 
 import * as _ from "lodash";
 import * as minimatch from "minimatch";
+import Uri from "vscode-uri";
 
 import {
   IPCMessageReader, IPCMessageWriter,
   createConnection, IConnection, TextDocumentSyncKind,
-  TextDocuments, TextDocument, Diagnostic, DiagnosticSeverity,
-  InitializeParams, InitializeResult, TextDocumentPositionParams,
-  CompletionItem, CompletionItemKind, RequestType,
-  Location, Range, DocumentSymbolParams, SymbolInformation,
-  FileEvent, FileChangeType
+  TextDocuments, InitializeResult, TextDocumentPositionParams,
+  RequestType, Location, Range, DocumentSymbolParams,
+  SymbolInformation, FileChangeType
 } from "vscode-languageserver";
 
 import { WorkspaceFile, WorkspaceTree } from "./intellisense/workspace-tree";
 import { findDefinition } from "./intellisense/definition-finder";
 import { getFileSymbols } from "./intellisense/symbol-provider";
 import { Settings, Config } from "./utils/settings";
-
-import Uri from "vscode-uri";
 
 import * as asyncFs from "./utils/async-fs";
 
@@ -48,7 +45,6 @@ const logger = console;
 // in the passed params the rootPath of the workspace plus the client capabilites.
 let workspaceRoot: string;
 connection.onInitialize((params: InitializeResult) => {
-  // workspaceRoot = params.rootPath;
   logger.log("Initializing...");
 
   return {
@@ -65,13 +61,6 @@ connection.onInitialize((params: InitializeResult) => {
   };
 });
 
-// The content of a text document has changed. This event is emitted
-// when the text document first opened or when its content has changed.
-// documents.onDidChangeContent(change => {
-//   logger.log("onDidChangeContent...");
-//   validateDocument(change.document);
-// });
-
 // The settings have changed. Is send on server activation
 // as well.
 connection.onDidChangeConfiguration(change => {
@@ -81,16 +70,6 @@ connection.onDidChangeConfiguration(change => {
     Config.setSettings(change.settings.rfLanguageServer);
   }
 });
-
-// This handler provides the initial list of the completion items.
-// connection.onCompletion((textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
-//   logger.log("onCompletion...");
-
-//   // The pass parameter contains the position of the text document in
-//   // which code complete got requested. For the example we ignore this
-//   // info and always provide the same completion items.
-//   return [];
-// });
 
 connection.onDocumentSymbol((documentSymbol: DocumentSymbolParams): SymbolInformation[] => {
   logger.log("onDocumentSymbol...");
@@ -141,29 +120,18 @@ connection.onDefinition((textDocumentPosition: TextDocumentPositionParams): Loca
   );
 });
 
-// This handler resolve additional information for the item selected in
-// the completion list.
-// connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
-// });
-
 export interface BuildFromFilesParam {
   files: string[];
 }
 
-export const BuildFromFilesRequest = new RequestType<BuildFromFilesParam, void, void, void>("buildFromFiles");
+export const BuildFromFilesRequest =
+  new RequestType<BuildFromFilesParam, void, void, void>("buildFromFiles");
 
 connection.onRequest(BuildFromFilesRequest, message => {
   logger.log("buildFromFiles", message);
 
   message.files.forEach(readAndParseFile);
 });
-
-// connection.onDidOpenTextDocument(params => {
-//   // A text document got opened in VSCode.
-//   // params.uri uniquely identifies the document. For documents store on disk this is a file URI.
-//   // params.text the initial full content of the document.
-//   logger.log(`${params.textDocument.uri} opened.`);
-// });
 
 /**
  * Message sent when the content of a text document did change in VSCode.
@@ -176,16 +144,7 @@ connection.onDidChangeTextDocument(params => {
   const fileData = _.first(params.contentChanges).text;
 
   debouncedParseFile(filePath, fileData);
-  // params.uri uniquely identifies the document.
-  // params.contentChanges describe the content changes to the document.
-  // logger.log(`${params.textDocument.uri} changed: ${JSON.stringify(params.contentChanges)}`);
 });
-
-// connection.onDidCloseTextDocument(params => {
-//   // A text document got closed in VSCode.
-//   // params.uri uniquely identifies the document.
-//   logger.log(`${params.textDocument.uri} closed.`);
-// });
 
 connection.onDidChangeWatchedFiles(params => {
   logger.log(`onDidChangeWatchedFiles ${ params.changes }`);

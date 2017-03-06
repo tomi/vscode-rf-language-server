@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>scopeName</key>
+	<string>text.robot</string>
+
+	<key>uuid</key>
+	<string>a7fae509-bc8d-451e-b5fc-a47feb9d2a9e</string>
+
+  <key>fileTypes</key>
+  <array>
+    <string>robot</string>
+  </array>
+
+	<key>name</key>
+	<string>RobotFramework</string>
+
+	<key>patterns</key>
+	<array>
+		<dict>
+			<key>match</key>
+			<string>(^\*\*\*.*?\*\*\*)|((?&lt;=^\|)\s+\*\*\*.*?\*\*\*)</string>
+			<key>name</key>
+			<string>string.robot.header</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\[.*?\]</string>
+			<key>name</key>
+			<string>storage.type.method.robot</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>(\$\{.*?\})|(@\{.*?\})</string>
+			<key>name</key>
+			<string>variable.language.robot</string>
+		</dict>
+		<dict>
+			<key>begin</key>
+			<string>(?&lt;!\\)#</string>
+			<key>end</key>
+			<string>$</string>
+			<key>name</key>
+			<string>comment.robot</string>
+		</dict>
+		<dict>
+			<key>begin</key>
+			<string>(^[^ \t\*\n\|]+)|((?&lt;=^\|)\s+[^ \t\*\n\|]+)</string>
+			<key>end</key>
+			<string>\s{2}|\t|$|\s+(?=\|)</string>
+			<key>name</key>
+			<string>keyword.control.robot</string>
+		</dict>
+	</array>
+</dict>
+</plist>

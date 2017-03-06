@@ -27,6 +27,13 @@
         "extensions": [".robot"],
         "aliases": ["robotframework", "RobotFramework"]
     }],
+    "grammars": [
+      {
+        "language": "robot",
+        "scopeName": "text.robot",
+        "path": "./syntaxes/robot.tmLanguage"
+      }
+    ],
     "commands": [
         {
             "command": "rfIntellisense.rebuildSources",

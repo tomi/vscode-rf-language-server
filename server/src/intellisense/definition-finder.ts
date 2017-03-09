@@ -12,12 +12,9 @@ import {
   TestSuite
 } from "../parser/models";
 import { WorkspaceFile, WorkspaceTree } from "./workspace-tree";
-// import { traverse as workspaceTraverse } from "./workspace-traverse";
-import {
-  traverse,
-  VisitorOption
-} from "../traverse/traverse";
+import { traverse, VisitorOption } from "../traverse/traverse";
 import { Location, Position } from "../utils/position";
+import { identifierMatchesKeyword } from "./keyword-matcher";
 import {
   isIdentifier,
   isVariableExpression,
@@ -166,13 +163,13 @@ function findVariableDefinitionFromFile(variable: VariableExpression, file: Test
 }
 
 function findKeywordDefinition(
-  keyword: CallExpression,
+  callExpression: CallExpression,
   keywordLocation: FileNode,
   workspaceTree: WorkspaceTree
 ) {
-  const identifier = keyword.callee;
+  const identifier = callExpression.callee;
 
-  let foundDefinition = findKeywordDefinitionFromFile(keyword, keywordLocation.file.fileTree);
+  let foundDefinition = findKeywordDefinitionFromFile(callExpression, keywordLocation.file.fileTree);
   if (foundDefinition) {
     return {
       filePath: keywordLocation.file.filePath,
@@ -186,7 +183,7 @@ function findKeywordDefinition(
       continue;
     }
 
-    foundDefinition = findKeywordDefinitionFromFile(keyword, file.fileTree);
+    foundDefinition = findKeywordDefinitionFromFile(callExpression, file.fileTree);
     if (foundDefinition) {
       return {
         filePath: file.filePath,
@@ -198,7 +195,7 @@ function findKeywordDefinition(
   return null;
 }
 
-function findKeywordDefinitionFromFile(keyword: CallExpression, file: TestSuite): UserKeyword {
+function findKeywordDefinitionFromFile(callExpression: CallExpression, file: TestSuite): UserKeyword {
   const nodesToEnter = new Set([
     "TestSuite", "KeywordsTable"
   ]);
@@ -206,7 +203,7 @@ function findKeywordDefinitionFromFile(keyword: CallExpression, file: TestSuite)
   let foundKeyword = null;
   const isNodeSearchedKeyword = node =>
     isUserKeyword(node) &&
-    node.id.name === keyword.callee.name;
+    identifierMatchesKeyword(callExpression.callee, node);
 
   traverse(null, file, {
     enter: (node: Node, parent: Node) => {

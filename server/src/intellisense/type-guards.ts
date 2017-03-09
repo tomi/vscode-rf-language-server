@@ -2,6 +2,8 @@ import {
   Node,
   Step,
   Identifier,
+  Literal,
+  TemplateLiteral,
   VariableExpression,
   CallExpression,
   VariableDeclaration,
@@ -66,4 +68,12 @@ export function isFunctionDeclaration(node: Node): node is FunctionDeclaration {
 
 export function isVariablesTable(node: Node): node is VariablesTable {
   return isOfType(node, "VariablesTable");
+}
+
+export function isLiteral(node: Node): node is Literal {
+  return isOfType(node, "Literal");
+}
+
+export function isTemplateLiteral(node: Node): node is TemplateLiteral {
+  return isOfType(node, "TemplateLiteral");
 }

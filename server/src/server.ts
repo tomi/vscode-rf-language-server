@@ -3,18 +3,19 @@
 import * as _ from "lodash";
 import * as minimatch from "minimatch";
 import Uri from "vscode-uri";
+import * as path from "path";
 
 import {
   IPCMessageReader, IPCMessageWriter,
   createConnection, IConnection, TextDocumentSyncKind,
-  TextDocuments, InitializeResult, TextDocumentPositionParams,
-  RequestType, Location, Range, DocumentSymbolParams,
+  TextDocuments, InitializeParams, InitializeResult, TextDocumentPositionParams,
+  RequestType, Location, Range, DocumentSymbolParams, WorkspaceSymbolParams,
   SymbolInformation, FileChangeType
 } from "vscode-languageserver";
 
 import { WorkspaceFile, WorkspaceTree } from "./intellisense/workspace-tree";
 import { findDefinition } from "./intellisense/definition-finder";
-import { getFileSymbols } from "./intellisense/symbol-provider";
+import { getFileSymbols, getWorkspaceSymbols } from "./intellisense/symbol-provider";
 import { Settings, Config } from "./utils/settings";
 
 import * as asyncFs from "./utils/async-fs";
@@ -44,15 +45,19 @@ const logger = console;
 // After the server has started the client sends an initilize request. The server receives
 // in the passed params the rootPath of the workspace plus the client capabilites.
 let workspaceRoot: string;
-connection.onInitialize((params: InitializeResult) => {
+connection.onInitialize((params: InitializeParams): InitializeResult => {
   logger.log("Initializing...");
+
+  const rootUri = params.rootUri;
+  workspaceRoot = rootUri && Uri.parse(rootUri).fsPath;
 
   return {
     capabilities: {
       // Tell the client that the server works in FULL text document sync mode
       textDocumentSync: documents.syncKind,
       definitionProvider: true,
-      documentSymbolProvider: true
+      documentSymbolProvider: true,
+      workspaceSymbolProvider: true,
     },
   };
 });
@@ -67,25 +72,30 @@ connection.onDidChangeConfiguration(change => {
   }
 });
 
+/**
+ * Provides document symbols
+ */
 connection.onDocumentSymbol((documentSymbol: DocumentSymbolParams): SymbolInformation[] => {
   logger.log("onDocumentSymbol...");
 
   const filePath = filePathFromUri(documentSymbol.textDocument.uri);
+  const fileTree = workspaceMap.getFile(filePath);
+  if (!fileTree) {
+    return [];
+  }
 
-  const symbols = getFileSymbols(filePath, workspaceMap);
-  return symbols.map(symbol => {
-    symbol.location = Location.create(
-      Uri.file(filePath).toString(),
-      Range.create(
-        symbol.location.start.line,
-        symbol.location.start.column,
-        symbol.location.end.line,
-        symbol.location.end.column
-      )
-    );
+  return getFileSymbols(fileTree);
+});
 
-    return symbol;
-  });
+/**
+ * Provides workspace symbols
+ */
+connection.onWorkspaceSymbol((workspaceSymbol: WorkspaceSymbolParams): SymbolInformation[] => {
+  logger.log("onWorkspaceSymbol...");
+
+  const query = workspaceSymbol.query;
+
+  return getWorkspaceSymbols(workspaceMap, query);
 });
 
 connection.onDefinition((textDocumentPosition: TextDocumentPositionParams): Location => {
@@ -179,7 +189,7 @@ function matchFilePathToConfig(filePath: string) {
 const debouncedParseFile = _.debounce((filePath: string, fileData: string) => {
     try {
       const parsedFile = parser.parseFile(fileData);
-      const file = new WorkspaceFile(filePath, parsedFile);
+      const file = createWorkspaceFile(filePath, parsedFile);
 
       workspaceMap.addFile(file);
     } catch (error) {
@@ -193,13 +203,19 @@ function readAndParseFile(filePath: string) {
   asyncFs.readFileAsync(filePath, "utf-8")
     .then(fileData => parser.parseFile(fileData))
     .then(parsedFile => {
-      const file = new WorkspaceFile(filePath, parsedFile);
+      const file = createWorkspaceFile(filePath, parsedFile);
 
       workspaceMap.addFile(file);
     })
     .catch(error => {
       logger.error("Failed to parse", filePath, error);
     });
+}
+
+function createWorkspaceFile(filePath: string, fileTree) {
+  const relativePath = path.relative(workspaceRoot, filePath);
+
+  return new WorkspaceFile(filePath, relativePath, fileTree);
 }
 
 // Listen on the connection

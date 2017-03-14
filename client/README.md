@@ -7,11 +7,14 @@ A [Visual Studio Code](https://code.visualstudio.com/) extension that supports R
 ### Syntax highlighting
 * Supports `.robot` files
 
-### Goto definition
+### Goto definition (`F12`)
 * For variables
 * For user keywords
 
-### List file symbols
+### List file symbols (`⇧⌘O`, `Ctrl+Shift+O`)
+* Shows variables, keywords and test cases
+
+### List workspace symbols (`⌘T`, `Ctrl+T`)
 * Shows variables, keywords and test cases
 
 ## Configuration

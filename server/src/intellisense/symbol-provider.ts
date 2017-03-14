@@ -1,5 +1,6 @@
 import { WorkspaceFile, WorkspaceTree } from "./workspace-tree";
 import { traverse } from "../traverse/traverse";
+import { nodeLocationToRange } from "../utils/position";
 
 import {
   isVariableDeclaration,
@@ -10,6 +11,7 @@ import {
 
 import {
   Node,
+  Identifier,
   VariableDeclaration,
   TestCase,
   UserKeyword,
@@ -39,23 +41,32 @@ const SymbolKind = {
     Array:       18,
 };
 
-export function getFileSymbols(filePath: string, workspaceTree: WorkspaceTree) {
-  const file = workspaceTree.getFile(filePath);
-  if (!file) {
-    return [];
-  }
-
+/**
+ * Returns all symbols for given file
+ *
+ * @param filePath
+ * @param workspaceTree
+ */
+export function getFileSymbols(
+  workspaceFile: WorkspaceFile,
+  useFileNameAsContainer: boolean = false,
+  query: string = ""
+) {
   const fileSymbols = [];
+  const idMatches = createIdMatcherFn(query);
 
-  traverse(null, file.fileTree, {
+  traverse(null, workspaceFile.fileTree, {
     enter: (node: Node, parent: Node) => {
       let symbol;
-      if (isVariableDeclaration(node) && isVariablesTable(parent)) {
-        symbol = getVariableSymbol(node);
-      } else if (isTestCase(node)) {
-        symbol = getTestCaseSymbol(node);
-      } else if (isUserKeyword(node)) {
-        symbol = getUserKeywordSymbol(node);
+      if (isVariableDeclaration(node) && isVariablesTable(parent) &&
+        idMatches(node.id)) {
+        symbol = getVariableSymbol(node, workspaceFile, useFileNameAsContainer);
+      }
+      else if (isTestCase(node) && idMatches(node.id)) {
+        symbol = getTestCaseSymbol(node, workspaceFile, useFileNameAsContainer);
+      }
+      else if (isUserKeyword(node) && idMatches(node.id)) {
+        symbol = getUserKeywordSymbol(node, workspaceFile, useFileNameAsContainer);
       }
 
       if (symbol) {
@@ -67,28 +78,83 @@ export function getFileSymbols(filePath: string, workspaceTree: WorkspaceTree) {
   return fileSymbols;
 }
 
-function getVariableSymbol(node: VariableDeclaration) {
+/**
+ * Returns all symbols in the workspace that match the given search string
+ *
+ * @param workspace
+ */
+export function getWorkspaceSymbols(
+  workspace: WorkspaceTree,
+  query: string
+) {
+  return Array.from(workspace.getFiles())
+    .map(fileTree => getFileSymbols(fileTree, true, query))
+    .reduce((fileSymbols, allSymbols) => {
+      return allSymbols.concat(fileSymbols);
+    }, []);
+}
+
+/**
+ * Creates a function that checks if given identifier is
+ * a match to given query string. Comparison is done
+ * case insensitive.
+ *
+ * @param query
+ *
+ * @returns {function}
+ */
+function createIdMatcherFn(query: string) {
+  const lowerQuery = query.toLowerCase();
+
+  return (identifier: Identifier) => {
+    return identifier.name.toLowerCase().includes(lowerQuery);
+  };
+}
+
+function getVariableSymbol(
+  node: VariableDeclaration,
+  file: WorkspaceFile,
+  useFileNameAsContainer: boolean
+) {
   return {
     name: node.id.name,
     kind: SymbolKind.Variable,
-    location: node.location
+    location: {
+      uri: file.uri,
+      range: nodeLocationToRange(node)
+    },
+    containerName: useFileNameAsContainer ? file.relativePath : undefined
   };
 }
 
-function getTestCaseSymbol(node: TestCase) {
+function getTestCaseSymbol(
+  node: TestCase,
+  file: WorkspaceFile,
+  useFileNameAsContainer: boolean
+) {
   return {
     name: node.id.name,
     kind: SymbolKind.Function,
-    location: node.location,
-    containerName: "<test case>"
-  };
+    location: {
+      uri: file.uri,
+      range: nodeLocationToRange(node)
+    },
+    containerName: useFileNameAsContainer ? file.relativePath : "<test case>"
+ };
 }
 
-function getUserKeywordSymbol(node: UserKeyword) {
+function getUserKeywordSymbol(
+  node: UserKeyword,
+  file: WorkspaceFile,
+  useFileNameAsContainer: boolean
+) {
   return {
     name: node.id.name,
     kind: SymbolKind.Function,
-    location: node.location,
-    containerName: "<keyword>"
+    location: {
+      uri: file.uri,
+      range: nodeLocationToRange(node)
+    },
+    containerName: useFileNameAsContainer ? file.relativePath : "<keyword>"
   };
 }

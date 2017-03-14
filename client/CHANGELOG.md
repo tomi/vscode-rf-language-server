@@ -1,11 +1,11 @@
 # Change Log
 
-## Version 0.x.x
-* Release date: March x, 2017
+## Version 0.2.0
+* Release date: March 14, 2017
 
 ### What's new in this version
 * Add language configuration for robot framework files. This adds support for commenting lines and bracket matching.
-
+* Add support to list and find workspace symbols
 
 ## Version 0.1.1
 * Release date: March 9, 2017

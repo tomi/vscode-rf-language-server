@@ -1,3 +1,5 @@
+import { Node } from "../parser/models";
+
 /**
  * A position in a text
  */
@@ -34,5 +36,23 @@ export function createRange(start: Position, end: Position) {
   return {
     start,
     end
+  };
+}
+
+/**
+ * Converts given node's location to vscode Range
+ *
+ * @param node
+ */
+export function nodeLocationToRange(node: Node) {
+  return {
+    start: {
+      line: node.location.start.line,
+      character: node.location.start.column
+    },
+    end: {
+      line: node.location.end.line,
+      character: node.location.end.column
+    }
   };
 }

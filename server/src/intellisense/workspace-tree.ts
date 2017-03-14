@@ -1,7 +1,15 @@
 import { TestSuite } from "../parser/models";
+import Uri from "vscode-uri";
 
 export class WorkspaceFile {
-  constructor(public filePath: string, public fileTree: TestSuite) {
+  constructor(
+    public filePath: string,
+    public relativePath: string,
+    public fileTree: TestSuite,
+  ) {}
+
+  public get uri() {
+    return Uri.file(this.filePath).toString();
   }
 }
 

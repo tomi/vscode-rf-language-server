@@ -6,6 +6,7 @@
 ### What's new in this version
 * Add language configuration for robot framework files. This adds support for commenting lines and bracket matching.
 * Add support to list and find workspace symbols
+* Fix bug in goto definition when keyword had a partial name of another keyword #1
 
 ## Version 0.1.1
 * Release date: March 9, 2017

@@ -20,6 +20,12 @@ describe("Keyword matcher", () => {
       chai.assert.isTrue(result);
     }
 
+    function shouldNotMatch(id: Identifier, kw: UserKeyword) {
+      const result = identifierMatchesKeyword(id, kw);
+
+      chai.assert.isFalse(result);
+    }
+
     it("should match identifier to user keyword with same name", () => {
       shouldMatch(
         new Identifier("Keyword Name", dummyLoc),
@@ -31,6 +37,20 @@ describe("Keyword matcher", () => {
       shouldMatch(
         new Identifier("Keyword Name", dummyLoc),
         new UserKeyword(new Identifier("keyword name", dummyLoc), dummyPos)
+      );
+    });
+
+    it("should not match when identifier is only partial of keyword", () => {
+      shouldNotMatch(
+        new Identifier("Partial of", dummyLoc),
+        new UserKeyword(new Identifier("Partial of longer keyword", dummyLoc), dummyPos)
+      );
+    });
+
+    it("should not match when keyword is only partial of identifier", () => {
+      shouldNotMatch(
+        new Identifier("Partial of longer keyword", dummyLoc),
+        new UserKeyword(new Identifier("Partial of", dummyLoc), dummyPos)
       );
     });
 

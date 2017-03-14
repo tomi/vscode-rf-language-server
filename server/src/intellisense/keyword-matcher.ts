@@ -11,7 +11,7 @@ function createKeywordRegex(keywordName: string) {
 
   const regexString = variableRegex.test(keywordName) ?
     keywordName.replace(variableRegex, ARGUMENT_REGEX) :
-    keywordName;
+    `^${ keywordName}\$`;
 
   // As per RF documentation, keywords are matched case-insensitive
   return new RegExp(regexString, "i");

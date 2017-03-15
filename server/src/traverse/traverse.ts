@@ -17,8 +17,11 @@ const NodeSettings = {
     children: ["keywords"]
   },
   UserKeyword: {
-    orderEnsured: true,
-    children: ["steps"]
+    orderEnsured: false,
+    children: [
+      "id", "steps", "arguments", "return",
+      "documentation", "timeout", "teardown", "tags"
+    ],
   },
   SettingsTable: {
     orderEnsured: false,
@@ -65,8 +68,11 @@ const NodeSettings = {
     children: ["testCases"]
   },
   TestCase: {
-    orderEnsured: true,
-    children: ["id", "steps"]
+    orderEnsured: false,
+    children: [
+      "id", "steps", "documentation", "timeout",
+      "teardown", "tags"
+    ],
   },
   Step: {
     orderEnsured: true,
@@ -87,7 +93,31 @@ const NodeSettings = {
   TemplateLiteral: {
     orderEnsured: false,
     children: ["quasis", "expressions"]
-  }
+  },
+  Documentation: {
+    orderEnsured: true,
+    children: ["id", "value"]
+  },
+  Arguments: {
+    orderEnsured: true,
+    children: ["id", "values"]
+  },
+  Return: {
+    orderEnsured: true,
+    children: ["id", "values"]
+  },
+  Timeout: {
+    orderEnsured: true,
+    children: ["id", "value", "message"]
+  },
+  Tags: {
+    orderEnsured: true,
+    children: ["id", "values"]
+  },
+  Teardown: {
+    orderEnsured: true,
+    children: ["id", "keyword"]
+  },
 };
 
 export interface Visitor {

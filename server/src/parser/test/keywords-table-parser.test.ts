@@ -12,7 +12,9 @@ import {
   Identifier,
   Literal,
   VariableExpression,
-  VariableKind
+  VariableKind,
+  Documentation,
+  Arguments
 } from "../models";
 
 import {
@@ -33,8 +35,18 @@ function keywordsTable(location, keywords) {
   return Object.assign(new KeywordsTable(location), { keywords });
 }
 
-function keyword(startPosition, name: Identifier, steps: Step[]) {
-  return Object.assign(new UserKeyword(name, startPosition), { steps });
+function keyword(
+  location,
+  name: Identifier,
+  steps: Step[],
+  settings: any = {}
+) {
+  return Object.assign(
+    new UserKeyword(name, location.start),
+    { location },
+    { steps },
+    settings
+  );
 }
 
 describe("Parsing Keywords table", () => {
@@ -50,7 +62,7 @@ describe("Parsing Keywords table", () => {
     parseAndAssert(data, expected);
   });
 
-  it("should parse keyword", () => {
+  it("should parse steps", () => {
     const data =
 `*** Keywords ***
 Keyword Name
@@ -60,7 +72,7 @@ Keyword Name
 
     const expected = keywordsTable(location(0, 0, 4, 0), [
       keyword(
-        position(1, 0),
+        location(1, 0, 3, 37),
         new Identifier("Keyword Name", location(1, 0, 1, 12)),
         [
           new Step(
@@ -90,6 +102,67 @@ Keyword Name
             location(3, 0, 3, 37)
           ),
         ]
+      )
+    ]);
+
+    parseAndAssert(data, expected);
+  });
+
+  it("should parse documentation", () => {
+    const data =
+`*** Keywords ***
+Keyword Name
+    [Documentation]   Here stands documentation
+`;
+
+    const expected = keywordsTable(location(0, 0, 3, 0), [
+      keyword(
+        location(1, 0, 2, 47),
+        new Identifier("Keyword Name", location(1, 0, 1, 12)),
+        [],
+        {
+          documentation: new Documentation(
+            new Identifier("[Documentation]", location(2, 4, 2, 19)),
+            new Literal("Here stands documentation", location(2, 22, 2, 47)),
+            location(2, 4, 2, 47)
+          )
+        }
+      )
+    ]);
+
+    parseAndAssert(data, expected);
+  });
+
+  it("should parse arguments", () => {
+    const data =
+`*** Keywords ***
+Keyword Name
+    [Arguments]   \${arg1}    @{arg2}
+`;
+
+    const expected = keywordsTable(location(0, 0, 3, 0), [
+      keyword(
+        location(1, 0, 2, 36),
+        new Identifier("Keyword Name", location(1, 0, 1, 12)),
+        [],
+        {
+          arguments: new Arguments(
+            new Identifier("[Arguments]", location(2, 4, 2, 15)),
+            [
+              new VariableExpression(
+                new Identifier("arg1", location(2, 20, 2, 24)),
+                "Scalar",
+                location(2, 18, 2, 25)
+              ),
+              new VariableExpression(
+                new Identifier("arg2", location(2, 31, 2, 35)),
+                "List",
+                location(2, 29, 2, 36)
+              ),
+            ],
+            location(2, 4, 2, 36)
+          )
+        }
       )
     ]);
 

@@ -28,6 +28,8 @@ export class Identifier implements Node {
 
 export type VariableKind = "Scalar" | "List" | "Dictionary";
 
+export type SettingKind = "Documentation" | "Arguments" | "Return" | "Timeout" | "Teardown" | "Tags";
+
 export class VariableExpression implements ValueExpression {
   public type = "VariableExpression";
 
@@ -189,18 +191,118 @@ export class SettingsTable implements Node {
   }
 }
 
-// export enum VariableType {
-//   Scalar = "1",
-//   List,
-//   Dictionary,
-//   Environment
-// };
-
 /**
  *
  */
 interface Declaration extends Node {
   id: Identifier;
+}
+
+export interface SettingDeclaration extends Declaration {
+  kind: SettingKind;
+}
+
+/**
+ *
+ */
+export class Documentation implements SettingDeclaration {
+  public type = "Documentation";
+  public kind: SettingKind = "Documentation";
+
+  /**
+   *
+   */
+  constructor(
+    public id: Identifier,
+    public value: Literal,
+    public location: SourceLocation
+  ) { }
+}
+
+/**
+ *
+ */
+export class Arguments implements SettingDeclaration {
+  public type = "Arguments";
+  public kind: SettingKind = "Arguments";
+
+  /**
+   *
+   */
+  constructor(
+    public id: Identifier,
+    public values: VariableExpression[],
+    public location: SourceLocation
+  ) { }
+}
+
+/**
+ *
+ */
+export class Return implements SettingDeclaration {
+  public type = "Return";
+  public kind: SettingKind = "Return";
+
+  /**
+   *
+   */
+  constructor(
+    public id: Identifier,
+    public values: ValueExpression[],
+    public location: SourceLocation
+  ) { }
+}
+
+/**
+ *
+ */
+export class Timeout implements SettingDeclaration {
+  public type = "Timeout";
+  public kind: SettingKind = "Timeout";
+
+  /**
+   *
+   */
+  constructor(
+    public id: Identifier,
+    public value: Literal,
+    public message: Literal,
+    public location: SourceLocation
+  ) { }
+}
+
+/**
+ *
+ */
+export class Tags implements SettingDeclaration {
+  public type = "Tags";
+  public kind: SettingKind = "Tags";
+
+  /**
+   *
+   */
+  constructor(
+    public id: Identifier,
+    public values: Literal[],
+    public location: SourceLocation
+  ) { }
+}
+
+/**
+ *
+ */
+export class Teardown implements SettingDeclaration {
+  public type = "Teardown";
+  public kind: SettingKind = "Teardown";
+
+  /**
+   *
+   */
+  constructor(
+    public id: Identifier,
+    public keyword: CallExpression,
+    public location: SourceLocation
+  ) { }
 }
 
 export interface VariableDeclaration extends Declaration {
@@ -209,6 +311,10 @@ export interface VariableDeclaration extends Declaration {
 
 export interface FunctionDeclaration extends Declaration {
   steps: Step[];
+  tags: Tags;
+  timeout: Timeout;
+  teardown: Teardown;
+  documentation: Documentation;
 }
 
 /**
@@ -294,31 +400,26 @@ export class Step implements Node {
 export class UserKeyword implements FunctionDeclaration {
   public type = "UserKeyword";
   public steps: Step[] = [];
+  public arguments: Arguments;
+  public return: Return;
+  public documentation: Documentation;
+  public timeout: Timeout;
+  public teardown: Teardown;
+  public tags: Tags;
+  public location: SourceLocation;
 
   constructor(
     public id: Identifier,
     private startPosition: Position
-  ) {}
+  ) {
+    this.location = {
+      start: startPosition,
+      end: startPosition
+    };
+  }
 
   public addStep(step: Step) {
     this.steps.push(step);
-  }
-
-  public get location(): SourceLocation {
-    if (_.isEmpty(this.steps)) {
-      return {
-        start: this.startPosition,
-        end: {
-          line: this.startPosition.line,
-          column: this.startPosition.column + this.id.name.length
-        }
-      };
-    }
-
-    return {
-      start: this.startPosition,
-      end: _.last(this.steps).location.end
-    };
   }
 }
 
@@ -345,31 +446,25 @@ export class KeywordsTable implements Node {
 export class TestCase implements FunctionDeclaration {
   public type = "TestCase";
   public steps: Step[] = [];
+  public tags: Tags;
+  public timeout: Timeout;
+  public teardown: Teardown;
+  public documentation: Documentation;
+  public location: SourceLocation;
+  // TODO: Setup and Template
 
   constructor(
     public id: Identifier,
     private startPosition: Position
-  ) { }
+  ) {
+    this.location = {
+      start: startPosition,
+      end: startPosition
+    };
+  }
 
   public addStep(step: Step) {
     this.steps.push(step);
-  }
-
-  public get location(): SourceLocation {
-    if (_.isEmpty(this.steps)) {
-      return {
-        start: this.startPosition,
-        end: {
-          line: this.startPosition.line,
-          column: this.startPosition.column + this.id.name.length
-        }
-      };
-    }
-
-    return {
-      start: this.startPosition,
-      end: _.last(this.steps).location.end
-    };
   }
 }
 

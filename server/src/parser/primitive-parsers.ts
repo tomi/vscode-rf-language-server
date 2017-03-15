@@ -137,7 +137,7 @@ export function parseCallExpression(cells: DataCell[]): CallExpression {
   const firstCell = _.first(cells);
   const lastCell = _.last(cells);
 
-  const callee = parseIdentifier(_.first(cells));
+  const callee = parseIdentifier(firstCell);
   const args = _.drop(cells, 1).map(parseValueExpression);
 
   return new CallExpression(callee, args, {

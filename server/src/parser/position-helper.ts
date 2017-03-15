@@ -30,6 +30,17 @@ export function location(startLine, startColumn, endLine?, endColumn?): SourceLo
   };
 }
 
+export function locationFromStartEnd(start: SourceLocation, end: SourceLocation) {
+  return {
+    start: start.start,
+    end: end.end
+  };
+}
+
+export function locationFromPositions(start: Position, end: Position) {
+  return { start, end };
+}
+
 export function isInRange(position: Position, range: Node) {
   const location = range.location;
 

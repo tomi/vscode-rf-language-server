@@ -231,7 +231,7 @@ export class Arguments implements SettingDeclaration {
    */
   constructor(
     public id: Identifier,
-    public values: VariableExpression[],
+    public values: VariableDeclaration[] = [],
     public location: SourceLocation
   ) { }
 }
@@ -248,7 +248,7 @@ export class Return implements SettingDeclaration {
    */
   constructor(
     public id: Identifier,
-    public values: ValueExpression[],
+    public values: ValueExpression[] = [],
     public location: SourceLocation
   ) { }
 }
@@ -283,7 +283,7 @@ export class Tags implements SettingDeclaration {
    */
   constructor(
     public id: Identifier,
-    public values: Literal[],
+    public values: Literal[] = [],
     public location: SourceLocation
   ) { }
 }

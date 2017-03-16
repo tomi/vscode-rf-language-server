@@ -13,6 +13,8 @@ import {
   Identifier,
   Literal,
   VariableExpression,
+  ScalarDeclaration,
+  ListDeclaration,
   VariableKind,
   Documentation,
   Arguments,
@@ -106,14 +108,14 @@ describe("Setting parser", () => {
       const expected = new Arguments(
         new Identifier("[Arguments]", FIRST_CELL_LOC),
         [
-          new VariableExpression(
-            new Identifier("arg1", location(0, 22, 0, 26)),
-            "Scalar",
+          new ScalarDeclaration(
+            new Identifier("arg1", location(0, 20, 0, 27)),
+            undefined,
             arg1Loc
           ),
-          new VariableExpression(
-            new Identifier("arg2", location(0, 32, 0, 36)),
-            "List",
+          new ListDeclaration(
+            new Identifier("arg2", location(0, 30, 0, 37)),
+            [],
             arg2Loc
           )
         ],
@@ -143,14 +145,14 @@ describe("Setting parser", () => {
       const expected = new Arguments(
         new Identifier("[Arguments]", FIRST_CELL_LOC),
         [
-          new VariableExpression(
-            new Identifier("arg1", location(0, 22, 0, 26)),
-            "Scalar",
+          new ScalarDeclaration(
+            new Identifier("arg1", location(0, 20, 0, 27)),
+            undefined,
             arg1Loc
           ),
-          new VariableExpression(
-            new Identifier("arg2", location(0, 32, 0, 36)),
-            "List",
+          new ListDeclaration(
+            new Identifier("arg2", location(0, 30, 0, 37)),
+            [],
             arg2Loc
           )
         ],

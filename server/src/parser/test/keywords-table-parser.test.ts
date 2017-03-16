@@ -12,7 +12,8 @@ import {
   Identifier,
   Literal,
   VariableExpression,
-  VariableKind,
+  ScalarDeclaration,
+  ListDeclaration,
   Documentation,
   Arguments
 } from "../models";
@@ -149,14 +150,14 @@ Keyword Name
           arguments: new Arguments(
             new Identifier("[Arguments]", location(2, 4, 2, 15)),
             [
-              new VariableExpression(
-                new Identifier("arg1", location(2, 20, 2, 24)),
-                "Scalar",
+              new ScalarDeclaration(
+                new Identifier("arg1", location(2, 18, 2, 25)),
+                undefined,
                 location(2, 18, 2, 25)
               ),
-              new VariableExpression(
-                new Identifier("arg2", location(2, 31, 2, 35)),
-                "List",
+              new ListDeclaration(
+                new Identifier("arg2", location(2, 29, 2, 36)),
+                [],
                 location(2, 29, 2, 36)
               ),
             ],

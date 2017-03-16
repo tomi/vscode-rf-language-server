@@ -13,7 +13,6 @@ import {
   Teardown,
   Tags,
   Timeout,
-  VariableExpression,
   TemplateLiteral
 } from "./models";
 
@@ -21,6 +20,12 @@ import {
   parseValueExpression,
   parseCallExpression
 } from "./primitive-parsers";
+
+import {
+  isVariable,
+  parseTypeAndName,
+  parseVariableDeclaration
+} from "./variable-parsers";
 
 import {
   locationFromStartEnd
@@ -132,22 +137,14 @@ function parseDocumentation(id: Identifier, values: DataCell[]): SettingDeclarat
  * @param values
  */
 function parseArguments(id: Identifier, values: DataCell[]): SettingDeclaration {
-  const parsedValues = values.map(cell => {
-    const valueExpression = parseValueExpression(cell);
+  const parsedValues = values.filter(isVariable)
+    .map(cell => {
+      const typeAndName = parseTypeAndName(cell);
 
-    if (valueExpression.type === "VariableExpression") {
-      // Normal case, only single variable
-      return <VariableExpression>valueExpression;
-    } else if (valueExpression.type === "TemplateLiteral") {
-      // This branch will happen if argument has default value set.
-      // Just take the first variable.
-      return (<TemplateLiteral>valueExpression).expressions[0];
-    } else {
-      // Invalid value --> Ignore
-      return undefined;
-    }
-  })
-  .filter(x => x);
+      // We might want to parse the default value as value at some point.
+      // Now just ignore any values
+      return parseVariableDeclaration(typeAndName, [], cell.location);
+    });
 
   const loc = _.isEmpty(parsedValues) ?
     id.location :

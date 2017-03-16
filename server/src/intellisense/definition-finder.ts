@@ -74,13 +74,33 @@ function tryFindVarDefStartingFromNode(
       return false;
     }
 
-    return node.steps.find(nodeInStep => {
+    // Try to find from steps
+    const foundInSteps = node.steps.find(nodeInStep => {
       const { body } = nodeInStep;
 
       if (isVariableDeclaration(body) &&
         body.kind === variable.kind &&
         body.id.name === variable.id.name) {
         foundVariableDefinition = body;
+        return true;
+      } else {
+        return false;
+      }
+    }) !== undefined;
+
+    if (foundInSteps) {
+      return true;
+    }
+
+    if (!isUserKeyword(node) || !node.arguments) {
+      return false;
+    }
+
+    // Try to find from keyword arguments
+    return node.arguments.values.find(arg => {
+      if (arg.kind === variable.kind &&
+          arg.id.name === variable.id.name) {
+        foundVariableDefinition = arg;
         return true;
       } else {
         return false;

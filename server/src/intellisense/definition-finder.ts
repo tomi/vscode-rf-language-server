@@ -15,6 +15,8 @@ import { WorkspaceFile, WorkspaceTree } from "./workspace-tree";
 import { traverse, VisitorOption } from "../traverse/traverse";
 import { Location, Position } from "../utils/position";
 import { identifierMatchesKeyword } from "./keyword-matcher";
+import { FileNode, findNodeInPos } from "./node-locator";
+import { nodeLocationToRange } from "../utils/position";
 import {
   isIdentifier,
   isVariableExpression,
@@ -24,44 +26,24 @@ import {
   isUserKeyword
 } from "./type-guards";
 
-function isInRange(position: Position, range: Node) {
-  const location = range.location;
+import { Range } from "./models";
 
-  return (location.start.line < position.line ||
-    (location.start.line === position.line && location.start.column <= position.column)) &&
-    (position.line < location.end.line ||
-      (position.line === location.end.line && position.column <= location.end.column));
-}
-
-interface FileNode {
-  file: WorkspaceFile;
-  path: Node[];
+export interface NodeDefinition {
   node: Node;
+  uri: string;
+  range: Range;
 }
 
-function findNodeInPos(pos: Position, fileToSearch: WorkspaceFile): FileNode {
-  const pathToNode = [];
-  let leafNode = null;
+export interface KeywordDefinition {
+  node: UserKeyword;
+  uri: string;
+  range: Range;
+}
 
-  traverse(null, fileToSearch.fileTree, {
-    enter: (node: Node, parent: Node) => {
-      if (!isInRange(pos, node)) {
-        return VisitorOption.Skip;
-      } else {
-        if (leafNode) {
-          pathToNode.push(leafNode);
-        }
-
-        leafNode = node;
-      }
-    }
-  });
-
-  return {
-    file: fileToSearch,
-    path: pathToNode,
-    node: leafNode
-  };
+export interface VariableDefinition {
+  node: VariableDeclaration;
+  uri: string;
+  range: Range;
 }
 
 function tryFindVarDefStartingFromNode(
@@ -127,18 +109,19 @@ function tryFindVarDefStartingFromNode(
   return foundVariableDefinition;
 }
 
-function findVariableDefinition(
+export function findVariableDefinition(
   variable: VariableExpression,
   variableLocation: FileNode,
   workspaceTree: WorkspaceTree
-) {
+): VariableDefinition {
   let foundVariableDefinition =
     tryFindVarDefStartingFromNode(variable, variableLocation);
 
   if (foundVariableDefinition) {
     return {
-      filePath: variableLocation.file.filePath,
-      location: foundVariableDefinition.location
+      node:  foundVariableDefinition,
+      uri:   variableLocation.file.uri,
+      range: nodeLocationToRange(foundVariableDefinition)
     };
   }
 
@@ -147,8 +130,9 @@ function findVariableDefinition(
     foundVariableDefinition = findVariableDefinitionFromFile(variable, file.fileTree);
     if (foundVariableDefinition) {
       return {
-        filePath: file.filePath,
-        location: foundVariableDefinition.location
+        node:  foundVariableDefinition,
+        uri:   file.uri,
+        range: nodeLocationToRange(foundVariableDefinition)
       };
     }
   }
@@ -182,18 +166,19 @@ function findVariableDefinitionFromFile(variable: VariableExpression, file: Test
   return foundVariable;
 }
 
-function findKeywordDefinition(
+export function findKeywordDefinition(
   callExpression: CallExpression,
   keywordLocation: FileNode,
   workspaceTree: WorkspaceTree
-) {
+): KeywordDefinition {
   const identifier = callExpression.callee;
 
   let foundDefinition = findKeywordDefinitionFromFile(callExpression, keywordLocation.file.fileTree);
   if (foundDefinition) {
     return {
-      filePath: keywordLocation.file.filePath,
-      location: foundDefinition.location
+      node:  foundDefinition,
+      uri:   keywordLocation.file.uri,
+      range: nodeLocationToRange(foundDefinition)
     };
   }
 
@@ -206,8 +191,9 @@ function findKeywordDefinition(
     foundDefinition = findKeywordDefinitionFromFile(callExpression, file.fileTree);
     if (foundDefinition) {
       return {
-        filePath: file.filePath,
-        location: foundDefinition.location
+        node:  foundDefinition,
+        uri:   file.uri,
+        range: nodeLocationToRange(foundDefinition)
       };
     }
   }
@@ -240,7 +226,10 @@ function findKeywordDefinitionFromFile(callExpression: CallExpression, file: Tes
   return foundKeyword;
 }
 
-export function findDefinition(location: Location, workspaceTree: WorkspaceTree) {
+export function findDefinition(
+  location: Location,
+  workspaceTree: WorkspaceTree
+): NodeDefinition {
   const file = workspaceTree.getFile(location.filePath);
   if (!file) {
     return null;

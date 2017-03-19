@@ -98,6 +98,9 @@ connection.onWorkspaceSymbol((workspaceSymbol: WorkspaceSymbolParams): SymbolInf
   return getWorkspaceSymbols(workspaceMap, query);
 });
 
+/**
+ * Finds the definition for an item in the cursor position
+ */
 connection.onDefinition((textDocumentPosition: TextDocumentPositionParams): Location => {
   logger.log("onDefinition...");
 
@@ -115,15 +118,10 @@ connection.onDefinition((textDocumentPosition: TextDocumentPositionParams): Loca
     return null;
   }
 
-  return Location.create(
-    Uri.file(found.filePath).toString(),
-    Range.create(
-      found.location.start.line,
-      found.location.start.column,
-      found.location.end.line,
-      found.location.end.column
-    )
-  );
+  return {
+    uri: found.uri,
+    range: found.range
+  };
 });
 
 export interface BuildFromFilesParam {

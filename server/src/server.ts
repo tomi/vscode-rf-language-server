@@ -10,11 +10,12 @@ import {
   createConnection, IConnection, TextDocumentSyncKind,
   TextDocuments, InitializeParams, InitializeResult, TextDocumentPositionParams,
   RequestType, Location, Range, DocumentSymbolParams, WorkspaceSymbolParams,
-  SymbolInformation, FileChangeType
+  SymbolInformation, FileChangeType, ReferenceParams
 } from "vscode-languageserver";
 
 import { WorkspaceFile, WorkspaceTree } from "./intellisense/workspace-tree";
 import { findDefinition } from "./intellisense/definition-finder";
+import { findReferences } from "./intellisense/reference-finder";
 import { getFileSymbols, getWorkspaceSymbols } from "./intellisense/symbol-provider";
 import { Settings, Config } from "./utils/settings";
 
@@ -58,6 +59,7 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
       definitionProvider: true,
       documentSymbolProvider: true,
       workspaceSymbolProvider: true,
+      referencesProvider: true,
     },
   };
 });
@@ -122,6 +124,25 @@ connection.onDefinition((textDocumentPosition: TextDocumentPositionParams): Loca
     uri: found.uri,
     range: found.range
   };
+});
+
+/**
+ * Finds references for the symbol in document position
+ */
+connection.onReferences((referenceParams: ReferenceParams): Location[] => {
+  logger.log("onReferences...");
+
+  const filePath = filePathFromUri(referenceParams.textDocument.uri);
+
+  const foundReferences = findReferences({
+      filePath,
+      position: {
+        line:   referenceParams.position.line,
+        column: referenceParams.position.character
+      }
+  }, workspaceMap);
+
+  return foundReferences;
 });
 
 export interface BuildFromFilesParam {

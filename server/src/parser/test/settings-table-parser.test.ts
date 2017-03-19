@@ -123,19 +123,19 @@ describe("Parsing Settings table", () => {
 //     parseAndAssert(tableDefinition, expected);
 //   });
 
-  it("should parse suite setup", () => {
-    createSettingTest("Suite Setup", "suiteSetup", ["arg1", "arg2"]);
-  });
+  // it("should parse suite setup", () => {
+  //   createSettingTest("Suite Setup", "suiteSetup", ["arg1", "arg2"]);
+  // });
 
-  it("should parse suite teardown", () => {
-    createSettingTest("Suite Teardown", "suiteTeardown", ["arg1", "arg2"]);
-  });
+  // it("should parse suite teardown", () => {
+  //   createSettingTest("Suite Teardown", "suiteTeardown", ["arg1", "arg2"]);
+  // });
 
-  it("should parse test setup", () => {
-    createSettingTest("Test Setup", "testSetup", ["arg1", "arg2"]);
-  });
+  // it("should parse test setup", () => {
+  //   createSettingTest("Test Setup", "testSetup", ["arg1", "arg2"]);
+  // });
 
-  it("should parse test teardown", () => {
-    createSettingTest("Test Teardown", "testTeardown", ["arg1", "arg2"]);
-  });
+  // it("should parse test teardown", () => {
+  //   createSettingTest("Test Teardown", "testTeardown", ["arg1", "arg2"]);
+  // });
 });

@@ -320,7 +320,7 @@ export interface FunctionDeclaration extends Declaration {
 /**
  *
  */
-export class ScalarDeclaration implements Declaration {
+export class ScalarDeclaration implements VariableDeclaration {
   public type = "ScalarDeclaration";
   public kind: VariableKind = "Scalar";
 
@@ -337,7 +337,7 @@ export class ScalarDeclaration implements Declaration {
 /**
  *
  */
-export class ListDeclaration implements Declaration {
+export class ListDeclaration implements VariableDeclaration {
   public type = "ListDeclaration";
   public kind: VariableKind = "List";
 
@@ -351,7 +351,7 @@ export class ListDeclaration implements Declaration {
   ) { }
 }
 
-export class DictionaryDeclaration implements Declaration {
+export class DictionaryDeclaration implements VariableDeclaration {
   public type = "DictionaryDeclaration";
   public kind: VariableKind = "Dictionary";
 

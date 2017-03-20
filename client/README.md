@@ -12,6 +12,10 @@ A [Visual Studio Code](https://code.visualstudio.com/) extension that supports R
 * For user keywords
 * `F12` on Mac, Linux and Windows
 
+### Find all references
+* For user keywords
+* `⇧F12` on Mac, `Shift+F12` on Linux and Windows
+
 ### List file symbols
 * Shows variables, keywords and test cases
 * `⇧⌘O` on Mac, `Ctrl+Shift+O` on Linux and Windows

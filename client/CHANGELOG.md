@@ -1,5 +1,12 @@
 # Change Log
 
+## Version 0.3.0
+* Release date: March 19, 2017
+
+### What's new in this version
+* Add support to find references for user keywords
+* The parser is now aware of [Documentation], [Arguments], [Return], [Timeout], [Tags], [Setup] and [Teardown]. This means that for example goto definition works on keywords and variables used in aforementioned settings.
+
 ## Version 0.2.0
 * Release date: March 14, 2017
 

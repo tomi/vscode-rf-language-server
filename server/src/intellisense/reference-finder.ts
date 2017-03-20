@@ -42,9 +42,13 @@ interface VscodeLocation {
   range: VscodeRange;
 }
 
+/**
+ * Finds all references for the symbol in given document position
+ *
+ * @param location
+ * @param workspaceTree
+ */
 export function findReferences(location: Location, workspaceTree: WorkspaceTree): VscodeLocation[] {
-  // const definition = findDefinition(location, workspaceTree);
-
   const file = workspaceTree.getFile(location.filePath);
   if (!file) {
     return [];

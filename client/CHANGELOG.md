@@ -1,11 +1,12 @@
 # Change Log
 
 ## Version 0.3.0
-* Release date: March 19, 2017
+* Release date: March 20, 2017
 
 ### What's new in this version
 * Add support to find references for user keywords
 * The parser is now aware of [Documentation], [Arguments], [Return], [Timeout], [Tags], [Setup] and [Teardown]. This means that for example goto definition works on keywords and variables used in aforementioned settings.
+
 
 ## Version 0.2.0
 * Release date: March 14, 2017
@@ -14,6 +15,7 @@
 * Add language configuration for robot framework files. This adds support for commenting lines and bracket matching.
 * Add support to list and find workspace symbols
 * Fix bug in goto definition when keyword had a partial name of another keyword (#1)
+
 
 ## Version 0.1.1
 * Release date: March 9, 2017

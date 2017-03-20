@@ -29,9 +29,8 @@ import {
 import { parseStep } from "./function-parsers";
 
 const testCaseSettings = new Set([
-  "[Documentation]", "[Teardown]", "[Tags]", "[Timeout]",
-  // TODO: Not implemented yet
-  // "[Setup]", "[Template]"
+  "[Documentation]", "[Teardown]", "[Tags]", "[Timeout]", "[Setup]"
+  // TODO: Not implemented yet "[Template]"
 ]);
 
 export function parseTestCasesTable(dataTable: DataTable): TestCasesTable {

@@ -10,6 +10,7 @@ import {
   Documentation,
   Arguments,
   Return,
+  Setup,
   Teardown,
   Tags,
   Timeout,
@@ -35,6 +36,7 @@ const settingMapping = new Map([
   ["[Documentation]", parseDocumentation],
   ["[Arguments]",     parseArguments    ],
   ["[Return]",        parseReturn       ],
+  ["[Setup]"   ,      parseSetup        ],
   ["[Teardown]",      parseTeardown     ],
   ["[Tags]",          parseTags         ],
   ["[Timeout]",       parseTimeout      ]
@@ -73,6 +75,10 @@ export function isArguments(node: SettingDeclaration): node is Arguments {
 
 export function isReturn(node: SettingDeclaration): node is Return {
   return isOfType(node, "Return");
+}
+
+export function isSetup(node: SettingDeclaration): node is Setup {
+  return isOfType(node, "Setup");
 }
 
 export function isTeardown(node: SettingDeclaration): node is Teardown {
@@ -166,6 +172,23 @@ function parseReturn(id: Identifier, values: DataCell[]): SettingDeclaration {
     locationFromStartEnd(id.location, _.last(parsedValues).location);
 
   return new Return(id, parsedValues, loc);
+}
+
+/**
+ * Parses Setup
+ *
+ * @param id
+ * @param values
+ */
+function parseSetup(id: Identifier, values: DataCell[]): SettingDeclaration {
+  if (_.isEmpty(values)) {
+    return new Setup(id, undefined, id.location);
+  }
+
+  const callExpression = parseCallExpression(values);
+  const location = locationFromStartEnd(id.location, callExpression.location);
+
+  return new Setup(id, callExpression, location);
 }
 
 /**

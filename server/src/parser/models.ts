@@ -28,7 +28,7 @@ export class Identifier implements Node {
 
 export type VariableKind = "Scalar" | "List" | "Dictionary";
 
-export type SettingKind = "Documentation" | "Arguments" | "Return" | "Timeout" | "Teardown" | "Tags";
+export type SettingKind = "Documentation" | "Arguments" | "Return" | "Timeout" | "Teardown" | "Tags" | "Setup";
 
 export class VariableExpression implements ValueExpression {
   public type = "VariableExpression";
@@ -305,6 +305,23 @@ export class Teardown implements SettingDeclaration {
   ) { }
 }
 
+/**
+ *
+ */
+export class Setup implements SettingDeclaration {
+  public type = "Setup";
+  public kind: SettingKind = "Setup";
+
+  /**
+   *
+   */
+  constructor(
+    public id: Identifier,
+    public keyword: CallExpression,
+    public location: SourceLocation
+  ) { }
+}
+
 export interface VariableDeclaration extends Declaration {
   kind: VariableKind;
 }
@@ -448,10 +465,11 @@ export class TestCase implements FunctionDeclaration {
   public steps: Step[] = [];
   public tags: Tags;
   public timeout: Timeout;
+  public setup: Setup;
   public teardown: Teardown;
   public documentation: Documentation;
   public location: SourceLocation;
-  // TODO: Setup and Template
+  // TODO: Template
 
   constructor(
     public id: Identifier,

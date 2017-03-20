@@ -73,6 +73,8 @@ function setTestCaseSetting(testCase: TestCase, setting: SettingDeclaration) {
     testCase.documentation = setting;
   } else if (SettingParser.isTimeout(setting)) {
     testCase.timeout = setting;
+  } else if (SettingParser.isSetup(setting)) {
+    testCase.setup = setting;
   } else if (SettingParser.isTeardown(setting)) {
     testCase.teardown = setting;
   } else if (SettingParser.isTags(setting)) {

@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "lodash": "4.17.4",
-    "vscode-languageserver": "~3.1.0",
+    "vscode-languageserver": "~3.2.0",
     "vscode-uri": "1.0.0",
     "minimatch": "~3.0.3"
   },
@@ -31,7 +31,7 @@
   "main": "index.js",
   "scripts": {
     "compile": "installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc -p .",
-    "watch": "npm run clean && mkdir -p ../client/server/node_modules && cp -r node_modules/ ../client/server/node_modules && installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc --watch -p .",
+    "watch": "npm run clean && installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc --watch -p .",
     "test": "mocha --compilers ts:ts-node/register,tsx:ts-node/register **/*.test.ts",
     "clean": "rm -rf ../client/server",
     "lint": "tslint --project ."

@@ -1,5 +1,13 @@
 # Change Log
 
+## Version 0.3.1
+* Release date: March x, 2017
+
+### What's new in this version
+* Fix goto definition for keywords defined in [Setup]
+* Fixed bug that find references didn't find keywords defined in Settings tables or in [Setup]
+
+
 ## Version 0.3.0
 * Release date: March 20, 2017
 

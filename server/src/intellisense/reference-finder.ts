@@ -103,9 +103,9 @@ function findFileKeywordReferences(
 ) {
   // Optimize traversal by limiting which nodes to enter
   const nodesToEnter = new Set([
-    "TestSuite", "TestCasesTable", "TestCase", "Step", "Teardown",
+    "TestSuite", "TestCasesTable", "TestCase", "Step", "Teardown", "Setup",
     "KeywordsTable", "UserKeyword", "ScalarDeclaration", "ListDeclaration",
-    "DictionaryDeclaration"
+    "DictionaryDeclaration", "SettingsTable", "SuiteSetting"
   ]);
 
   const references: VscodeLocation[] = [];

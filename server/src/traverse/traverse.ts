@@ -71,7 +71,7 @@ const NodeSettings = {
     orderEnsured: false,
     children: [
       "id", "steps", "documentation", "timeout",
-      "teardown", "tags"
+      "setup", "teardown", "tags"
     ],
   },
   Step: {
@@ -113,6 +113,10 @@ const NodeSettings = {
   Tags: {
     orderEnsured: true,
     children: ["id", "values"]
+  },
+  Setup: {
+    orderEnsured: true,
+    children: ["id", "keyword"]
   },
   Teardown: {
     orderEnsured: true,

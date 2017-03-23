@@ -28,27 +28,19 @@ const VARIABLE_KINDS = new Map([
   ["%", "Environment"]
 ]);
 
-function parseVariableExpression(cell: DataCell) {
-  const type = cell.content[0];
-  const name = cell.content.substring(2, cell.content.length - 1);
+export type StringParseResultKind = "string" | "var";
 
-  return new VariableExpression(
-    new Identifier(name, location(
-        cell.location.start.line,
-        cell.location.start.column + 2,
-        cell.location.start.line,
-        cell.location.start.column + 2 + name.length
-    )),
-    VARIABLE_KINDS.get(type) as VariableKind,
-    cell.location
-  );
+export interface StringParseResult {
+  name:  string;
+  type:  string;
+  start: number;
+  end:   number;
+  kind:  string;
+  value: string;
 }
 
-function getTemplateElementFromRange(cell: DataCell, start: number, end: number) {
-  const rangeContent = cell.content.substring(start, end);
-  if (_.isEmpty(rangeContent)) {
-    return null;
-  }
+function getTemplateElement(parseResult: StringParseResult, cell: DataCell): TemplateElement {
+  const { value, start, end } = parseResult;
 
   const loc = location(
     cell.location.start.line,
@@ -57,12 +49,11 @@ function getTemplateElementFromRange(cell: DataCell, start: number, end: number)
     cell.location.start.column + end
   );
 
-  return new TemplateElement(rangeContent, loc);
+  return new TemplateElement(value, loc);
 }
 
-function getVariableExpressionFromRange(cell: DataCell, start: number, end: number) {
-  const type = cell.content.substr(start, 1);
-  const name = cell.content.substring(start + 2, end - 1);
+function getVariableExpression(parseResult: StringParseResult, cell: DataCell): VariableExpression {
+  const { type, name, start, end } = parseResult;
 
   return new VariableExpression(
     new Identifier(name, location(
@@ -81,35 +72,60 @@ function getVariableExpressionFromRange(cell: DataCell, start: number, end: numb
   );
 }
 
-function parseTemplateLiteral(cell: DataCell): TemplateLiteral {
+function getTemplateLiteral(parseResult: StringParseResult[], cell: DataCell): TemplateLiteral {
+    const [quasisParts, expressionParts] =
+      _.partition(parseResult, r => r.kind === "string");
+
+    const quasis = quasisParts.map(part => getTemplateElement(part, cell));
+    const expressions = expressionParts.map(part => getVariableExpression(part, cell));
+
+    return new TemplateLiteral(quasis, expressions, cell.location);
+}
+
+export function parseVariableString(stringToParse: string): StringParseResult[] {
   const typeAndNameRegex = /([$,@,%,&]){([^}]+)}/g;
-  let quasis = [];
-  let expressions = [];
+  let parts = [];
 
   let index = 0;
-  let match = typeAndNameRegex.exec(cell.content);
+  let match = typeAndNameRegex.exec(stringToParse);
   while (match) {
-    const element = getTemplateElementFromRange(cell, index, match.index);
-    if (element) {
-      quasis.push(element);
+    if (index < match.index) {
+      parts.push({
+        name:  null,
+        type:  null,
+        start: index,
+        end:   match.index,
+        kind:  "string",
+        value: stringToParse.substring(index, match.index),
+      });
     }
 
     const [matchedStr, type, name] = match;
-    const variableExpression =
-      getVariableExpressionFromRange(cell, match.index, typeAndNameRegex.lastIndex);
-
-    expressions.push(variableExpression);
+    parts.push({
+      name,
+      type,
+      value: matchedStr,
+      start: match.index,
+      end:   typeAndNameRegex.lastIndex,
+      kind:  "var",
+    });
 
     index = typeAndNameRegex.lastIndex;
-    match = typeAndNameRegex.exec(cell.content);
+    match = typeAndNameRegex.exec(stringToParse);
   }
 
-  const endElement = getTemplateElementFromRange(cell, index, cell.content.length);
-  if (endElement) {
-    quasis.push(endElement);
+  if (index < stringToParse.length) {
+    parts.push({
+      name:  null,
+      type:  null,
+      start: index,
+      end:   stringToParse.length,
+      kind:  "string",
+      value: stringToParse.substring(index, stringToParse.length),
+    });
   }
 
-  return new TemplateLiteral(quasis, expressions, cell.location);
+  return parts;
 }
 
 export function parseIdentifier(cell: DataCell): Identifier {
@@ -117,19 +133,21 @@ export function parseIdentifier(cell: DataCell): Identifier {
 }
 
 export function parseValueExpression(cell: DataCell): ValueExpression {
-  const templateLiteral = parseTemplateLiteral(cell);
+  const parseResult = parseVariableString(cell.content);
 
-  if (_.isEmpty(templateLiteral.expressions)) {
-    // Single literal
-    const value = _.first(templateLiteral.quasis).value;
-    return new Literal(value, cell.location);
-  } else if (_.isEmpty(templateLiteral.quasis) &&
-    templateLiteral.expressions.length === 1) {
-    // Single value expression
-    return _.first(templateLiteral.expressions);
+  if (_.isEmpty(parseResult)) {
+    return new Literal("", cell.location);
+  } else if (parseResult.length === 1) {
+    // Literal or VariableExpression
+    const result = _.head(parseResult);
+    if (result.kind === "var") {
+      return getVariableExpression(result, cell);
+    } else {
+      return new Literal(result.value, cell.location);
+    }
   } else {
     // Template literal
-    return templateLiteral;
+    return getTemplateLiteral(parseResult, cell);
   }
 }
 

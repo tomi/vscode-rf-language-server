@@ -11,11 +11,10 @@
       "cwd": "${workspaceRoot}",
       "outFiles": [
         "${workspaceRoot}/../client/server/**/*.js",
-        "!${workspaceRoot}/../client/server/**/test/**",
         "!${workspaceRoot}/../client/server/**/node_modules/**"
       ],
       "args": [
-        "../client/server/parser/**/*.test.js"
+        "../client/server/**/*.test.js"
       ]
     },
 		{

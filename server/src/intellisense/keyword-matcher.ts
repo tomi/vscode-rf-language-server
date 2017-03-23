@@ -26,3 +26,18 @@ export function identifierMatchesKeyword(
 
   return regex.test(identifier.name);
 }
+
+/**
+ * Tests case-insensitively if two identifiers are the same
+ *
+ * @param identifier1
+ * @param identifier2
+ */
+export function identifierMatchesIdentifier(
+  x: Identifier,
+  y: Identifier
+) {
+  const regex = new RegExp(`^${ x.name }\$`, "i");
+
+  return regex.test(y.name);
+}

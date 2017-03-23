@@ -12,18 +12,18 @@ import {
   TestSuite
 } from "../parser/models";
 import { traverse, VisitorOption } from "../traverse/traverse";
-import { findKeywordDefinition, KeywordDefinition } from "./definition-finder";
+import { findKeywordDefinition } from "./definition-finder";
 import { WorkspaceFile, WorkspaceTree } from "./workspace-tree";
-import { Location, Position } from "../utils/position";
-import { FileNode, findNodeInPos } from "./node-locator";
-import { identifierMatchesKeyword } from "./keyword-matcher";
+import { Location } from "../utils/position";
+import { findNodeInPos } from "./node-locator";
 import { nodeLocationToRange } from "../utils/position";
 import {
+  identifierMatchesKeyword,
+  identifierMatchesIdentifier
+} from "./keyword-matcher";
+import {
   isIdentifier,
-  isVariableExpression,
   isCallExpression,
-  isVariableDeclaration,
-  isFunctionDeclaration,
   isUserKeyword
 } from "./type-guards";
 
@@ -61,35 +61,57 @@ export function findReferences(location: Location, workspaceTree: WorkspaceTree)
 
   const parentOfNode = _.last(nodeInPos.path);
   if (isUserKeyword(parentOfNode)) {
-    return findWorkspaceKeywordReferences({
-      node:  parentOfNode,
-      uri:   nodeInPos.file.uri,
-      range: nodeLocationToRange(parentOfNode)
-    }, workspaceTree);
+    const searchedKeyword = parentOfNode;
+    const isSearchedKeyword = createNodeKeywordMatcherFn(searchedKeyword);
+
+    return findWorkspaceKeywordReferences(isSearchedKeyword, workspaceTree)
+      .concat([{
+        uri:   nodeInPos.file.uri,
+        range: nodeLocationToRange(searchedKeyword)
+      }]);
   } else if (isCallExpression(parentOfNode)) {
     const keywordDefinition = findKeywordDefinition(parentOfNode, nodeInPos, workspaceTree);
-    if (!keywordDefinition) {
-      return [];
+    if (keywordDefinition) {
+      const isSearchedKeyword = createNodeKeywordMatcherFn(keywordDefinition.node);
+
+      return findWorkspaceKeywordReferences(isSearchedKeyword, workspaceTree)
+        .concat([{
+          uri:   keywordDefinition.uri,
+          range: keywordDefinition.range
+        }]);
+    } else {
+      const isSearchedKeyword = node =>
+        (isCallExpression(node) && identifierMatchesIdentifier(node.callee, parentOfNode.callee)) ||
+        (isUserKeyword(node) && identifierMatchesIdentifier(node.id, parentOfNode.callee));
+
+      return findWorkspaceKeywordReferences(isSearchedKeyword, workspaceTree);
     }
 
-    return findWorkspaceKeywordReferences(keywordDefinition, workspaceTree);
   }
 
   return [];
 }
 
+/**
+ * Returns a function that takes a node and checks if that
+ * node is a call expression calling the given user keyword
+ *
+ * @param keywordToMatch
+ */
+function createNodeKeywordMatcherFn(keywordToMatch: UserKeyword) {
+  return node =>
+    isCallExpression(node) &&
+    identifierMatchesKeyword(node.callee, keywordToMatch);
+}
+
 function findWorkspaceKeywordReferences(
-  keywordDefinition: KeywordDefinition,
+  isSearchedKeywordFn: (node: Node) => boolean,
   workspaceTree: WorkspaceTree
 ): VscodeLocation[] {
   let references = [];
-  references.push({
-    uri: keywordDefinition.uri,
-    range: keywordDefinition.range
-  });
 
   for (const file of workspaceTree.getFiles()) {
-    const fileReferences = findFileKeywordReferences(keywordDefinition.node, file);
+    const fileReferences = findFileKeywordReferences(isSearchedKeywordFn, file);
 
     references = references.concat(fileReferences);
   }
@@ -98,7 +120,7 @@ function findWorkspaceKeywordReferences(
 }
 
 function findFileKeywordReferences(
-  searchedKeyword: UserKeyword,
+  isSearchedKeywordFn: (node: Node) => boolean,
   file: WorkspaceFile
 ) {
   // Optimize traversal by limiting which nodes to enter
@@ -109,13 +131,10 @@ function findFileKeywordReferences(
   ]);
 
   const references: VscodeLocation[] = [];
-  const isSearchedKeyword = node =>
-    isCallExpression(node) &&
-    identifierMatchesKeyword(node.callee, searchedKeyword);
 
   traverse(null, file.fileTree, {
     enter: (node: Node, parent: Node) => {
-      if (isSearchedKeyword(node)) {
+      if (isSearchedKeywordFn(node)) {
         references.push({
           uri: file.uri,
           range: nodeLocationToRange(node)

@@ -1,5 +1,12 @@
 # Change Log
 
+## Version 0.4.1
+* Release date: March 23, 2017
+
+### What's new in this version
+* Fix goto definition and find all references for keywords that contain special regex characters (such as `^`, `$`, `.` or `*`)
+
+
 ## Version 0.4.0
 * Release date: March 23, 2017
 

@@ -54,6 +54,20 @@ describe("Keyword matcher", () => {
       );
     });
 
+    it("should not match when identifier is only partial of keyword with embedded arguments", () => {
+      shouldNotMatch(
+        new Identifier("Partial of", dummyLoc),
+        new UserKeyword(new Identifier("Partial of keyword ${with} @{args}", dummyLoc), dummyPos)
+      );
+    });
+
+    it("should not match when keyword with embedded arguments is only partial of identifier", () => {
+      shouldNotMatch(
+        new Identifier("Partial with ${embedded} args longer keyword", dummyLoc),
+        new UserKeyword(new Identifier("Partial with ${embedded} args", dummyLoc), dummyPos)
+      );
+    });
+
     it("should match name with embedded arguments", () => {
       shouldMatch(
         new Identifier(`Keyword "with" embedded "args"`, dummyLoc),

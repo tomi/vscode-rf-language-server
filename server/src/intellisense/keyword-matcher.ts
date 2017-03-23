@@ -10,8 +10,8 @@ function createKeywordRegex(keywordName: string) {
   const variableRegex = /([$,@,%,&]){([^}]+)}/g;
 
   const regexString = variableRegex.test(keywordName) ?
-    keywordName.replace(variableRegex, ARGUMENT_REGEX) :
-    `^${ keywordName}\$`;
+    `^${ keywordName.replace(variableRegex, ARGUMENT_REGEX) }\$` :
+    `^${ keywordName }\$`;
 
   // As per RF documentation, keywords are matched case-insensitive
   return new RegExp(regexString, "i");

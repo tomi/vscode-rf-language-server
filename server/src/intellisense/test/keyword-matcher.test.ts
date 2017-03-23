@@ -84,6 +84,18 @@ describe("Keyword matcher", () => {
         new UserKeyword(new Identifier("Keyword ${arg1} embedded ${arg2}", dummyLoc), dummyPos)
       );
     });
+
+    it("should work with keywords with reserved regex characters", () => {
+      const createMatchTest = value => {
+        shouldMatch(
+          new Identifier(value, dummyLoc),
+          new UserKeyword(new Identifier(value, dummyLoc), dummyPos)
+        );
+      };
+
+      createMatchTest("Keyword ^ $ . * + ? ( ) [ ] { } |");
+      createMatchTest("Keyword[a-z|c?d]");
+    });
   });
 
 });

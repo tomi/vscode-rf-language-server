@@ -9,19 +9,14 @@
       "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
       "sourceMaps": true,
       "cwd": "${workspaceRoot}",
-			"outDir": "${workspaceRoot}/../client/server",
+      "outFiles": [
+        "${workspaceRoot}/../client/server/**/*.js",
+        "!${workspaceRoot}/../client/server/**/test/**",
+        "!${workspaceRoot}/../client/server/**/node_modules/**"
+      ],
       "args": [
         "../client/server/parser/**/*.test.js"
       ]
-    },
-    {
-      "type": "node2",
-      "request": "launch",
-      "name": "Run Test Script",
-      "program": "${workspaceRoot}/../client/server/test.js",
-      "sourceMaps": true,
-			"outDir": "${workspaceRoot}/../client/server",
-      "cwd": "${workspaceRoot}/../client/server"
     },
 		{
 			"name": "Attach",

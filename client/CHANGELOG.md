@@ -1,11 +1,16 @@
 # Change Log
 
-## Version 0.3.1
-* Release date: March x, 2017
+## Version 0.4.0
+* Release date: March 23, 2017
 
 ### What's new in this version
+* Updated robot framework language configuration:
+  * Typing a double quote is automatically closed.
+  * Selecting text and typing an angle bracket, single or double quote or back tick surrounds the selection.
 * Fix goto definition for keywords defined in [Setup]
 * Fixed bug that find references didn't find keywords defined in Settings tables or in [Setup]
+* Fix bug in goto definition when keyword with embedded arguments had a partial name of another keyword (#1)
+* Fix find all references for keyword that don't have a definition
 
 
 ## Version 0.3.0

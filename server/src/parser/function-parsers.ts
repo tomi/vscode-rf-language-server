@@ -13,7 +13,6 @@ import {
 import {
   parseCallExpression,
   parseIdentifier,
-  parseValueExpression,
 } from "./primitive-parsers";
 
 import {

@@ -17,7 +17,6 @@ import * as SettingParser from "./setting-parser";
 
 import {
   parseIdentifier,
-  parseValueExpression,
 } from "./primitive-parsers";
 
 import { parseStep } from "./function-parsers";

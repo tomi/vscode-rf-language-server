@@ -28,10 +28,10 @@ A [Visual Studio Code](https://code.visualstudio.com/) extension that supports R
 
 By default all `.robot` files are parsed. This can be configured using parameters. (see `Code` > `Preferences` > `Workspace Settings`).
 
-|param                          | description              |
-|----------------------------   |--------------------------|
-| `rfLanguageServer.includePaths`     | Array of glob patterns for files to be included`|
-| `rfLanguageServer.excludePaths`       | Array of glob patterns for files to be excluded|
+|param                            | description              |
+|---------------------------------|--------------------------|
+| `rfLanguageServer.includePaths` | Array of glob patterns for files to be included`|
+| `rfLanguageServer.excludePaths` | Array of glob patterns for files to be excluded|
 
 
 ## Known issues

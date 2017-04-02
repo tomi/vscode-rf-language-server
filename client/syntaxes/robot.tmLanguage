@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+<!--
+    <key></key>
+    <string></string>
+-->
 	<key>scopeName</key>
 	<string>text.robot</string>
 
@@ -107,6 +111,113 @@
       </array>
 
 		</dict>
+
+    <key>settings_table_setting</key>
+		<dict>
+      <!-- TODO: Create a separate repository entry for each of these for better control -->
+      <key>name</key>
+      <string>meta.setting.robot</string>
+
+      <key>begin</key>
+      <string>(?i)^(Library|Resource|Variables|Documentation|Metadata|Suite Setup|Suite Teardown|Force Tags|Default Tags|Test Setup|Test Teardown|Test Template|Test Timeout)(?: {2,}| ?\t| ?$)(.*)</string>
+
+      <key>beginCaptures</key>
+      <dict>
+        <key>1</key>
+        <dict>
+          <key>name</key>
+          <string>storage.type.setting.robot</string>
+        </dict>
+
+        <key>2</key>
+        <dict>
+          <key>name</key>
+          <string>entity.name.function.robot</string>
+        </dict>
+      </dict>
+
+      <key>end</key>
+      <string>^(?!\s*+\.\.\.)</string>
+
+      <key>patterns</key>
+      <array>
+        <dict>
+          <key>include</key>
+          <string>#comment</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#variables</string>
+        </dict>
+
+        <dict>
+          <key>match</key>
+          <string>^(\s*+\.\.\.)?( {2,}+| ?\t+| ?$)(.*)</string>
+
+          <key>captures</key>
+          <dict>
+            <key>1</key>
+            <dict>
+              <key>name</key>
+              <string>keyword.operator.robot</string>
+            </dict>
+
+            <key>3</key>
+            <dict>
+              <key>name</key>
+              <string>entity.name.function.robot</string>
+            </dict>
+          </dict>
+
+        </dict>
+      </array>
+		</dict>
+
+    <key>settings_table</key>
+		<dict>
+			<key>name</key>
+			<string>meta.table.settings.robot</string>
+
+			<key>begin</key>
+			<string>(?i)^\*+\s*settings?[\s*].*</string>
+
+      <key>beginCaptures</key>
+      <dict>
+        <key>1</key>
+        <dict>
+          <key>name</key>
+          <string>entity.name.table.robot</string>
+        </dict>
+      </dict>
+
+			<key>end</key>
+			<string>^(?=\*)</string>
+
+      <key>patterns</key>
+      <array>
+        <dict>
+          <key>include</key>
+          <string>#comment</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#variables</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#documentation</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#settings_table_setting</string>
+        </dict>
+      </array>
+
+		</dict>
   </dict>
 
 	<key>patterns</key>
@@ -123,12 +234,16 @@
       <key>include</key>
       <string>#documentation</string>
     </dict>
-		<dict>
+    <dict>
+      <key>include</key>
+      <string>#settings_table</string>
+    </dict>
+		<!--<dict>
 			<key>match</key>
 			<string>(?i)^\*+\s*(settings?|metadata|(user )?keywords?|test ?cases?|variables?)(.*)</string>
 			<key>name</key>
 			<string>string.robot.header</string>
-		</dict>
+		</dict>-->
 		<!--<dict>
 			<key>begin</key>
 			<string>(?i)^\s*\[?Documentation\]?</string>

@@ -16,34 +16,149 @@
 	<key>name</key>
 	<string>RobotFramework</string>
 
-	<key>patterns</key>
-	<array>
+  <key>repository</key>
+  <dict>
+    <key>comment</key>
 		<dict>
 			<key>match</key>
-			<string>(^\*\*\*.*?\*\*\*)|((?&lt;=^\|)\s+\*\*\*.*?\*\*\*)</string>
+			<string>(?:^|\t+| {2,})(#.*)$</string>
+      <key>captures</key>
+      <dict>
+        <key>1</key>
+        <dict>
+          <key>name</key>
+          <string>comment.line.robot</string>
+        </dict>
+      </dict>
+		</dict>
+
+    <key>variables</key>
+		<dict>
+			<key>match</key>
+			<string>([$@&amp;%]\{)(.*?)(\})</string>
+
+      <key>captures</key>
+      <dict>
+        <key>1</key>
+        <dict>
+          <key>name</key>
+          <string>punctuation.section.embedded.begin.robot</string>
+        </dict>
+
+        <key>2</key>
+        <dict>
+          <key>name</key>
+          <string>variable.language.robot</string>
+        </dict>
+
+        <key>3</key>
+        <dict>
+          <key>name</key>
+          <string>punctuation.section.embedded.end.robot</string>
+        </dict>
+      </dict>
+		</dict>
+
+    <key>documentation</key>
+		<dict>
+      <key>name</key>
+      <string>storage.type.method.robot</string>
+
+			<key>begin</key>
+			<string>(?i)^(\s*\[?Documentation\]?)(?: {2,}+| ?\t+| ?$)</string>
+
+      <key>contentName</key>
+      <string>string.unquoted.robot</string>
+
+      <!--<key>beginCaptures</key>
+      <dict>
+        <key>1</key>
+        <dict>
+          <key>name</key>
+          <string>storage.type.method.robot</string>
+        </dict>
+
+        <key>2</key>
+        <dict>
+          <key>name</key>
+          <string>storage.type.documentation.robot</string>
+        </dict>
+      </dict>-->
+
+			<key>end</key>
+			<string>^(?!\s*+\.\.\.)</string>
+
+		</dict>
+  </dict>
+
+	<key>patterns</key>
+	<array>
+    <dict>
+      <key>include</key>
+      <string>#comment</string>
+    </dict>
+    <dict>
+      <key>include</key>
+      <string>#variables</string>
+    </dict>
+    <dict>
+      <key>include</key>
+      <string>#documentation</string>
+    </dict>
+		<dict>
+			<key>match</key>
+			<string>(?i)^\*+\s*(settings?|metadata|(user )?keywords?|test ?cases?|variables?)(.*)</string>
 			<key>name</key>
 			<string>string.robot.header</string>
 		</dict>
+		<!--<dict>
+			<key>begin</key>
+			<string>(?i)^\s*\[?Documentation\]?</string>
+			<key>end</key>
+			<string>^(?!\s*+\.\.\.)</string>
+			<key>name</key>
+			<string>comment</string>
+		</dict>-->
+    <!--
+    <dict>
+			<key>name</key>
+			<string>string.robot.header</string>
+			<key>comment</key>
+			<string>Settings table</string>
+			<key>begin</key>
+			<string>(?i)^(\*+\s*)(settings?)(.*)$</string>
+			<key>end</key>
+			<string>(?i)^(?:\*+\s*)(?:settings?|metadata|(user )?keywords?|test ?cases?|variables?)(?:.*)$</string>
+      <key>patterns</key>
+      <array>
+        <dict>
+          <key>include</key>
+          <string>#comment</string>
+        </dict>
+      </array>
+    </dict>-->
+    <!--<dict>
+			<key>name</key>
+			<string>comment</string>
+			<key>begin</key>
+			<string>(?i)^\s*\[?Documentation\]?</string>
+			<key>end</key>
+			<string>^(?!\s*+\.\.\.)</string>
+      <key>contentName</key>
+      <string>storage.robot.documentation</string>
+		</dict>-->
 		<dict>
 			<key>match</key>
 			<string>\[.*?\]</string>
 			<key>name</key>
 			<string>storage.type.method.robot</string>
 		</dict>
-		<dict>
+		<!--<dict>
 			<key>match</key>
 			<string>(\$\{.*?\})|(@\{.*?\})</string>
 			<key>name</key>
 			<string>variable.language.robot</string>
-		</dict>
-		<dict>
-			<key>begin</key>
-			<string>(?&lt;!\\)#</string>
-			<key>end</key>
-			<string>$</string>
-			<key>name</key>
-			<string>comment.robot</string>
-		</dict>
+		</dict>-->
 		<dict>
 			<key>begin</key>
 			<string>(^[^ \t\*\n\|]+)|((?&lt;=^\|)\s+[^ \t\*\n\|]+)</string>

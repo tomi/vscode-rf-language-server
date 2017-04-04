@@ -2,10 +2,7 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-<!--
-    <key></key>
-    <string></string>
--->
+
 	<key>scopeName</key>
 	<string>text.robot</string>
 
@@ -26,7 +23,7 @@
     <key>comment</key>
 		<dict>
 			<key>match</key>
-			<string>(?:^|\t+| {2,})(#.*)$</string>
+			<string>(?:^ ?|\t+| {2,})(#.*)$</string>
       <key>captures</key>
       <dict>
         <key>1</key>
@@ -41,7 +38,7 @@
     <key>variables</key>
 		<dict>
 			<key>match</key>
-			<string>(?:(?&lt;!\\)|(?&lt;=\\\\))([$@&amp;%]\{)(.*?)(\})</string>
+			<string>(?:(?&lt;!\\)|(?&lt;=\\\\))([$@&amp;%]\{)(.*?)(\})( ?=)?</string>
 
       <key>captures</key>
       <dict>
@@ -62,78 +59,82 @@
           <key>name</key>
           <string>punctuation.section.embedded.end.robot</string>
         </dict>
+
+        <key>4</key>
+        <dict>
+          <key>name</key>
+          <string>keyword.operator.robot</string>
+        </dict>
       </dict>
 		</dict>
 
-    <!-- # a comment -->
+    <!-- ... -->
+    <key>line_continuation</key>
+    <dict>
+      <key>match</key>
+      <string>^(\s*\.\.\.)(?= {2,}| ?\t+| ?$)</string>
+
+      <key>name</key>
+      <string>keyword.operator.robot</string>
+    </dict>
+
     <!-- TODO: Separate into Documentation and [Documentation] -->
     <key>documentation</key>
 		<dict>
 			<key>begin</key>
-			<string>(?i)^(\s*\[?Documentation\]?)(?: {2,}+| ?\t+| ?$)(.*)</string>
+			<string>(?i)^\s*(\[?)(Documentation)(\]?)(?= {2}| ?\t| ?$)</string>
 
       <key>beginCaptures</key>
       <dict>
         <key>1</key>
         <dict>
           <key>name</key>
-          <string>storage.type.method.robot</string>
+          <string>keyword.operator.robot</string>
         </dict>
 
         <key>2</key>
         <dict>
           <key>name</key>
-          <string>string.unquoted.robot</string>
+          <string>storage.type.method.robot</string>
+        </dict>
+
+        <key>3</key>
+        <dict>
+          <key>name</key>
+          <string>keyword.operator.robot</string>
         </dict>
       </dict>
 
+			<key>contentName</key>
+			<string>string.unquoted.robot</string>
+
 			<key>end</key>
-			<string>^(?!\s*+\.\.\.)</string>
+			<string>^(?!\s*\.\.\.)</string>
 
       <key>patterns</key>
       <array>
         <dict>
-          <key>match</key>
-          <string>^(\s*+\.\.\.)?( {2,}+| ?\t+| ?$)(.*)</string>
+          <key>include</key>
+          <string>#comment</string>
+        </dict>
 
-          <key>captures</key>
-          <dict>
-            <key>1</key>
-            <dict>
-              <key>name</key>
-              <string>keyword.operator.robot</string>
-            </dict>
-
-            <key>3</key>
-            <dict>
-              <key>name</key>
-              <string>string.unquoted.robot</string>
-            </dict>
-          </dict>
-
+        <dict>
+          <key>include</key>
+          <string>#line_continuation</string>
         </dict>
       </array>
 
 		</dict>
 
-    <key>line_continuation</key>
-    <dict>
-      <key>match</key>
-      <string>^(\s*+\.\.\.)(?= {2,}+| ?\t+| ?$)</string>
-
-      <key>name</key>
-      <string>keyword.operator.robot</string>
-    </dict>
-
-    <!-- *** Settings *** -->
+    <!-- Settings in settings table, e.g. Library or Resource -->
     <key>settings_table_setting</key>
 		<dict>
-      <!-- TODO: Create a separate repository entry for each of these for better control -->
       <key>name</key>
       <string>meta.setting.robot</string>
 
+      <!-- TODO: Create a separate repository entry for each of these for better control -->
       <key>begin</key>
-      <string>(?i)^(Library|Resource|Variables|Documentation|Metadata|Suite Setup|Suite Teardown|Force Tags|Default Tags|Test Setup|Test Teardown|Test Template|Test Timeout)(?: {2,}| ?\t| ?$)</string>
+      <string>(?i)^(Library|Resource|Variables|Documentation|Metadata|Suite Setup|Suite Teardown|Force Tags|Default Tags|Test Setup|Test Teardown|Test Template|Test Timeout)(?= {2}| ?\t| ?$)</string>
 
       <key>beginCaptures</key>
       <dict>
@@ -148,7 +149,7 @@
       <string>constant.other.robot</string>
 
       <key>end</key>
-      <string>^(?!\s*+\.\.\.)</string>
+      <string>^(?!\s*\.\.\.)</string>
 
       <key>patterns</key>
       <array>
@@ -176,10 +177,10 @@
       <string>^(?=[^ \t\*\n\|]+)</string>
 
       <key>contentName</key>
-      <string>entity.name.function.robot</string>
+      <string>entity.other.robot</string>
 
       <key>end</key>
-      <string>^(?= {2,}| ?\t| ?$)</string>
+      <string>^(?= {2}| ?\t| ?$)</string>
 
       <key>patterns</key>
       <array>
@@ -195,7 +196,7 @@
       </array>
 		</dict>
 
-    <!-- User keyword or test case tags -->
+    <!-- Tags in user keywords or test cases -->
     <key>tags</key>
 		<dict>
       <key>begin</key>
@@ -226,7 +227,7 @@
       <string>entity.name.tag.robot</string>
 
       <key>end</key>
-      <string>^(?!\s*+\.\.\.)</string>
+      <string>^(?!\s*\.\.\.)</string>
 
       <key>patterns</key>
       <array>
@@ -242,14 +243,14 @@
       </array>
 		</dict>
 
-    <!-- User keyword settings -->
-    <key>keyword_arguments_return_timeout</key>
+    <!-- [Arguments] or [Return] -->
+    <key>keyword_arguments_return</key>
 		<dict>
       <key>name</key>
       <string>meta.keyword.setting.robot</string>
 
       <key>begin</key>
-      <string>^(?i)(?:\s)+(\[)(arguments|return|timeout)(\])</string>
+      <string>^(?i)(?:\s)+(\[)(arguments|return)(\])</string>
 
       <key>beginCaptures</key>
       <dict>
@@ -276,7 +277,7 @@
       <string>constant.other.robot</string>
 
       <key>end</key>
-      <string>^(?!\s*+\.\.\.)</string>
+      <string>^(?!\s*\.\.\.)</string>
 
       <key>patterns</key>
       <array>
@@ -297,14 +298,69 @@
       </array>
 		</dict>
 
-    <!-- User keyword settings -->
-    <key>keyword_teardown</key>
+    <!-- [Timeout] -->
+    <key>function_timeout</key>
 		<dict>
       <key>name</key>
       <string>meta.keyword.setting.robot</string>
 
       <key>begin</key>
-      <string>^(?i)(?:\s)+(\[)(teardown)(\])(?: {2,}| ?\t)(.*?)(?: {2,}| ?\t| ?$)</string>
+      <string>^(?i)(?:\s)+(\[)(timeout)(\])</string>
+
+      <key>beginCaptures</key>
+      <dict>
+        <key>1</key>
+        <dict>
+          <key>name</key>
+          <string>keyword.operator.robot</string>
+        </dict>
+
+        <key>2</key>
+        <dict>
+          <key>name</key>
+          <string>storage.type.method.robot</string>
+        </dict>
+
+        <key>3</key>
+        <dict>
+          <key>name</key>
+          <string>keyword.operator.robot</string>
+        </dict>
+      </dict>
+
+      <key>contentName</key>
+      <string>constant.other.robot</string>
+
+      <key>end</key>
+      <string>^(?!\s*\.\.\.)</string>
+
+      <key>patterns</key>
+      <array>
+        <dict>
+          <key>include</key>
+          <string>#comment</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#variables</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#line_continuation</string>
+        </dict>
+      </array>
+		</dict>
+
+    <!-- [Setup] -->
+    <key>function_setup</key>
+		<dict>
+      <key>name</key>
+      <string>meta.function.setting.robot</string>
+
+      <key>begin</key>
+      <string>(?i)^(?:\s)+(\[)(setup)(\])(?: {2}| ?\t| ?$)(?:\s)*(.*?)(?: {2}| ?\t| ?$)</string>
 
       <key>beginCaptures</key>
       <dict>
@@ -337,7 +393,7 @@
       <string>constant.other.robot</string>
 
       <key>end</key>
-      <string>^(?!\s*+\.\.\.)</string>
+      <string>^(?!\s*\.\.\.)</string>
 
       <key>patterns</key>
       <array>
@@ -358,6 +414,133 @@
       </array>
 		</dict>
 
+    <!-- [Teardown] -->
+    <key>function_teardown</key>
+		<dict>
+      <key>name</key>
+      <string>meta.function.setting.robot</string>
+
+      <key>begin</key>
+      <string>(?i)^(?:\s)+(\[)(teardown)(\])(?: {2}| ?\t| ?$)(?:\s)*(.*?)(?: {2}| ?\t| ?$)</string>
+
+      <key>beginCaptures</key>
+      <dict>
+        <key>1</key>
+        <dict>
+          <key>name</key>
+          <string>keyword.operator.robot</string>
+        </dict>
+
+        <key>2</key>
+        <dict>
+          <key>name</key>
+          <string>storage.type.method.robot</string>
+        </dict>
+
+        <key>3</key>
+        <dict>
+          <key>name</key>
+          <string>keyword.operator.robot</string>
+        </dict>
+
+        <key>4</key>
+        <dict>
+          <key>name</key>
+          <string>entity.name.function</string>
+        </dict>
+      </dict>
+
+      <key>contentName</key>
+      <string>constant.other.robot</string>
+
+      <key>end</key>
+      <string>^(?!\s*\.\.\.)</string>
+
+      <key>patterns</key>
+      <array>
+        <dict>
+          <key>include</key>
+          <string>#comment</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#variables</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#line_continuation</string>
+        </dict>
+      </array>
+		</dict>
+
+    <!-- [Template] -->
+    <key>function_template</key>
+		<dict>
+      <key>name</key>
+      <string>meta.function.setting.robot</string>
+
+      <key>begin</key>
+      <string>(?i)^(?:\s)+(\[)(template)(\])(?: {2}| ?\t| ?$)</string>
+
+      <key>beginCaptures</key>
+      <dict>
+        <key>1</key>
+        <dict>
+          <key>name</key>
+          <string>keyword.operator.robot</string>
+        </dict>
+
+        <key>2</key>
+        <dict>
+          <key>name</key>
+          <string>storage.type.method.robot</string>
+        </dict>
+
+        <key>3</key>
+        <dict>
+          <key>name</key>
+          <string>keyword.operator.robot</string>
+        </dict>
+      </dict>
+
+      <key>contentName</key>
+      <string>constant.other.robot</string>
+
+      <key>end</key>
+      <string>^(?!\s*\.\.\.)</string>
+
+      <key>patterns</key>
+      <array>
+        <dict>
+          <key>include</key>
+          <string>#comment</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#variables</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#line_continuation</string>
+        </dict>
+      </array>
+		</dict>
+
+    <!-- Test case or user keyword step, i.e. call to other keyword -->
+    <key>function_step</key>
+		<dict>
+      <key>name</key>
+      <string>entity.name.function.robot</string>
+
+      <key>match</key>
+      <string>^(?:\s)+([^$\[@&amp;%])+(?= {2}| ?\t| ?$)</string>
+		</dict>
+
+    <!-- *** Settings *** -->
     <key>settings_table</key>
 		<dict>
 			<key>name</key>
@@ -403,6 +586,7 @@
 
 		</dict>
 
+    <!-- *** Variables *** -->
     <key>variables_table</key>
 		<dict>
 			<key>name</key>
@@ -441,6 +625,7 @@
 
 		</dict>
 
+    <!-- *** Keywords *** -->
     <key>keywords_table</key>
 		<dict>
 			<key>name</key>
@@ -457,6 +642,9 @@
           <string>entity.name.table.robot</string>
         </dict>
       </dict>
+
+      <key>contentName</key>
+      <string>constant.other.robot</string>
 
 			<key>end</key>
 			<string>^(?=\*)</string>
@@ -490,12 +678,101 @@
 
         <dict>
           <key>include</key>
-          <string>#keyword_arguments_return_timeout</string>
+          <string>#keyword_arguments_return</string>
         </dict>
 
         <dict>
           <key>include</key>
-          <string>#keyword_teardown</string>
+          <string>#function_timeout</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#function_teardown</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#function_step</string>
+        </dict>
+      </array>
+
+		</dict>
+
+    <!-- *** Test Cases *** -->
+    <key>test_cases_table</key>
+		<dict>
+			<key>name</key>
+			<string>meta.table.testcases.robot</string>
+
+			<key>begin</key>
+			<string>(?i)^(\*+\s*test ?cases?[\s*].*)</string>
+
+      <key>beginCaptures</key>
+      <dict>
+        <key>1</key>
+        <dict>
+          <key>name</key>
+          <string>entity.name.table.robot</string>
+        </dict>
+      </dict>
+
+      <key>contentName</key>
+      <string>constant.other.robot</string>
+
+			<key>end</key>
+			<string>^(?=\*)</string>
+
+      <key>patterns</key>
+      <array>
+        <dict>
+          <key>include</key>
+          <string>#function_declaration</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#documentation</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#comment</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#variables</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#tags</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#function_timeout</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#function_setup</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#function_teardown</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#function_template</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#function_step</string>
         </dict>
       </array>
 
@@ -535,68 +812,10 @@
       <string>#keywords_table</string>
     </dict>
 
-		<!--<dict>
-			<key>match</key>
-			<string>(?i)^\*+\s*(settings?|metadata|(user )?keywords?|test ?cases?|variables?)(.*)</string>
-			<key>name</key>
-			<string>string.robot.header</string>
-		</dict>-->
-		<!--<dict>
-			<key>begin</key>
-			<string>(?i)^\s*\[?Documentation\]?</string>
-			<key>end</key>
-			<string>^(?!\s*+\.\.\.)</string>
-			<key>name</key>
-			<string>comment</string>
-		</dict>-->
-    <!--
     <dict>
-			<key>name</key>
-			<string>string.robot.header</string>
-			<key>comment</key>
-			<string>Settings table</string>
-			<key>begin</key>
-			<string>(?i)^(\*+\s*)(settings?)(.*)$</string>
-			<key>end</key>
-			<string>(?i)^(?:\*+\s*)(?:settings?|metadata|(user )?keywords?|test ?cases?|variables?)(?:.*)$</string>
-      <key>patterns</key>
-      <array>
-        <dict>
-          <key>include</key>
-          <string>#comment</string>
-        </dict>
-      </array>
-    </dict>-->
-    <!--<dict>
-			<key>name</key>
-			<string>comment</string>
-			<key>begin</key>
-			<string>(?i)^\s*\[?Documentation\]?</string>
-			<key>end</key>
-			<string>^(?!\s*+\.\.\.)</string>
-      <key>contentName</key>
-      <string>storage.robot.documentation</string>
-		</dict>-->
-		<dict>
-			<key>match</key>
-			<string>\[.*?\]</string>
-			<key>name</key>
-			<string>storage.type.method.robot</string>
-		</dict>
-		<!--<dict>
-			<key>match</key>
-			<string>(\$\{.*?\})|(@\{.*?\})</string>
-			<key>name</key>
-			<string>variable.language.robot</string>
-		</dict>-->
-		<dict>
-			<key>begin</key>
-			<string>(^[^ \t\*\n\|]+)|((?&lt;=^\|)\s+[^ \t\*\n\|]+)</string>
-			<key>end</key>
-			<string>\s{2}|\t|$|\s+(?=\|)</string>
-			<key>name</key>
-			<string>keyword.control.robot</string>
-		</dict>
+      <key>include</key>
+      <string>#test_cases_table</string>
+    </dict>
 	</array>
 </dict>
 </plist>

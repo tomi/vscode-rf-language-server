@@ -177,7 +177,7 @@
       <string>^(?=[^ \t\*\n\|]+)</string>
 
       <key>contentName</key>
-      <string>entity.other.robot</string>
+      <string>entity.name.type.robot</string>
 
       <key>end</key>
       <string>^(?= {2}| ?\t| ?$)</string>

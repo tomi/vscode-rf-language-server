@@ -56,4 +56,4 @@ Report them [here](https://github.com/tomi/vscode-rf-language-server/issues).
 
 This project is a grateful recipient of the [Futurice Open Source sponsorship program](https://spiceprogram.org). ♥
 
-Syntax highlighting grammar is based on [work](https://bitbucket.org/jussimalinen/robot.tmbundle/wiki/Home) by Jussi Malinen.
+Syntax highlighting grammar is built on top of [work](https://bitbucket.org/jussimalinen/robot.tmbundle/wiki/Home) by Jussi Malinen.

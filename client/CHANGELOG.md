@@ -1,5 +1,13 @@
 # Change Log
 
+## Version 0.5.0
+* Release date: April 4, 2017
+
+### What's new in this version
+* Improved syntax highlighting.
+  * Syntax highlightin has been completely rewritten from ground up. If you encounter odd behavior with it don't hesitate to file an issue in github.
+
+
 ## Version 0.4.1
 * Release date: March 23, 2017
 

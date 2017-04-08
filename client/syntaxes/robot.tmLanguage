@@ -554,6 +554,45 @@
       </array>
 		</dict>
 
+    <!-- Test case or user keyword step, i.e. call to other keyword -->
+    <key>named_argument</key>
+		<dict>
+      <key>name</key>
+      <string>meta.named.argument.robot</string>
+
+      <key>match</key>
+      <string>([^ |\t]*)((?<!\\)=)(.*?)(?= {2}|\t|$)</string>
+
+      <key>captures</key>
+      <dict>
+        <key>1</key>
+        <dict>
+          <key>name</key>
+          <string>variable.language.robot</string>
+        </dict>
+
+        <key>2</key>
+        <dict>
+          <key>name</key>
+          <string>keyword.operator.robot</string>
+        </dict>
+
+        <key>3</key>
+        <dict>
+          <key>name</key>
+          <string>constant.other.robot</string>
+        </dict>
+      </dict>
+
+      <key>patterns</key>
+      <array>
+        <dict>
+          <key>include</key>
+          <string>#variables</string>
+        </dict>
+      </array>
+		</dict>
+
     <!-- *** Settings *** -->
     <key>settings_table</key>
 		<dict>
@@ -725,6 +764,11 @@
           <key>include</key>
           <string>#function_step</string>
         </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#named_argument</string>
+        </dict>
       </array>
 
 		</dict>
@@ -814,6 +858,11 @@
         <dict>
           <key>include</key>
           <string>#function_step</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#named_argument</string>
         </dict>
       </array>
 

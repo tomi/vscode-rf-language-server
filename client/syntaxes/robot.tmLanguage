@@ -45,7 +45,7 @@
         <key>1</key>
         <dict>
           <key>name</key>
-          <string>punctuation.section.embedded.begin.robot</string>
+          <string>keyword.operator.robot</string>
         </dict>
 
         <key>2</key>
@@ -57,7 +57,7 @@
         <key>3</key>
         <dict>
           <key>name</key>
-          <string>punctuation.section.embedded.end.robot</string>
+          <string>keyword.operator.robot</string>
         </dict>
 
         <key>4</key>

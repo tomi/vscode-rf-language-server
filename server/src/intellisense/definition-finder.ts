@@ -237,7 +237,7 @@ export function findDefinition(
 
   const nodeInPos = findNodeInPos(location.position, file);
   if (!isIdentifier(nodeInPos.node)) {
-    return;
+    return null;
   }
 
   const parentOfNode = _.last(nodeInPos.path);

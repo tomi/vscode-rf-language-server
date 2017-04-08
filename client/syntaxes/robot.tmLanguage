@@ -705,9 +705,20 @@
           <string>#function_timeout</string>
         </dict>
 
+        <!-- Setup, Teardown and Template are illegal for keywords but highlight them anyway  -->
+        <dict>
+          <key>include</key>
+          <string>#function_setup</string>
+        </dict>
+
         <dict>
           <key>include</key>
           <string>#function_teardown</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#function_template</string>
         </dict>
 
         <dict>
@@ -792,6 +803,12 @@
         <dict>
           <key>include</key>
           <string>#function_template</string>
+        </dict>
+
+        <!-- Arguments and return are illegal for test cases but highlight them anyway  -->
+        <dict>
+          <key>include</key>
+          <string>#keyword_arguments_return</string>
         </dict>
 
         <dict>

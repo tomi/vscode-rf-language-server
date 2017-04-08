@@ -85,7 +85,7 @@ Keyword Name
               ],
               location(2, 4, 2, 28)
             ),
-            location(2, 0, 2, 28)
+            location(2, 4, 2, 28)
           ),
           new Step(
             new CallExpression(
@@ -100,7 +100,38 @@ Keyword Name
               ],
               location(3, 4, 3, 37)
             ),
-            location(3, 0, 3, 37)
+            location(3, 4, 3, 37)
+          ),
+        ]
+      )
+    ]);
+
+    parseAndAssert(data, expected);
+  });
+
+  it("should parse step from multiple lines", () => {
+    const data =
+`*** Keywords ***
+Keyword Name
+    Step 1    arg1
+    ...       arg2
+`;
+
+    const expected = keywordsTable(location(0, 0, 4, 0), [
+      keyword(
+        location(1, 0, 3, 18),
+        new Identifier("Keyword Name", location(1, 0, 1, 12)),
+        [
+          new Step(
+            new CallExpression(
+              new Identifier("Step 1", location(2, 4, 2, 10)),
+              [
+                new Literal("arg1", location(2, 14, 2, 18)),
+                new Literal("arg2", location(3, 14, 3, 18)),
+              ],
+              location(2, 4, 3, 18)
+            ),
+            location(2, 4, 3, 18)
           ),
         ]
       )

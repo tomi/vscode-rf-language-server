@@ -1,8 +1,10 @@
 import * as _ from "lodash";
 
+import { TableRowIterator } from "./row-iterator";
 import {
   DataTable,
-  DataRow
+  DataRow,
+  DataCell
 } from "./table-models";
 
 import {
@@ -37,9 +39,11 @@ export function parseTestCasesTable(dataTable: DataTable): TestCasesTable {
   const testCasesTable = new TestCasesTable(dataTable.location);
   let currentTestCase: TestCase;
 
-  dataTable.rows.forEach(row => {
+  const iterator = new TableRowIterator(dataTable);
+  while (!iterator.isDone()) {
+    let row = iterator.takeRow();
     if (row.isEmpty()) {
-      return;
+      continue;
     }
 
     if (startsTestCase(row)) {
@@ -48,23 +52,41 @@ export function parseTestCasesTable(dataTable: DataTable): TestCasesTable {
       currentTestCase = new TestCase(identifier, row.location.start);
       testCasesTable.addTestCase(currentTestCase);
     } else if (currentTestCase) {
-      const firstDataCell = row.getCellByIdx(1);
+      const firstRowDataCells = row.getCellsByRange(1);
+      const continuedRows = iterator.takeRowWhile(rowContinues);
+      const continuedCells = joinRows(continuedRows);
+      const [firstCell, ...restCells] = firstRowDataCells.concat(continuedCells);
 
-      if (testCaseSettings.has(firstDataCell.content)) {
-        const otherDataCells = row.getCellsByRange(2);
-        const setting = SettingParser.parseSetting(firstDataCell, otherDataCells);
+      if (testCaseSettings.has(firstCell.content)) {
+        const setting = SettingParser.parseSetting(firstCell, restCells);
 
         setTestCaseSetting(currentTestCase, setting);
         currentTestCase.location.end = setting.location.end;
       } else {
-        const step = parseStep(row);
+        const step = parseStep(firstCell, restCells);
         currentTestCase.addStep(step);
         currentTestCase.location.end = step.location.end;
       }
     }
-  });
+  }
 
   return testCasesTable;
+}
+
+function rowContinues(row: DataRow) {
+  return row.isRowContinuation({
+    requireFirstEmpty: true
+  });
+}
+
+function joinRows(rows: DataRow[]): DataCell[] {
+  const shouldTakeCell = cell => !cell.isRowContinuation();
+
+  return rows.reduce((allCells, row) => {
+    const rowCells = _.takeRightWhile(row.cells, shouldTakeCell);
+
+    return allCells.concat(rowCells);
+  }, []);
 }
 
 function setTestCaseSetting(testCase: TestCase, setting: SettingDeclaration) {

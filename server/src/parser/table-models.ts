@@ -80,6 +80,27 @@ export class DataRow {
   }
 
   /**
+   * Tests if row begins with empty cells and ...
+   *
+   * @param requireFirstEmpty - Is at least one empty cell required
+   */
+  public isRowContinuation({ requireFirstEmpty = false } = {}) {
+    if (requireFirstEmpty && !this.first().isEmpty()) {
+      return false;
+    }
+
+    for (let cell of this.cells) {
+      if (cell.isRowContinuation()) {
+        return true;
+      } else if (!cell.isEmpty()) {
+        return false;
+      }
+    }
+
+    return false;
+  }
+
+  /**
    * Returns the cell with given index
    */
   public getCellByIdx(index: number): DataCell {
@@ -114,9 +135,14 @@ export class DataCell {
   ) { }
 
   /**
-   * Is the cell empty. Cell is empty if it's only whitespace
+   * Is the cell empty. Cell is empty if it's only whitespace or
+   * only a single backslash
    */
   public isEmpty() {
-    return /$\s*^/.test(this.content);
+    return /^(\s*|\\)$/.test(this.content);
+  }
+
+  public isRowContinuation() {
+    return /^\.\.\.$/.test(this.content);
   }
 };

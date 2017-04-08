@@ -1,19 +1,9 @@
 import * as _ from "lodash";
 
-import {
-  DataTable,
-  DataRow
-} from "./table-models";
-
-import {
-  Step,
-  CallExpression
-} from "./models";
-
-import {
-  parseCallExpression,
-  parseIdentifier,
-} from "./primitive-parsers";
+import * as positionHelper from "./position-helper";
+import { DataCell } from "./table-models";
+import { Step } from "./models";
+import { parseCallExpression } from "./primitive-parsers";
 
 import {
   isVariable,
@@ -21,20 +11,24 @@ import {
   parseVariableDeclaration
 } from "./variable-parsers";
 
-export function parseStep(row: DataRow) {
-  const firstDataCell = row.getCellByIdx(1);
-
+export function parseStep(firstDataCell: DataCell, restDataCells: DataCell[]) {
   let stepContent;
+
+  const lastCell = _.last(restDataCells) || firstDataCell;
+  const stepLocation = positionHelper.locationFromStartEnd(
+    firstDataCell.location,
+    lastCell.location
+  );
 
   if (isVariable(firstDataCell)) {
     const typeAndName = parseTypeAndName(firstDataCell);
-    const callExpression = parseCallExpression(row.getCellsByRange(2));
+    const callExpression = parseCallExpression(restDataCells);
 
-    stepContent =
-      parseVariableDeclaration(typeAndName, [callExpression], row.location);
+    stepContent = parseVariableDeclaration(
+      typeAndName, [callExpression], stepLocation);
   } else {
-    stepContent = parseCallExpression(row.getCellsByRange(1));
+    stepContent = parseCallExpression([firstDataCell, ...restDataCells]);
   }
 
-  return new Step(stepContent, row.location);
+  return new Step(stepContent, stepLocation);
 }

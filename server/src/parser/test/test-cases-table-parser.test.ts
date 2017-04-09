@@ -60,7 +60,6 @@ describe("Parsing Test Cases table", () => {
     parseAndAssert(data, expected);
   });
 
-
   it("should parse steps", () => {
     const data =
 `*** Test Cases ***

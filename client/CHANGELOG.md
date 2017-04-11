@@ -1,5 +1,17 @@
 # Change Log
 
+## Version 0.6.0
+* Release date: April 4, 2017
+
+### What's new in this version
+* Rows that are split into multiple rows are now parsed correctly
+* Couple of improvements to syntax highlighting:
+  * Named arguments' name and value are highlighted separately
+  * Change the name (and therefore color) of variables' "prefix" and "suffix", i.e. the ${}, @{}, &{} and %{} part.
+  * Highlight even illegal settings for keywords and test cases. E.g. test cases can't have [Arguments] setting.
+* Fix bug in parsing an empty variable declaration
+
+
 ## Version 0.5.1
 * Release date: April 4, 2017
 

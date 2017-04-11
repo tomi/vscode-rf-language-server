@@ -152,6 +152,10 @@ export function parseValueExpression(cell: DataCell): ValueExpression {
 }
 
 export function parseCallExpression(cells: DataCell[]): CallExpression {
+  if (cells.length === 0) {
+    return null;
+  }
+
   const firstCell = _.first(cells);
   const lastCell = _.last(cells);
 

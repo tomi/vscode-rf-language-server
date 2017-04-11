@@ -11,7 +11,7 @@ import {
   parseVariableDeclaration
 } from "./variable-parsers";
 
-export function parseStep(firstDataCell: DataCell, restDataCells: DataCell[]) {
+export function parseStep(firstDataCell: DataCell, restDataCells: DataCell[]): Step {
   let stepContent;
 
   const lastCell = _.last(restDataCells) || firstDataCell;

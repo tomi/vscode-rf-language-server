@@ -1,7 +1,14 @@
 # Change Log
 
+## Version 0.6.1
+* Release date: April 11, 2017
+
+### What's new in this version
+* Fix release date in change log
+
+
 ## Version 0.6.0
-* Release date: April 4, 2017
+* Release date: April 11, 2017
 
 ### What's new in this version
 * Rows that are split into multiple rows are now parsed correctly

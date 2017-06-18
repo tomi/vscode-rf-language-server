@@ -10,14 +10,16 @@ import {
   createConnection, IConnection, TextDocumentSyncKind,
   TextDocuments, InitializeParams, InitializeResult, TextDocumentPositionParams,
   RequestType, Location, Range, DocumentSymbolParams, WorkspaceSymbolParams,
-  SymbolInformation, FileChangeType, ReferenceParams
+  SymbolInformation, FileChangeType, ReferenceParams, CompletionItem
 } from "vscode-languageserver";
 
 import { WorkspaceFile, WorkspaceTree } from "./intellisense/workspace-tree";
 import { findDefinition } from "./intellisense/definition-finder";
 import { findReferences } from "./intellisense/reference-finder";
+import { findCompletionItems } from "./intellisense/completion-provider";
 import { getFileSymbols, getWorkspaceSymbols } from "./intellisense/symbol-provider";
 import { Settings, Config } from "./utils/settings";
+import { createFileSearchTrees } from "./intellisense/search-tree";
 
 import * as asyncFs from "./utils/async-fs";
 
@@ -60,6 +62,13 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
       documentSymbolProvider: true,
       workspaceSymbolProvider: true,
       referencesProvider: true,
+      completionProvider: {
+        triggerCharacters: [
+          "$", "@", "&",
+          // TODO: Doesn't work at the moment, figure out why
+          "${", "@{", "&{",
+        ]
+      }
     },
   };
 });
@@ -145,6 +154,25 @@ connection.onReferences((referenceParams: ReferenceParams): Location[] => {
   return foundReferences;
 });
 
+/**
+ * Provides completion items for given text position
+ */
+connection.onCompletion((textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
+  logger.log("onCompletion...");
+
+  const filePath = filePathFromUri(textDocumentPosition.textDocument.uri);
+
+  const completionItems = findCompletionItems({
+    filePath,
+    position: {
+      line: textDocumentPosition.position.line,
+      column: textDocumentPosition.position.character,
+    }
+  }, workspaceMap);
+
+  return completionItems;
+});
+
 export interface BuildFromFilesParam {
   files: string[];
 }
@@ -206,14 +234,14 @@ function matchFilePathToConfig(filePath: string) {
 }
 
 const debouncedParseFile = (filePath: string, fileData: string) => {
-    try {
-      const parsedFile = parser.parseFile(fileData);
-      const file = createWorkspaceFile(filePath, parsedFile);
+  try {
+    const parsedFile = parser.parseFile(fileData);
+    const file = createWorkspaceFile(filePath, parsedFile);
 
-      workspaceMap.addFile(file);
-    } catch (error) {
-      logger.error("Failed to parse", filePath, error);
-    }
+    workspaceMap.addFile(file);
+  } catch (error) {
+    logger.error("Failed to parse", filePath, error);
+  }
 };
 
 function readAndParseFile(filePath: string) {
@@ -234,7 +262,9 @@ function readAndParseFile(filePath: string) {
 function createWorkspaceFile(filePath: string, fileTree) {
   const relativePath = path.relative(workspaceRoot, filePath);
 
-  return new WorkspaceFile(filePath, relativePath, fileTree);
+  const searchTrees = createFileSearchTrees(fileTree);
+
+  return new WorkspaceFile(filePath, relativePath, fileTree, searchTrees);
 }
 
 // Listen on the connection

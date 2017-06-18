@@ -205,7 +205,7 @@ function matchFilePathToConfig(filePath: string) {
   return shouldInclude && !shouldExclude;
 }
 
-const debouncedParseFile = _.debounce((filePath: string, fileData: string) => {
+const debouncedParseFile = (filePath: string, fileData: string) => {
     try {
       const parsedFile = parser.parseFile(fileData);
       const file = createWorkspaceFile(filePath, parsedFile);
@@ -214,7 +214,7 @@ const debouncedParseFile = _.debounce((filePath: string, fileData: string) => {
     } catch (error) {
       logger.error("Failed to parse", filePath, error);
     }
-  }, 3000);
+};
 
 function readAndParseFile(filePath: string) {
   logger.info("Parsing", filePath);

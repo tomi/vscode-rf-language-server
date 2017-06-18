@@ -23,7 +23,7 @@ function getRegex() {
   // For example:
   // ${var} --> ["${var}", "$", "var"]
   // @{var2} = --> ["${var2}", "@", "var2"]
-  return /^([$,@,%,&]){([^}]+)}/;
+  return /^([$,@,%,&]){([^}]*)}/;
 }
 
 export function isVariable(cell: DataCell) {

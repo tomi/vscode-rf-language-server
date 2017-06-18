@@ -1,5 +1,13 @@
 # Change Log
 
+## Version 0.7.0
+* Release date: xx x, xxxx
+
+### What's new in this version
+* Add support for completion suggestions
+  * Completion suggestions show keywords and variables
+
+
 ## Version 0.6.1
 * Release date: April 11, 2017
 

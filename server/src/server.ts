@@ -64,9 +64,7 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
       referencesProvider: true,
       completionProvider: {
         triggerCharacters: [
-          "$", "@", "&",
-          // TODO: Doesn't work at the moment, figure out why
-          "${", "@{", "&{",
+          "$", "@", "&", "{", " "
         ]
       }
     },

@@ -24,6 +24,7 @@ import {
 import {
   CompletionItem, CompletionItemKind
 } from "vscode-languageserver";
+import { createRange } from "../utils/position";
 
 import { Range } from "./models";
 
@@ -37,16 +38,13 @@ export function findCompletionItems(
   const nodeInPos = findNodeInPos(location.position, file);
 
   const variableCompletions = tryFindVariableCompletions(nodeInPos, searchTree);
-  if (variableCompletions) {
+  if (!_.isEmpty(variableCompletions)) {
     return variableCompletions;
   }
 
   const keywordCompletions = tryFindKeywordCompletions(nodeInPos, searchTree);
   if (keywordCompletions) {
-    return keywordCompletions.map(keyword => ({
-      label: keyword.id.name,
-      kind: CompletionItemKind.Function
-    }));
+    return keywordCompletions;
   }
 
   return [];
@@ -61,6 +59,7 @@ function tryFindVariableCompletions(nodeInPos: FileNode, searchTree) {
 
   const parentNode = _.last(nodeInPos.path);
   if (isVariableDeclaration(parentNode)) {
+    // The cursor is inside the variable declaration (${})
     return SearchTree.findVariablesWithKindAndPrefix(
       parentNode.kind,
       node.name,
@@ -72,23 +71,32 @@ function tryFindVariableCompletions(nodeInPos: FileNode, searchTree) {
     }));
   }
 
-  const firstChar = node.name[0];
-  if (firstChar === "$") {
-    return SearchTree.findVariablesWithPrefix(node.name, searchTree)
-      .map(variable => ({
-        label: formatVariable(variable),
-        kind:  CompletionItemKind.Variable
-      }));
-  }
+  return SearchTree.findVariablesWithPrefix(node.name, searchTree)
+    .map(variable => {
+      const variableName = formatVariable(variable);
 
-  return null;
+      return {
+        label:      variableName,
+        insertText: removeFromBeginning(variableName, node.name),
+        kind:       CompletionItemKind.Variable
+      };
+    });
 }
 
 function tryFindKeywordCompletions(nodeInPos: FileNode, searchTree) {
   const { node } = nodeInPos;
 
   if (isIdentifier(node)) {
-    return SearchTree.findKeywords(node.name, searchTree);
+    return SearchTree.findKeywords(node.name, searchTree)
+      .map(keyword => ({
+        label:      keyword.id.name,
+        // insertText: removeFromBeginning(keyword.id.name, node.name),
+        // textEdit: {
+        //   range: createRange(node.location.end, node.location.end),
+        //   newText: removeFromBeginning(keyword.id.name, node.name)
+        // },
+        kind: CompletionItemKind.Function
+      }));
   } else {
     return null;
   }
@@ -105,4 +113,9 @@ function variableKindToIdentifier(kind: VariableKind) {
     case "Dictionary": return "&";
     default:           return null;
   }
+}
+
+function removeFromBeginning(toCheck: string, partToRemove: string) {
+  const regex = new RegExp(`^${ _.escapeRegExp(partToRemove) }`, "i");
+  return toCheck.replace(regex, "");
 }

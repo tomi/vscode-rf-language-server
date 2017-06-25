@@ -22,7 +22,7 @@ import {
   isFunctionDeclaration,
 } from "./type-guards";
 import {
-  CompletionItem, CompletionItemKind
+  CompletionItem, CompletionItemKind, InsertTextFormat
 } from "vscode-languageserver";
 import { createRange } from "../utils/position";
 
@@ -87,16 +87,33 @@ function tryFindKeywordCompletions(nodeInPos: FileNode, searchTree) {
   const { node } = nodeInPos;
 
   if (isIdentifier(node)) {
-    return SearchTree.findKeywords(node.name, searchTree)
-      .map(keyword => ({
-        label:      keyword.id.name,
-        // insertText: removeFromBeginning(keyword.id.name, node.name),
-        // textEdit: {
-        //   range: createRange(node.location.end, node.location.end),
-        //   newText: removeFromBeginning(keyword.id.name, node.name)
-        // },
-        kind: CompletionItemKind.Function
-      }));
+    const textToSearch = node.name;
+
+    return SearchTree.findKeywords(textToSearch, searchTree)
+      .map(keyword => {
+        let [insertText, insertTextFormat] = createKeywordSnippet(keyword);
+        const detail        = getKeywordArgs(keyword);
+        const documentation = getKeywordDocumentation(keyword);
+
+        if (textToSearch.includes(" ")) {
+          // VSCode completion handles only complete words and not spaces,
+          // so everything before the last space needs to be trimmed
+          // from the insert text for it to work correctly
+          const textBeforeLastSpace =
+            textToSearch.substr(0, textToSearch.lastIndexOf(" ") + 1);
+
+          insertText = removeFromBeginning(insertText, textBeforeLastSpace);
+        }
+
+        return {
+          label: keyword.id.name,
+          kind:  CompletionItemKind.Function,
+          insertText,
+          insertTextFormat,
+          detail,
+          documentation
+        };
+      });
   } else {
     return null;
   }
@@ -112,6 +129,44 @@ function variableKindToIdentifier(kind: VariableKind) {
     case "List":       return "@";
     case "Dictionary": return "&";
     default:           return null;
+  }
+}
+
+/**
+ * Creates a signature from given keyword. If the keyword has arguments,
+ * the signature is returned as a snippet
+ *
+ * @param keyword
+ */
+function createKeywordSnippet(
+  keyword: UserKeyword
+): [string, InsertTextFormat] {
+  if (keyword.arguments) {
+    const args = keyword.arguments.values
+      .map((arg, idx) => `\${${ idx + 1 }:${ arg.id.name }}`)
+      .join("  ");
+
+    return [`${ keyword.id.name }  ${ args }`, InsertTextFormat.Snippet];
+  } else {
+    return [keyword.id.name, InsertTextFormat.PlainText];
+  }
+}
+
+function getKeywordArgs(keyword: UserKeyword): string {
+  if (keyword.arguments) {
+    return keyword.arguments.values
+      .map(arg => formatVariable(arg))
+      .join("  ");
+  } else {
+    return undefined;
+  }
+}
+
+function getKeywordDocumentation(keyword: UserKeyword): string {
+  if (keyword.documentation) {
+    return keyword.documentation.value.value;
+  } else {
+    return undefined;
   }
 }
 

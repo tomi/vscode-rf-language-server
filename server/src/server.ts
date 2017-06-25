@@ -168,6 +168,8 @@ connection.onCompletion((textDocumentPosition: TextDocumentPositionParams): Comp
     }
   }, workspaceMap);
 
+  // logger.log(JSON.stringify(completionItems, null, 2));
+
   return completionItems;
 });
 

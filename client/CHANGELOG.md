@@ -5,7 +5,7 @@
 
 ### What's new in this version
 * Add support for completion suggestions
-  * Completion suggestions show keywords and variables
+  * Supports keywords and variables
 
 
 ## Version 0.6.1

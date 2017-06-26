@@ -6,7 +6,14 @@
 ### What's new in this version
 * Add support for completion suggestions
   * Supports keywords and variables
-
+* Add `rfLanguageServer.logLevel` configuration option
+  * Defines what information of the language server is logged in the Output
+  * Possible values are `off`, `errors`, `info`, `debug`
+  * Default value is `off`
+* Add `rfLanguageServer.trace.server` configuration option
+  * Defines what information of the communication between VSCode and the rfLanguageServer is logged to the Output
+  * Possible values are `off`, `messages`, `verbose`
+  * Default value is `off`
 
 ## Version 0.6.1
 * Release date: April 11, 2017

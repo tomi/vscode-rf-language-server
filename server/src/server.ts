@@ -20,6 +20,7 @@ import { findCompletionItems } from "./intellisense/completion-provider";
 import { getFileSymbols, getWorkspaceSymbols } from "./intellisense/symbol-provider";
 import { Settings, Config } from "./utils/settings";
 import { createFileSearchTrees } from "./intellisense/search-tree";
+import { ConsoleLogger } from "./logger";
 
 import * as asyncFs from "./utils/async-fs";
 
@@ -43,13 +44,13 @@ let documents: TextDocuments = new TextDocuments();
 // for open, change and close text document events
 documents.listen(connection);
 
-const logger = console;
+const logger = ConsoleLogger;
 
 // After the server has started the client sends an initilize request. The server receives
 // in the passed params the rootPath of the workspace plus the client capabilites.
 let workspaceRoot: string;
 connection.onInitialize((params: InitializeParams): InitializeResult => {
-  logger.log("Initializing...");
+  logger.info("Initializing...");
 
   const rootUri = params.rootUri;
   workspaceRoot = rootUri && Uri.parse(rootUri).fsPath;
@@ -74,7 +75,7 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
 // The settings have changed. Is send on server activation
 // as well.
 connection.onDidChangeConfiguration(change => {
-  logger.log("onDidChangeConfiguration...");
+  logger.info("onDidChangeConfiguration...");
 
   if (change.settings && change.settings.rfLanguageServer) {
     Config.setSettings(change.settings.rfLanguageServer);
@@ -85,7 +86,7 @@ connection.onDidChangeConfiguration(change => {
  * Provides document symbols
  */
 connection.onDocumentSymbol((documentSymbol: DocumentSymbolParams): SymbolInformation[] => {
-  logger.log("onDocumentSymbol...");
+  logger.info("onDocumentSymbol...");
 
   const filePath = filePathFromUri(documentSymbol.textDocument.uri);
   const fileTree = workspaceMap.getFile(filePath);
@@ -100,7 +101,7 @@ connection.onDocumentSymbol((documentSymbol: DocumentSymbolParams): SymbolInform
  * Provides workspace symbols
  */
 connection.onWorkspaceSymbol((workspaceSymbol: WorkspaceSymbolParams): SymbolInformation[] => {
-  logger.log("onWorkspaceSymbol...");
+  logger.info("onWorkspaceSymbol...");
 
   const query = workspaceSymbol.query;
 
@@ -111,7 +112,7 @@ connection.onWorkspaceSymbol((workspaceSymbol: WorkspaceSymbolParams): SymbolInf
  * Finds the definition for an item in the cursor position
  */
 connection.onDefinition((textDocumentPosition: TextDocumentPositionParams): Location => {
-  logger.log("onDefinition...");
+  logger.info("onDefinition...");
 
   const filePath = filePathFromUri(textDocumentPosition.textDocument.uri);
 
@@ -137,7 +138,7 @@ connection.onDefinition((textDocumentPosition: TextDocumentPositionParams): Loca
  * Finds references for the symbol in document position
  */
 connection.onReferences((referenceParams: ReferenceParams): Location[] => {
-  logger.log("onReferences...");
+  logger.info("onReferences...");
 
   const filePath = filePathFromUri(referenceParams.textDocument.uri);
 
@@ -156,7 +157,7 @@ connection.onReferences((referenceParams: ReferenceParams): Location[] => {
  * Provides completion items for given text position
  */
 connection.onCompletion((textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
-  logger.log("onCompletion...");
+  logger.info("onCompletion...");
 
   const filePath = filePathFromUri(textDocumentPosition.textDocument.uri);
 
@@ -181,7 +182,7 @@ export const BuildFromFilesRequest =
   new RequestType<BuildFromFilesParam, void, void, void>("buildFromFiles");
 
 connection.onRequest(BuildFromFilesRequest, message => {
-  logger.log("buildFromFiles", message);
+  logger.info("buildFromFiles", message);
 
   message.files.forEach(readAndParseFile);
 });
@@ -190,7 +191,7 @@ connection.onRequest(BuildFromFilesRequest, message => {
  * Message sent when the content of a text document did change in VSCode.
  */
 connection.onDidChangeTextDocument(params => {
-  logger.log("onDidChangeTextDocument");
+  logger.info("onDidChangeTextDocument");
 
   // Because syncKind is set to Full, entire file content is received
   const filePath = filePathFromUri(params.textDocument.uri);
@@ -200,7 +201,7 @@ connection.onDidChangeTextDocument(params => {
 });
 
 connection.onDidChangeWatchedFiles(params => {
-  logger.log(`onDidChangeWatchedFiles ${ params.changes }`);
+  logger.info(`onDidChangeWatchedFiles ${ params.changes }`);
 
   // Remove deleted files
   params.changes

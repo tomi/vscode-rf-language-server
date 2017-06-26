@@ -59,6 +59,17 @@
           "default": [],
           "description": "An array of files/folders that should be ignored by the parser. Glob patterns are accepted (eg. **/*bad.robot)"
         },
+        "rfLanguageServer.logLevel": {
+          "type": "string",
+          "enum": [
+            "off",
+            "errors",
+            "info",
+            "debug"
+          ],
+          "default": "off",
+          "description": "What language server log messages are printed"
+        },
         "rfLanguageServer.trace.server": {
           "type": "string",
           "enum": [

@@ -110,6 +110,7 @@ export function findVariableDefinition(
     }
   }
 
+  logger.info("Variable definition not found from the workspace");
   return null;
 }
 
@@ -145,6 +146,7 @@ export function findKeywordDefinition(
     }
   }
 
+  logger.info("Keyword definition not found from the workspace");
   return null;
 }
 

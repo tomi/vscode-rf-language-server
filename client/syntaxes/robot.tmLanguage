@@ -180,7 +180,7 @@
       <string>entity.name.type.robot</string>
 
       <key>end</key>
-      <string>^(?= {2}| ?\t| ?$)</string>
+      <string>(?= {2}| ?\t| ?$)</string>
 
       <key>patterns</key>
       <array>

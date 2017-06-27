@@ -1,11 +1,14 @@
 # Change Log
 
 ## Version 0.7.0
-* Release date: xx x, xxxx
+* Release date: June 27, 2017
 
 ### What's new in this version
-* Add support for completion suggestions
+* Add support for code completion suggestions
   * Supports keywords and variables
+  * Doesn't yet understand which variable is local and which is "global"
+  * Doesn't yet understand all cases where a keyword and where a variable is allowed
+  * Suggests only user defined variables and keywords
 * Add `rfLanguageServer.logLevel` configuration option
   * Defines what information of the language server is logged in the Output
   * Possible values are `off`, `errors`, `info`, `debug`
@@ -14,6 +17,8 @@
   * Defines what information of the communication between VSCode and the rfLanguageServer is logged to the Output
   * Possible values are `off`, `messages`, `verbose`
   * Default value is `off`
+* Fix syntax highlighting for templated test cases
+
 
 ## Version 0.6.1
 * Release date: April 11, 2017

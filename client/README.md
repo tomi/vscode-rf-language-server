@@ -24,6 +24,10 @@ A [Visual Studio Code](https://code.visualstudio.com/) extension that supports R
 * Shows variables, keywords and test cases
 * `⌘T` on Mac, `Ctrl+T` on Linux and Windows
 
+### Show Code Completion Proposals
+* Suggests user keywords and variables
+* `⌃Space` on Mac, `Ctrl+Space` on Linux and Windows
+
 ## Configuration
 
 By default all `.robot` files are parsed. This can be configured using parameters. (see `Code` > `Preferences` > `Workspace Settings`).
@@ -32,6 +36,8 @@ By default all `.robot` files are parsed. This can be configured using parameter
 |---------------------------------|--------------------------|
 | `rfLanguageServer.includePaths` | Array of glob patterns for files to be included`|
 | `rfLanguageServer.excludePaths` | Array of glob patterns for files to be excluded|
+| `rfLanguageServer.logLevel` | What information of the language server is logged in the Output. Possible values `off`, `errors`, `info`, `debug`|
+| `rfLanguageServer.trace.server` | what information of the communication between VSCode and the rfLanguageServer is logged to the Output. Possible values `off`, `messages`, `verbose`|
 
 
 ## Known issues

@@ -427,7 +427,7 @@ export class UserKeyword implements FunctionDeclaration {
 
   constructor(
     public id: Identifier,
-    private startPosition: Position
+    private startPosition?: Position
   ) {
     this.location = {
       start: startPosition,

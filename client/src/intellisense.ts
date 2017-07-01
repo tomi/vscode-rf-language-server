@@ -30,8 +30,11 @@ function createGlob(patterns: string[]) {
 function getIncludeExcludePattern() {
   const { include, exclude } = Config.getIncludeExclude();
 
+  const defaultInclude = Config.getHasPythonKeywords() ?
+     ["**/*.robot", "**/*.py"] : ["**/*.robot"];
+
   return {
-    include: createGlob(include.length === 0 ? ["**/*.robot"] : include),
+    include: createGlob(include.length === 0 ? defaultInclude : include),
     exclude: createGlob(exclude)
   };
 }
@@ -66,11 +69,15 @@ export default class Intellisense {
   public parseAll() {
     const includeExclude = getIncludeExcludePattern();
 
+    const allowedFileExts = new Set(
+      Config.getHasPythonKeywords() ? [".robot", ".py"] : [".robot"]
+    );
+
     workspace.findFiles(includeExclude.include, includeExclude.exclude).then(files => {
       const filePaths = files
         // User can configure patterns that include other files than .robot.
         // Filter those out.
-        .filter(file => path.extname(file.fsPath) === ".robot")
+        .filter(file => allowedFileExts.has(path.extname(file.fsPath)))
         .map(file => file.fsPath);
 
       // Send the array of paths to the language server

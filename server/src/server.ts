@@ -25,7 +25,10 @@ import { ConsoleLogger } from "./logger";
 import * as asyncFs from "./utils/async-fs";
 
 import { FileParser } from "./parser/parser";
-const parser = new FileParser();
+import { PythonParser } from "./python-parser/python-parser";
+
+const robotParser = new FileParser();
+const pythonParser = new PythonParser();
 
 const workspaceMap = new WorkspaceTree();
 
@@ -169,8 +172,6 @@ connection.onCompletion((textDocumentPosition: TextDocumentPositionParams): Comp
     }
   }, workspaceMap);
 
-  // logger.log(JSON.stringify(completionItems, null, 2));
-
   return completionItems;
 });
 
@@ -236,7 +237,7 @@ function matchFilePathToConfig(filePath: string) {
 
 const debouncedParseFile = (filePath: string, fileData: string) => {
   try {
-    const parsedFile = parser.parseFile(fileData);
+    const parsedFile = robotParser.parseFile(fileData);
     const file = createWorkspaceFile(filePath, parsedFile);
 
     workspaceMap.addFile(file);
@@ -247,6 +248,9 @@ const debouncedParseFile = (filePath: string, fileData: string) => {
 
 function readAndParseFile(filePath: string) {
   logger.info("Parsing", filePath);
+
+  const parser = path.extname(filePath) === ".py" ?
+    pythonParser : robotParser;
 
   asyncFs.readFileAsync(filePath, "utf-8")
     .then(fileData => parser.parseFile(fileData))

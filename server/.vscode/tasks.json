@@ -3,7 +3,7 @@
 	"command": "npm",
 	"isShellCommand": true,
 	"showOutput": "silent",
-	"isWatching": true,
+  "suppressTaskName": true,
 	"problemMatcher": "$tsc-watch",
   "tasks": [
     {
@@ -14,6 +14,10 @@
       "taskName": "test",
       "args": ["test"],
       "isTestCommand": true
+    },
+    {
+      "taskName": "build-tests",
+      "args": ["run", "build-tests"]
     },
     {
       "taskName": "lint",

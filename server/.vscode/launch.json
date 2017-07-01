@@ -9,12 +9,13 @@
       "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
       "sourceMaps": true,
       "cwd": "${workspaceRoot}",
+      "preLaunchTask": "build-tests",
       "outFiles": [
-        "${workspaceRoot}/../client/server/**/*.js",
-        "!${workspaceRoot}/../client/server/**/node_modules/**"
+        "${workspaceRoot}/out/**/*.js",
+        "!${workspaceRoot}/node_modules/**"
       ],
       "args": [
-        "../client/server/**/*.test.js"
+        "${workspaceRoot}/out/**/*.test.js"
       ]
     },
 		{

@@ -34,6 +34,6 @@ export class Config {
             return false;
         }
 
-        return Config.settings.pythonKeywords === true;
+        return Config.settings.get<boolean>("pythonKeywords") === true;
     }
 }

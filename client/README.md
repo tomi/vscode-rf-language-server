@@ -28,12 +28,17 @@ A [Visual Studio Code](https://code.visualstudio.com/) extension that supports R
 * Suggests user keywords and variables
 * `⌃Space` on Mac, `Ctrl+Space` on Linux and Windows
 
+### Support for python keywords
+* Keywords defined in `.py` files are also included
+* Requires `rfLanguageServer.pythonKeywords` setting to be `true`
+
 ## Configuration
 
 By default all `.robot` files are parsed. This can be configured using parameters. (see `Code` > `Preferences` > `Workspace Settings`).
 
 |param                            | description              |
 |---------------------------------|--------------------------|
+| `rfLanguageServer.pythonKeywords` | Should `.py` files be parsed for keywords |
 | `rfLanguageServer.includePaths` | Array of glob patterns for files to be included`|
 | `rfLanguageServer.excludePaths` | Array of glob patterns for files to be excluded|
 | `rfLanguageServer.logLevel` | What information of the language server is logged in the Output. Possible values `off`, `errors`, `info`, `debug`|

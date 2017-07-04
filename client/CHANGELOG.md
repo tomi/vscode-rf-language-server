@@ -1,5 +1,16 @@
 # Change Log
 
+## Version 0.8.0
+* Release date: July 4, 2017
+
+### What's new in this version
+* Add support for python keywords
+  * For `.py` files to be parsed, `rfLanguageServer.pythonKeywords` setting must be set to `true`
+  * Python files are parsed only for keywords
+  * Python keywords are not yet shown in code completion proposals
+* Fix finding definition of keywords that don't match exactly (i.e. ignore spaces and underscores when comparing)
+
+
 ## Version 0.7.0
 * Release date: June 27, 2017
 

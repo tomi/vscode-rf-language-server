@@ -26,72 +26,81 @@ describe("Keyword matcher", () => {
       chai.assert.isFalse(result);
     }
 
+    const identifier = name => new Identifier(name, dummyLoc);
+    const keyword    = name => new UserKeyword(new Identifier(name, dummyLoc), dummyPos);
+
     it("should match identifier to user keyword with same name", () => {
       shouldMatch(
-        new Identifier("Keyword Name", dummyLoc),
-        new UserKeyword(new Identifier("Keyword Name", dummyLoc), dummyPos)
+        identifier("Keyword Name"),
+        keyword("Keyword Name")
       );
     });
 
     it("should match case-insensitively", () => {
       shouldMatch(
-        new Identifier("Keyword Name", dummyLoc),
-        new UserKeyword(new Identifier("keyword name", dummyLoc), dummyPos)
+        identifier("Keyword Name"),
+        keyword("keyword name")
       );
+    });
+
+    it("should ignore spaces when matching", () => {
+      shouldMatch(identifier("I shall call you"), keyword("iShallCallYou"));
+      shouldMatch(identifier("I shall call you"), keyword("i  ShallCall    You"));
+    });
+
+    it("should ignore underscores when matching", () => {
+      shouldMatch(identifier("I shall call you"), keyword("i_shall_call_you"));
+      shouldMatch(identifier("IShallCallYou"), keyword("i___shall_call_you"));
     });
 
     it("should not match when identifier is only partial of keyword", () => {
       shouldNotMatch(
-        new Identifier("Partial of", dummyLoc),
-        new UserKeyword(new Identifier("Partial of longer keyword", dummyLoc), dummyPos)
+        identifier("Partial of"),
+        keyword("Partial of longer keyword")
       );
     });
 
     it("should not match when keyword is only partial of identifier", () => {
       shouldNotMatch(
-        new Identifier("Partial of longer keyword", dummyLoc),
-        new UserKeyword(new Identifier("Partial of", dummyLoc), dummyPos)
+        identifier("Partial of longer keyword"),
+        keyword("Partial of")
       );
     });
 
     it("should not match when identifier is only partial of keyword with embedded arguments", () => {
       shouldNotMatch(
-        new Identifier("Partial of", dummyLoc),
-        new UserKeyword(new Identifier("Partial of keyword ${with} @{args}", dummyLoc), dummyPos)
+        identifier("Partial of"),
+        keyword("Partial of keyword ${with} @{args}")
       );
     });
 
     it("should not match when keyword with embedded arguments is only partial of identifier", () => {
       shouldNotMatch(
-        new Identifier("Partial with ${embedded} args longer keyword", dummyLoc),
-        new UserKeyword(new Identifier("Partial with ${embedded} args", dummyLoc), dummyPos)
+        identifier("Partial with ${embedded} args longer keyword"),
+        keyword("Partial with ${embedded} args")
       );
     });
 
     it("should match name with embedded arguments", () => {
       shouldMatch(
-        new Identifier(`Keyword "with" embedded "args"`, dummyLoc),
-        new UserKeyword(new Identifier("Keyword ${arg1} embedded ${arg2}", dummyLoc), dummyPos)
+        identifier(`Keyword "with" embedded "args"`),
+        keyword("Keyword ${arg1} embedded ${arg2}")
       );
 
       shouldMatch(
-        new Identifier(`Keyword with embedded args`, dummyLoc),
-        new UserKeyword(new Identifier("Keyword ${arg1} embedded ${arg2}", dummyLoc), dummyPos)
+        identifier(`Keyword with embedded args`),
+        keyword("Keyword ${arg1} embedded ${arg2}")
       );
 
       shouldMatch(
-        new Identifier(`Keyword \${VAR} embedded \${VAR2}`, dummyLoc),
-        new UserKeyword(new Identifier("Keyword ${arg1} embedded ${arg2}", dummyLoc), dummyPos)
+        identifier(`Keyword \${VAR} embedded \${VAR2}`),
+        keyword("Keyword ${arg1} embedded ${arg2}")
       );
     });
 
     it("should work with keywords with reserved regex characters", () => {
-      const createMatchTest = value => {
-        shouldMatch(
-          new Identifier(value, dummyLoc),
-          new UserKeyword(new Identifier(value, dummyLoc), dummyPos)
-        );
-      };
+      const createMatchTest = value =>
+        shouldMatch(identifier(value), keyword(value));
 
       createMatchTest("Keyword ^ $ . * + ? ( ) [ ] { } |");
       createMatchTest("Keyword[a-z|c?d]");

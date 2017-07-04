@@ -35,7 +35,8 @@
     "watch": "npm run clean && installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc --watch -p .",
     "test": "mocha --compilers ts:ts-node/register,tsx:ts-node/register **/*.test.ts",
     "clean": "rm -rf ../client/server",
-    "lint": "tslint --project ."
+    "lint": "tslint --project .",
+    "build-tests": "tsc --outDir out"
   },
   "repository": {
     "type": "git",

@@ -26,4 +26,14 @@ export class Config {
             exclude: Config.settings.get<string[]>("excludePaths")
         };
     }
+
+    public static getHasPythonKeywords() {
+        Config.reloadConfig();
+
+        if (!Config.settings) {
+            return false;
+        }
+
+        return Config.settings.pythonKeywords === true;
+    }
 }

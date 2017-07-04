@@ -9,8 +9,13 @@ import { parseVariableString } from "../parser/primitive-parsers";
 // As per RF documentation, the variables are matched with .*? regex
 const ARGUMENT_REGEX = ".*?";
 
+function sanizeKeywordName(name: string) {
+  return name.replace(/ /g, "").replace(/_/g, "");
+}
+
 function createKeywordRegex(keywordName: string) {
-  const parseResult = parseVariableString(keywordName);
+  const sanitizedName = sanizeKeywordName(keywordName);
+  const parseResult = parseVariableString(sanitizedName);
 
   const regexParts = parseResult.map(result => {
     return result.kind === "var" ? ARGUMENT_REGEX : _.escapeRegExp(result.value);
@@ -29,7 +34,8 @@ export function identifierMatchesKeyword(
   const keywordName = keyword.id.name;
   const regex = createKeywordRegex(keywordName);
 
-  return regex.test(identifier.name);
+  const sanitizedIdentifierName = sanizeKeywordName(identifier.name);
+  return regex.test(sanitizedIdentifierName);
 }
 
 /**

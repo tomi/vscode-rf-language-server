@@ -73,18 +73,34 @@ export default class Intellisense {
       Config.getHasPythonKeywords() ? [".robot", ".py"] : [".robot"]
     );
 
-    workspace.findFiles(includeExclude.include, includeExclude.exclude).then(files => {
-      const filePaths = files
-        // User can configure patterns that include other files than .robot.
-        // Filter those out.
-        .filter(file => allowedFileExts.has(path.extname(file.fsPath)))
-        .map(file => file.fsPath);
+    const isAllowedFile = uri => allowedFileExts.has(path.extname(uri.fsPath));
 
-      // Send the array of paths to the language server
-      this.langClient.sendRequest(BuildFromFilesRequestType, {
-        files: filePaths
+    if (!workspace.rootPath) {
+      // Not a folder
+      const activeEditor = window.activeTextEditor;
+      if (!activeEditor) {
+        return;
+      }
+
+      if (isAllowedFile(activeEditor.document.uri)) {
+        this.langClient.sendRequest(BuildFromFilesRequestType, {
+          files: [activeEditor.document.uri.fsPath]
+        });
+      }
+    } else {
+      workspace.findFiles(includeExclude.include, includeExclude.exclude).then(files => {
+        const filePaths = files
+          // User can configure patterns that include other files than .robot.
+          // Filter those out.
+          .filter(fileUri => isAllowedFile(fileUri))
+          .map(fileUri => fileUri.fsPath);
+
+        // Send the array of paths to the language server
+        this.langClient.sendRequest(BuildFromFilesRequestType, {
+          files: filePaths
+        });
       });
-    });
+    }
   }
 
   public reportBug() {

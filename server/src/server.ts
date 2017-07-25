@@ -265,11 +265,13 @@ function readAndParseFile(filePath: string) {
 }
 
 function createWorkspaceFile(filePath: string, fileTree) {
-  const relativePath = path.relative(workspaceRoot, filePath);
+  const pathToSave = workspaceRoot ?
+    path.relative(workspaceRoot, filePath) :
+    filePath;
 
   const searchTrees = createFileSearchTrees(fileTree);
 
-  return new WorkspaceFile(filePath, relativePath, fileTree, searchTrees);
+  return new WorkspaceFile(filePath, pathToSave, fileTree, searchTrees);
 }
 
 // Listen on the connection

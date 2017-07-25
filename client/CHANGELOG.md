@@ -1,5 +1,12 @@
 # Change Log
 
+## Version 0.8.1
+* Release date: July 25, 2017
+
+### What's new in this version
+* Fix errors thrown when opening a single file instead of a folder
+
+
 ## Version 0.8.0
 * Release date: July 4, 2017
 

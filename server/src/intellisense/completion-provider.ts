@@ -1,4 +1,5 @@
 import * as _ from "lodash";
+import { ConsoleLogger } from "../logger";
 import {
   Node,
   Identifier,
@@ -28,12 +29,18 @@ import { createRange } from "../utils/position";
 
 import { Range } from "./models";
 
+const logger = ConsoleLogger;
+
 export function findCompletionItems(
   location: Location,
   workspaceTree: WorkspaceTree
 ) {
-  const file = workspaceTree.getFile(location.filePath);
   const { searchTree } = workspaceTree;
+  const file = workspaceTree.getFile(location.filePath);
+  if (!file) {
+    logger.info(`Definition not found. File '${ location.filePath }' not parsed`);
+    return [];
+  }
 
   const nodeInPos = findNodeInPos(location.position, file);
 

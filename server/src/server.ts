@@ -13,7 +13,8 @@ import {
   SymbolInformation, FileChangeType, ReferenceParams, CompletionItem
 } from "vscode-languageserver";
 
-import { WorkspaceFile, WorkspaceTree } from "./intellisense/workspace-tree";
+import Workspace from "./intellisense/workspace/workspace";
+import { WorkspaceFileParserFn } from "./intellisense/workspace/workspace-file";
 import { findDefinition } from "./intellisense/definition-finder";
 import { findReferences } from "./intellisense/reference-finder";
 import { findCompletionItems } from "./intellisense/completion-provider";
@@ -24,13 +25,10 @@ import { ConsoleLogger } from "./logger";
 
 import * as asyncFs from "./utils/async-fs";
 
-import { FileParser } from "./parser/parser";
-import { PythonParser } from "./python-parser/python-parser";
+import { createRobotFile } from "./intellisense/workspace/robot-file";
+import { createPythonFile } from "./intellisense/workspace/python-file";
 
-const robotParser = new FileParser();
-const pythonParser = new PythonParser();
-
-const workspaceMap = new WorkspaceTree();
+const workspace = new Workspace();
 
 function filePathFromUri(uri: string): string {
   return Uri.parse(uri).path;
@@ -68,7 +66,7 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
       referencesProvider: true,
       completionProvider: {
         triggerCharacters: [
-          "$", "@", "&", "{", " "
+          "[", "{", "*"
         ]
       }
     },
@@ -92,7 +90,7 @@ connection.onDocumentSymbol((documentSymbol: DocumentSymbolParams): SymbolInform
   logger.info("onDocumentSymbol...");
 
   const filePath = filePathFromUri(documentSymbol.textDocument.uri);
-  const fileTree = workspaceMap.getFile(filePath);
+  const fileTree = workspace.getFile(filePath);
   if (!fileTree) {
     return [];
   }
@@ -108,7 +106,7 @@ connection.onWorkspaceSymbol((workspaceSymbol: WorkspaceSymbolParams): SymbolInf
 
   const query = workspaceSymbol.query;
 
-  return getWorkspaceSymbols(workspaceMap, query);
+  return getWorkspaceSymbols(workspace, query);
 });
 
 /**
@@ -125,7 +123,7 @@ connection.onDefinition((textDocumentPosition: TextDocumentPositionParams): Loca
       line: textDocumentPosition.position.line,
       column: textDocumentPosition.position.character,
     }
-  }, workspaceMap);
+  }, workspace);
 
   if (!found) {
     return null;
@@ -151,7 +149,7 @@ connection.onReferences((referenceParams: ReferenceParams): Location[] => {
         line:   referenceParams.position.line,
         column: referenceParams.position.character
       }
-  }, workspaceMap);
+  }, workspace);
 
   return foundReferences;
 });
@@ -170,7 +168,7 @@ connection.onCompletion((textDocumentPosition: TextDocumentPositionParams): Comp
       line: textDocumentPosition.position.line,
       column: textDocumentPosition.position.character,
     }
-  }, workspaceMap);
+  }, workspace);
 
   return completionItems;
 });
@@ -184,6 +182,8 @@ export const BuildFromFilesRequest =
 
 connection.onRequest(BuildFromFilesRequest, message => {
   logger.info("buildFromFiles", message);
+
+  workspace.clear();
 
   message.files.forEach(readAndParseFile);
 });
@@ -210,7 +210,7 @@ connection.onDidChangeWatchedFiles(params => {
     .map(deletedFile => filePathFromUri(deletedFile.uri))
     .forEach(deletedFilePath => {
       logger.info("Removing file", deletedFilePath);
-      workspaceMap.removeFileByPath(deletedFilePath);
+      workspace.removeFileByPath(deletedFilePath);
     });
 
   // Parse created files
@@ -235,43 +235,38 @@ function matchFilePathToConfig(filePath: string) {
   return shouldInclude && !shouldExclude;
 }
 
-const debouncedParseFile = (filePath: string, fileData: string) => {
+const debouncedParseFile = (filePath: string, fileContents: string) => {
   try {
-    const parsedFile = robotParser.parseFile(fileData);
-    const file = createWorkspaceFile(filePath, parsedFile);
+    const file = createWorkspaceFile(filePath, fileContents, createRobotFile);
 
-    workspaceMap.addFile(file);
+    workspace.addFile(file);
   } catch (error) {
     logger.error("Failed to parse", filePath, error);
   }
 };
 
-function readAndParseFile(filePath: string) {
+async function readAndParseFile(filePath: string) {
   logger.info("Parsing", filePath);
 
-  const parser = path.extname(filePath) === ".py" ?
-    pythonParser : robotParser;
+  const createFn = path.extname(filePath) === ".py" ?
+    createPythonFile : createRobotFile;
 
-  asyncFs.readFileAsync(filePath, "utf-8")
-    .then(fileData => parser.parseFile(fileData))
-    .then(parsedFile => {
-      const file = createWorkspaceFile(filePath, parsedFile);
+  try {
+    const fileContents = await asyncFs.readFileAsync(filePath, "utf-8");
+    const file = createWorkspaceFile(filePath, fileContents, createFn);
 
-      workspaceMap.addFile(file);
-    })
-    .catch(error => {
-      logger.error("Failed to parse", filePath, error);
-    });
+    workspace.addFile(file);
+  } catch (error) {
+    logger.error("Failed to parse", filePath, error);
+  }
 }
 
-function createWorkspaceFile(filePath: string, fileTree) {
-  const pathToSave = workspaceRoot ?
+function createWorkspaceFile(filePath: string, fileContents: string, createFn: WorkspaceFileParserFn) {
+  const relativePath = workspaceRoot ?
     path.relative(workspaceRoot, filePath) :
     filePath;
 
-  const searchTrees = createFileSearchTrees(fileTree);
-
-  return new WorkspaceFile(filePath, pathToSave, fileTree, searchTrees);
+  return createFn(fileContents, filePath, relativePath);
 }
 
 // Listen on the connection

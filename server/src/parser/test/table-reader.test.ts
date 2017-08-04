@@ -95,6 +95,25 @@ describe("TableReader", () => {
     chai.assert.deepEqual(actual, expected);
   });
 
+  it("should ignore trailing whitespace", () => {
+    const data = `*** Table\ncell1    `;
+
+    const actual = reader.read(data);
+
+    const expected = [
+      table("Table", {
+        header: header("*** Table"),
+        rows: [
+          row(location(1, 0, 1, 9), [
+            new DataCell("cell1", location(1, 0, 1, 5)),
+          ])
+        ]
+      })
+    ];
+
+    chai.assert.deepEqual(actual, expected);
+  });
+
   it("should skip comments", () => {
     const data = `*** Table # Inline comment\n#Comment line\ncell1    cell2`;
 

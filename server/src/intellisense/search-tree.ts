@@ -1,56 +1,135 @@
 import * as Trie from "node-ternary-search-trie";
 
 import {
-  Node,
-  Identifier,
   UserKeyword,
   VariableKind,
-  VariableDeclaration,
-  FunctionDeclaration
+  VariableDeclaration
 } from "../parser/models";
 
-import {
-  isVariableDeclaration,
-  isScalarDeclaration,
-  isListDeclaration,
-  isDictionaryDeclaration,
-  isUserKeyword
-} from "./type-guards";
-
 import { TestSuite } from "../parser/models";
-import { traverse, VisitorOption } from "../traverse/traverse";
 
-export class SearchTrees {
-  public keywordsTree = new Trie();
-  public variablesTree = new Trie();
+abstract class SymbolContainer<T> {
+  protected tree: Trie = new Trie();
+
+  public add(item: T) {
+    const normalizedKey = this._getNormalizedKey(item);
+
+    this.tree.set(normalizedKey, item);
+  }
+
+  public remove(item: T) {
+    const normalizedKey = this._getNormalizedKey(item);
+
+    this.tree.del(normalizedKey);
+  }
+
+  public forEach(cb) {
+    this.tree.traverse((...args) => {
+      cb(...args);
+    });
+  }
+
+  public findByPrefix(prefix: string): T[] {
+    const found: T[] = [];
+    const normalizedPrefix = this._normalizeKey(prefix);
+
+    this.tree.searchWithPrefix(normalizedPrefix, (key, keyword: T) => {
+      found.push(keyword);
+    });
+
+    return found;
+  }
+
+  public copyFrom(other: SymbolContainer<T>) {
+    other.forEach((key, item) => this.tree.set(key, item));
+  }
+
+  public size() {
+    return this.tree.size();
+  }
+
+  protected abstract getKey(item: T): string;
+
+  private _getNormalizedKey(item: T) {
+    const key = this.getKey(item);
+
+    return key.toLowerCase();
+  }
+
+  private _normalizeKey(key: string) {
+    return key.toLowerCase();
+  }
+}
+
+/**
+ * Container for keywords
+ */
+export class KeywordContainer extends SymbolContainer<UserKeyword> {
+  protected getKey(item: UserKeyword) {
+    return item.id.name;
+  }
+}
+
+/**
+ * Container for variables
+ */
+export class VariableContainer extends SymbolContainer<VariableDeclaration> {
+  public static Empty = new VariableContainer();
+
+  protected getKey(item: VariableDeclaration) {
+    return this._getVariableName(item);
+  }
+
+  private _getVariableName(node: VariableDeclaration) {
+    const typeIdentifier = this._variableKindToIdentifier(node.kind);
+
+    if (!typeIdentifier) {
+      return node.id.name;
+    } else {
+      return `${ typeIdentifier }{${ node.id.name }}`;
+    }
+  }
+
+  private _variableKindToIdentifier(kind: VariableKind) {
+    switch (kind) {
+      case "Scalar":     return "$";
+      case "List":       return "@";
+      case "Dictionary": return "&";
+      default:           return null;
+    }
+  }
+};
+
+export interface Symbols {
+  keywords: KeywordContainer;
+
+  variables: VariableContainer;
 }
 
 /**
  * Creates search trees for keywords and variables
  *
- * @param fileTree
+ * @param ast
  */
-export function createFileSearchTrees(fileTree: TestSuite): SearchTrees {
-  const keywordsTree  = new Trie();
-  const variablesTree = new Trie();
+export function createFileSearchTrees(ast: TestSuite): Symbols {
+  const keywords  = new KeywordContainer();
+  const variables = new VariableContainer();
 
-  traverse(null, fileTree, {
-    enter: (node: Node, parent: Node) => {
-      if (isUserKeyword(node)) {
-        const normalizedName = normalizeIdentifierName(node.id);
+  if (ast && ast.keywordsTable) {
+    ast.keywordsTable.keywords.forEach(keyword => {
+      keywords.add(keyword);
+    });
+  }
 
-        keywordsTree.set(normalizedName, node);
-      } else if (isVariableDeclaration(node)) {
-        const normalizedName = normalizeVariableName(node);
-
-        variablesTree.set(normalizedName, node);
-      }
-    }
-  });
+  if (ast && ast.variablesTable) {
+    ast.variablesTable.variables.forEach(variable => {
+      variables.add(variable);
+    });
+  }
 
   return {
-    keywordsTree,
-    variablesTree
+    keywords,
+    variables
   };
 }
 
@@ -58,117 +137,21 @@ export function createFileSearchTrees(fileTree: TestSuite): SearchTrees {
  * Removes keywords and variables in given fileTree from given search trees
  *
  * @param searchTrees
- * @param fileTree
+ * @param ast
  */
-export function removeFileSearchTrees(searchTrees: SearchTrees, fileTree: TestSuite) {
+export function removeFileSymbols(symbols: Symbols, ast: TestSuite) {
   // TODO: Could use another search trees instead of fileTree
-  const { keywordsTree, variablesTree } = searchTrees;
+  const { keywords, variables } = symbols;
 
-  traverse(null, fileTree, {
-    enter: (node: Node, parent: Node) => {
-      if (isUserKeyword(node)) {
-        const normalizedName = normalizeIdentifierName(node.id);
-
-        keywordsTree.del(normalizedName);
-      } else if (isVariableDeclaration(node)) {
-        const normalizedName = normalizeVariableName(node);
-
-        variablesTree.del(normalizedName);
-      }
-    }
-  });
-}
-
-/**
- * Copy search tree contents from tree to another
- * @param from
- * @param to
- */
-export function copyFromTreeToTree(from: SearchTrees, to: SearchTrees) {
-  _copyFromTreeToTree(from.keywordsTree, to.keywordsTree);
-  _copyFromTreeToTree(from.variablesTree, to.variablesTree);
-}
-
-export function findKeywords(
-  prefix: string,
-  trees: SearchTrees
-): UserKeyword[] {
-  const foundKeywords: UserKeyword[] = [];
-
-  const normalizedPrefix = normalizeName(prefix);
-  const { keywordsTree } = trees;
-
-  keywordsTree.searchWithPrefix(normalizedPrefix, (key, keyword: UserKeyword) => {
-    foundKeywords.push(keyword);
-  });
-
-  return foundKeywords;
-}
-
-export function findVariablesWithKindAndPrefix(
-  kind: VariableKind,
-  prefix: string,
-  trees: SearchTrees
-): VariableDeclaration[] {
-  const foundVariables: VariableDeclaration[] = [];
-
-  const typeIdentifier    = variableKindToIdentifier(kind);
-  const normalizedPrefix  = `${ typeIdentifier }{${ normalizeName(prefix) }`;
-  const { variablesTree } = trees;
-
-  variablesTree.searchWithPrefix(normalizedPrefix, (key, keyword: VariableDeclaration) => {
-    foundVariables.push(keyword);
-  });
-
-  return foundVariables;
-}
-
-export function findVariablesWithPrefix(
-  prefix: string,
-  trees: SearchTrees
-): VariableDeclaration[] {
-  const foundVariables: VariableDeclaration[] = [];
-
-  const normalizedPrefix  = normalizeName(prefix);
-  const { variablesTree } = trees;
-
-  variablesTree.searchWithPrefix(normalizedPrefix, (key, keyword: VariableDeclaration) => {
-    foundVariables.push(keyword);
-  });
-
-  return foundVariables;
-}
-
-function _copyFromTreeToTree(from: Trie, to: Trie) {
-  from.traverse((key, value) => {
-    to.set(key, value);
-  });
-}
-
-function normalizeIdentifierName(identifier: Identifier) {
-  return normalizeName(identifier.name);
-}
-
-function normalizeName(name: string) {
-  return name.toLowerCase();
-}
-
-function normalizeVariableName(node: VariableDeclaration) {
-  let name = normalizeIdentifierName(node.id);
-
-  const typeIdentifier = variableKindToIdentifier(node.kind);
-  if (!typeIdentifier) {
-    return name;
-  } else {
-    return `${ typeIdentifier }{${ name }}`;
+  if (ast && ast.keywordsTable) {
+    ast.keywordsTable.keywords.forEach(keyword => {
+      keywords.remove(keyword);
+    });
   }
-}
 
-function variableKindToIdentifier(kind: VariableKind) {
-  switch (kind) {
-    case "Scalar":     return "$";
-    case "List":       return "@";
-    case "Dictionary": return "&";
-    default:           return null;
+  if (ast && ast.variablesTable) {
+    ast.variablesTable.variables.forEach(variable => {
+      variables.remove(variable);
+    });
   }
 }

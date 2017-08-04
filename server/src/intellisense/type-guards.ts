@@ -13,7 +13,17 @@ import {
   UserKeyword,
   TestCase,
   FunctionDeclaration,
-  VariablesTable
+  VariablesTable,
+  SettingsTable,
+  Documentation,
+  SuiteSetting,
+  Tags,
+  Arguments,
+  Timeout,
+  Return,
+  Teardown,
+  Setup,
+  Template
 } from "../parser/models";
 
 function isOfType(node: Node, typeName: string) {
@@ -76,4 +86,44 @@ export function isLiteral(node: Node): node is Literal {
 
 export function isTemplateLiteral(node: Node): node is TemplateLiteral {
   return isOfType(node, "TemplateLiteral");
+}
+
+export function isSettingsTable(node: Node): node is SettingsTable {
+  return isOfType(node, "SettingsTable");
+}
+
+export function isDocumentation(node: Node): node is Documentation {
+  return isOfType(node, "Documentation");
+}
+
+export function isSuiteSetting(node: Node): node is SuiteSetting {
+  return isOfType(node, "SuiteSetting");
+}
+
+export function isTags(node: Node): node is Tags {
+  return isOfType(node, "Tags");
+}
+
+export function isArguments(node: Node): node is Arguments {
+  return isOfType(node, "Arguments");
+}
+
+export function isTimeout(node: Node): node is Timeout {
+  return isOfType(node, "Timeout");
+}
+
+export function isReturn(node: Node): node is Return {
+  return isOfType(node, "Return");
+}
+
+export function isSetup(node: Node): node is Setup {
+  return isOfType(node, "Setup");
+}
+
+export function isTeardown(node: Node): node is Teardown {
+  return isOfType(node, "Teardown");
+}
+
+export function isTemplate(node: Node): node is Template {
+  return isOfType(node, "Template");
 }

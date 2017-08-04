@@ -1,3 +1,8 @@
 {
-    "vsicons.presets.angular": false
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/bower_components": true,
+        "**/*.js.map": true,
+        "**/*.js": true
+    }
 }

@@ -85,7 +85,7 @@ function getParserFn(cell: DataCell) {
 function parseLibraryImport(settingsTable: SettingsTable, firstCell: DataCell, restCells: DataCell[]) {
   const [firstDataCell, ...restDataCells] = restCells;
   const target = parseValueExpression(firstDataCell);
-  const args   = restCells.map(parseValueExpression);
+  const args   = restDataCells.map(parseValueExpression);
 
   // TODO: WITH NAME keyword
   const lastCell = _.last(restCells) || firstCell;

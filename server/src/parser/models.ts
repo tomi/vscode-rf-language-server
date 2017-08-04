@@ -28,7 +28,15 @@ export class Identifier implements Node {
 
 export type VariableKind = "Scalar" | "List" | "Dictionary";
 
-export type SettingKind = "Documentation" | "Arguments" | "Return" | "Timeout" | "Teardown" | "Tags" | "Setup";
+export type SettingKind =
+  "Documentation" |
+  "Arguments" |
+  "Return" |
+  "Timeout" |
+  "Teardown" |
+  "Tags" |
+  "Setup" |
+  "Template";
 
 export class VariableExpression implements ValueExpression {
   public type = "VariableExpression";
@@ -175,6 +183,13 @@ export class SettingsTable implements Node {
   public resourceImports: ResourceImport[] = [];
   public variableImports: VariableImport[] = [];
 
+  // TODO:
+  // Metadata
+  // Force tags
+  // Default tags
+  // Test template
+  // Test timeout
+
   constructor(public location: SourceLocation) {
   }
 
@@ -311,6 +326,23 @@ export class Teardown implements SettingDeclaration {
 export class Setup implements SettingDeclaration {
   public type = "Setup";
   public kind: SettingKind = "Setup";
+
+  /**
+   *
+   */
+  constructor(
+    public id: Identifier,
+    public keyword: CallExpression,
+    public location: SourceLocation
+  ) { }
+}
+
+/**
+ *
+ */
+export class Template implements SettingDeclaration {
+  public type = "Template";
+  public kind: SettingKind = "Template";
 
   /**
    *

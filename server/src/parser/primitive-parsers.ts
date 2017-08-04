@@ -133,6 +133,10 @@ export function parseIdentifier(cell: DataCell): Identifier {
 }
 
 export function parseValueExpression(cell: DataCell): ValueExpression {
+  if (!cell) {
+    return null;
+  }
+
   const parseResult = parseVariableString(cell.content);
 
   if (_.isEmpty(parseResult)) {

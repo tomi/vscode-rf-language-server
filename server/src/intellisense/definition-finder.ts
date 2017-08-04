@@ -1,4 +1,5 @@
 import * as _ from "lodash";
+import Workspace from "./workspace/workspace";
 import {
   Node,
   Identifier,
@@ -12,7 +13,6 @@ import {
   TestSuite
 } from "../parser/models";
 import { ConsoleLogger } from "../logger";
-import { WorkspaceFile, WorkspaceTree } from "./workspace-tree";
 import { traverse, VisitorOption } from "../traverse/traverse";
 import { Location, Position } from "../utils/position";
 import { identifierMatchesKeyword } from "./keyword-matcher";
@@ -51,7 +51,7 @@ export interface VariableDefinition {
 
 export function findDefinition(
   location: Location,
-  workspaceTree: WorkspaceTree
+  workspaceTree: Workspace
 ): NodeDefinition {
   const file = workspaceTree.getFile(location.filePath);
   if (!file) {
@@ -85,7 +85,7 @@ export function findDefinition(
 export function findVariableDefinition(
   variable: VariableExpression,
   variableLocation: FileNode,
-  workspaceTree: WorkspaceTree
+  workspaceTree: Workspace
 ): VariableDefinition {
   let foundVariableDefinition =
     tryFindVarDefStartingFromNode(variable, variableLocation);
@@ -100,7 +100,7 @@ export function findVariableDefinition(
 
   // TODO: iterate in import order
   for (const file of workspaceTree.getFiles()) {
-    foundVariableDefinition = findVariableDefinitionFromFile(variable, file.fileTree);
+    foundVariableDefinition = findVariableDefinitionFromFile(variable, file.ast);
     if (foundVariableDefinition) {
       return {
         node:  foundVariableDefinition,
@@ -117,11 +117,11 @@ export function findVariableDefinition(
 export function findKeywordDefinition(
   callExpression: CallExpression,
   keywordLocation: FileNode,
-  workspaceTree: WorkspaceTree
+  workspaceTree: Workspace
 ): KeywordDefinition {
   const identifier = callExpression.callee;
 
-  let foundDefinition = findKeywordDefinitionFromFile(callExpression, keywordLocation.file.fileTree);
+  let foundDefinition = findKeywordDefinitionFromFile(callExpression, keywordLocation.file.ast);
   if (foundDefinition) {
     return {
       node:  foundDefinition,
@@ -136,7 +136,7 @@ export function findKeywordDefinition(
       continue;
     }
 
-    foundDefinition = findKeywordDefinitionFromFile(callExpression, file.fileTree);
+    foundDefinition = findKeywordDefinitionFromFile(callExpression, file.ast);
     if (foundDefinition) {
       return {
         node:  foundDefinition,
@@ -198,8 +198,8 @@ function tryFindVarDefStartingFromNode(
     return foundVariableDefinition;
   }
 
-  if (location.file.fileTree.variablesTable) {
-    location.file.fileTree.variablesTable.variables.find(varTableVar => {
+  if (location.file.ast.variablesTable) {
+    location.file.ast.variablesTable.variables.find(varTableVar => {
       if (varTableVar.kind === variable.kind &&
         varTableVar.id.name === variable.id.name) {
         foundVariableDefinition = varTableVar;
@@ -224,7 +224,7 @@ function findVariableDefinitionFromFile(variable: VariableExpression, file: Test
     node.kind === variable.kind &&
     node.id.name === variable.id.name;
 
-  traverse(null, file, {
+  traverse(file, {
     enter: (node: Node, parent: Node) => {
       if (isNodeSearchedVar(node)) {
         foundVariable = node;
@@ -249,7 +249,7 @@ function findKeywordDefinitionFromFile(callExpression: CallExpression, file: Tes
     isUserKeyword(node) &&
     identifierMatchesKeyword(callExpression.callee, node);
 
-  traverse(null, file, {
+  traverse(file, {
     enter: (node: Node, parent: Node) => {
       if (isNodeSearchedKeyword(node)) {
         foundKeyword = node;

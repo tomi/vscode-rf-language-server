@@ -1,9 +1,9 @@
 import * as _ from "lodash";
 
-import * as Models from "../parser/models";
+import { Node } from "../parser/models";
 
 export const VisitorOption = {
-  Skip: {},
+  Skip:  {},
   Break: {}
 };
 
@@ -125,11 +125,11 @@ const NodeSettings = {
 };
 
 export interface Visitor {
-  enter: Function;
-  leave: Function;
+  enter?: (node: Node, parent: Node) => any;
+  leave?: (node: Node, parent: Node) => any;
 };
 
-function visit(node, parent, visitor) {
+function visit(node: Node, parent: Node, visitor: Visitor) {
   if (visitor.enter) {
     return visitor.enter(node, parent);
   } else {
@@ -137,7 +137,7 @@ function visit(node, parent, visitor) {
   }
 }
 
-function leave(node, parent, visitor) {
+function leave(node: Node, parent: Node, visitor: Visitor) {
   if (visitor.leave) {
     return visitor.leave(node, parent);
   } else {
@@ -145,14 +145,17 @@ function leave(node, parent, visitor) {
   }
 }
 
-export function traverse(parent: Models.Node, node: Models.Node, visitor) {
+function internalTraverse(node: Node, parent: Node, visitor: Visitor): any {
   // Naive recursive implementation
   // TODO: Remove recursivity
   if (!node) {
     return;
   }
 
-  const visitResult = visit(node, parent, visitor);
+  let visitResult = visit(node, parent, visitor);
+  if (visitResult === VisitorOption.Break) {
+    return VisitorOption.Break;
+  }
 
   if (visitResult !== VisitorOption.Skip) {
     const nodeSettings = NodeSettings[node.type];
@@ -163,14 +166,28 @@ export function traverse(parent: Models.Node, node: Models.Node, visitor) {
       nodeSettings.children.forEach(propertyName => {
         const childNode = node[propertyName];
 
-        if (_.isArray(childNode)) {
-          childNode.forEach(item => traverse(node, <Models.Node>item, visitor));
+        if (Array.isArray(childNode)) {
+          for (const item of childNode) {
+            visitResult = internalTraverse(item, node, visitor);
+
+            if (visitResult === VisitorOption.Break) {
+              return VisitorOption.Break;
+            }
+          }
         } else {
-          traverse(node, childNode, visitor);
+          visitResult = internalTraverse(childNode, node, visitor);
+
+          if (visitResult === VisitorOption.Break) {
+            return VisitorOption.Break;
+          }
         }
       });
     }
   }
 
-  leave(node, parent, visitor);
+  return leave(node, parent, visitor);
+}
+
+export function traverse(node: Node, visitor: Visitor) {
+  internalTraverse(node, null, visitor);
 }

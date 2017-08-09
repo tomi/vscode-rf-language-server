@@ -13,7 +13,8 @@ import {
 } from "../parser/models";
 import { traverse, VisitorOption } from "../traverse/traverse";
 import { findKeywordDefinition } from "./definition-finder";
-import { WorkspaceFile, WorkspaceTree } from "./workspace-tree";
+import Workspace from "./workspace/workspace";
+import WorkspaceFile from "./workspace/workspace-file";
 import { Location } from "../utils/position";
 import { findNodeInPos } from "./node-locator";
 import { nodeLocationToRange } from "../utils/position";
@@ -46,10 +47,10 @@ interface VscodeLocation {
  * Finds all references for the symbol in given document position
  *
  * @param location
- * @param workspaceTree
+ * @param workspace
  */
-export function findReferences(location: Location, workspaceTree: WorkspaceTree): VscodeLocation[] {
-  const file = workspaceTree.getFile(location.filePath);
+export function findReferences(location: Location, workspace: Workspace): VscodeLocation[] {
+  const file = workspace.getFile(location.filePath);
   if (!file) {
     return [];
   }
@@ -64,17 +65,17 @@ export function findReferences(location: Location, workspaceTree: WorkspaceTree)
     const searchedKeyword = parentOfNode;
     const isSearchedKeyword = createNodeKeywordMatcherFn(searchedKeyword);
 
-    return findWorkspaceKeywordReferences(isSearchedKeyword, workspaceTree)
+    return findWorkspaceKeywordReferences(isSearchedKeyword, workspace)
       .concat([{
         uri:   nodeInPos.file.uri,
         range: nodeLocationToRange(searchedKeyword)
       }]);
   } else if (isCallExpression(parentOfNode)) {
-    const keywordDefinition = findKeywordDefinition(parentOfNode, nodeInPos, workspaceTree);
+    const keywordDefinition = findKeywordDefinition(parentOfNode, nodeInPos, workspace);
     if (keywordDefinition) {
       const isSearchedKeyword = createNodeKeywordMatcherFn(keywordDefinition.node);
 
-      return findWorkspaceKeywordReferences(isSearchedKeyword, workspaceTree)
+      return findWorkspaceKeywordReferences(isSearchedKeyword, workspace)
         .concat([{
           uri:   keywordDefinition.uri,
           range: keywordDefinition.range
@@ -84,7 +85,7 @@ export function findReferences(location: Location, workspaceTree: WorkspaceTree)
         (isCallExpression(node) && identifierMatchesIdentifier(node.callee, parentOfNode.callee)) ||
         (isUserKeyword(node) && identifierMatchesIdentifier(node.id, parentOfNode.callee));
 
-      return findWorkspaceKeywordReferences(isSearchedKeyword, workspaceTree);
+      return findWorkspaceKeywordReferences(isSearchedKeyword, workspace);
     }
 
   }
@@ -106,11 +107,11 @@ function createNodeKeywordMatcherFn(keywordToMatch: UserKeyword) {
 
 function findWorkspaceKeywordReferences(
   isSearchedKeywordFn: (node: Node) => boolean,
-  workspaceTree: WorkspaceTree
+  workspace: Workspace
 ): VscodeLocation[] {
   let references = [];
 
-  for (const file of workspaceTree.getFiles()) {
+  for (const file of workspace.getFiles()) {
     const fileReferences = findFileKeywordReferences(isSearchedKeywordFn, file);
 
     references = references.concat(fileReferences);
@@ -132,7 +133,7 @@ function findFileKeywordReferences(
 
   const references: VscodeLocation[] = [];
 
-  traverse(null, file.fileTree, {
+  traverse(file.ast, {
     enter: (node: Node, parent: Node) => {
       if (isSearchedKeywordFn(node)) {
         references.push({

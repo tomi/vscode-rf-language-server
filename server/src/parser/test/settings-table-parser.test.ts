@@ -37,9 +37,28 @@ function settingsTable(location, content) {
 
 describe("Parsing Settings table", () => {
 
+  it("should parse empty resource import", () => {
+    const data =
+      `* Settings
+Resource
+`;
+
+    const expected = settingsTable(location(0, 0, 2, 0), {
+      resourceImports: [
+        new ResourceImport(
+          null,
+          location(1, 0, 1, 8)
+        ),
+      ]
+    });
+
+    parseAndAssert(data, expected);
+
+  });
+
   it("should parse resource imports", () => {
     const data =
-`* Settings
+      `* Settings
 Resource    resources/\${ENVIRONMENT}.robot
 Resource    resources/smoke_resources.robot
 `;
@@ -76,61 +95,98 @@ Resource    resources/smoke_resources.robot
     parseAndAssert(data, expected);
   });
 
-//   it("should parse library imports", () => {
-//     const tableDefinition = table("Settings", {
-//       header: row(location(0, 0, 0, 10)),
-//       rows: [
-//         row(location(1, 0, 1, 10), [
-//           cell(location(1, 0, 1, 10), "Library"),
-//           cell(location(1, 0, 1, 10), "libs/\${ENVIRONMENT}.robot"),
-//         ]),
-//         row(location(2, 0, 2, 10), [
-//           cell(location(2, 0, 2, 10), "Library"),
-//           cell(location(2, 0, 2, 10), "lib"),
-//           cell(location(2, 0, 2, 10), "arg1"),
-//           cell(location(2, 0, 2, 10), "arg2"),
-//         ]),
-//       ]
-//     });
+  it("should parse empty library import", () => {
+    const data =
+      `* Settings
+Library
+`;
 
-//     const expected = settingsTable(location(0, 0, 2, 10), {
-//       libraryImports: [
-//         new LibraryImport("libs/\${ENVIRONMENT}.robot", [], location(1, 0, 1, 10)),
-//         new LibraryImport("lib", ["arg1", "arg2"], location(2, 0, 2, 10)),
-//       ]
-//     });
+    const expected = settingsTable(location(0, 0, 2, 0), {
+      libraryImports: [
+        new LibraryImport(
+          null,
+          [],
+          location(1, 0, 1, 7)
+        ),
+      ]
+    });
 
-//     parseAndAssert(tableDefinition, expected);
-//   });
+    parseAndAssert(data, expected);
 
-//   it("should parse variable imports", () => {
-//     const tableDefinition = table("Settings", {
-//       header: row(location(0, 0, 0, 10)),
-//       rows: [
-//         row(location(1, 0, 1, 10), [
-//           cell(location(1, 0, 1, 10), "Variables"),
-//           cell(location(1, 0, 1, 10), "vars/\${ENVIRONMENT}.robot"),
-//         ]),
-//         row(location(2, 0, 2, 10), [
-//           cell(location(2, 0, 2, 10), "Variables"),
-//           cell(location(2, 0, 2, 10), "vars/vars.robot"),
-//         ]),
-//       ]
-//     });
+  });
 
-//     const expected = settingsTable(location(0, 0, 2, 10), {
-//       variableImports: [
-//         new VariableImport("vars/\${ENVIRONMENT}.robot", location(1, 0, 1, 10)),
-//         new VariableImport("vars/vars.robot", location(2, 0, 2, 10)),
-//       ]
-//     });
+  it("should parse library imports", () => {
+    const data =
+      `* Settings
+Library    libs/\${ENVIRONMENT}.robot
+Library    lib  arg1  arg2
+`;
 
-//     parseAndAssert(tableDefinition, expected);
-//   });
+    const expected = settingsTable(location(0, 0, 3, 0), {
+      libraryImports: [
+        new LibraryImport(
+          new TemplateLiteral(
+            [
+              new TemplateElement("libs/", location(1, 11, 1, 16)),
+              new TemplateElement(".robot", location(1, 30, 1, 36)),
+            ],
+            [
+              new VariableExpression(
+                new Identifier("ENVIRONMENT", location(1, 18, 1, 29)),
+                "Scalar",
+                location(1, 16, 1, 30)
+              )
+            ],
+            location(1, 11, 1, 36)
+          ),
+          [],
+          location(1, 0, 1, 36)
+        ),
+        new LibraryImport(
+          new Literal(
+            "lib",
+            location(2, 11, 2, 14)
+          ),
+          [
+            new Literal("arg1", location(2, 16, 2, 20)),
+            new Literal("arg2", location(2, 22, 2, 26)),
+          ],
+          location(2, 0, 2, 26)
+        ),
+      ]
+    });
+
+    parseAndAssert(data, expected);
+  });
+
+  //   it("should parse variable imports", () => {
+  //     const tableDefinition = table("Settings", {
+  //       header: row(location(0, 0, 0, 10)),
+  //       rows: [
+  //         row(location(1, 0, 1, 10), [
+  //           cell(location(1, 0, 1, 10), "Variables"),
+  //           cell(location(1, 0, 1, 10), "vars/\${ENVIRONMENT}.robot"),
+  //         ]),
+  //         row(location(2, 0, 2, 10), [
+  //           cell(location(2, 0, 2, 10), "Variables"),
+  //           cell(location(2, 0, 2, 10), "vars/vars.robot"),
+  //         ]),
+  //       ]
+  //     });
+
+  //     const expected = settingsTable(location(0, 0, 2, 10), {
+  //       variableImports: [
+  //         new VariableImport("vars/\${ENVIRONMENT}.robot", location(1, 0, 1, 10)),
+  //         new VariableImport("vars/vars.robot", location(2, 0, 2, 10)),
+  //       ]
+  //     });
+
+  //     parseAndAssert(tableDefinition, expected);
+  //   });
 
   it("should parse suite setup and teardown", () => {
     const data =
-`* Settings
+      `* Settings
 Suite Setup       suiteSetup       arg1    arg2
 Suite Teardown    suiteTeardown    arg1    arg2
 `;
@@ -170,7 +226,7 @@ Suite Teardown    suiteTeardown    arg1    arg2
 
   it("should parse test setup and teardown", () => {
     const data =
-`* Settings
+      `* Settings
 Test Setup        testSetup        arg1    arg2
 Test Teardown     testTeardown     arg1    arg2
 `;
@@ -210,7 +266,7 @@ Test Teardown     testTeardown     arg1    arg2
 
   it("should parse test setup split on multiple lines", () => {
     const data =
-`* Settings
+      `* Settings
 Test Setup        testSetup
 ...               arg1
 ...               arg2

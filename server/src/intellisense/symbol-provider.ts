@@ -1,4 +1,5 @@
-import { WorkspaceFile, WorkspaceTree } from "./workspace-tree";
+import Workspace from "./workspace/workspace";
+import WorkspaceFile from "./workspace/workspace-file";
 import { traverse } from "../traverse/traverse";
 import { nodeLocationToRange } from "../utils/position";
 
@@ -55,7 +56,7 @@ export function getFileSymbols(
   const fileSymbols = [];
   const idMatches = createIdMatcherFn(query);
 
-  traverse(null, workspaceFile.fileTree, {
+  traverse(workspaceFile.ast, {
     enter: (node: Node, parent: Node) => {
       let symbol;
       if (isVariableDeclaration(node) && isVariablesTable(parent) &&
@@ -84,11 +85,11 @@ export function getFileSymbols(
  * @param workspace
  */
 export function getWorkspaceSymbols(
-  workspace: WorkspaceTree,
+  workspace: Workspace,
   query: string
 ) {
   return Array.from(workspace.getFiles())
-    .map(fileTree => getFileSymbols(fileTree, true, query))
+    .map(files => getFileSymbols(files, true, query))
     .reduce((fileSymbols, allSymbols) => {
       return allSymbols.concat(fileSymbols);
     }, []);

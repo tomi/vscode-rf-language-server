@@ -27,7 +27,7 @@ export class DataTable {
    */
   constructor(
     public name: string,
-    private header: DataRow
+    public header: DataRow
   ) { }
 
   public get location(): SourceLocation {
@@ -70,6 +70,15 @@ export class DataRow {
    */
   public last() {
     return _.last(this.cells);
+  }
+
+  /**
+   * Returns the (0 based) index of given cell or -1 if not found
+   *
+   * @param cell  Cell to find
+   */
+  public indexOf(cell: DataCell) {
+    return this.cells.indexOf(cell);
   }
 
   /**

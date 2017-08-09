@@ -1,6 +1,7 @@
 import * as _ from "lodash";
 
 import { TestSuite } from "./models";
+import { DataTable } from "./table-models";
 
 import { TableReader } from "./table-reader";
 import { parseSettingsTable } from "./settings-table-parser";
@@ -14,9 +15,19 @@ const KEYWORDS_TABLES   = new Set(["keyword", "keywords"]);
 const TEST_CASES_TABLES = new Set(["test case", "test cases"]);
 
 export class FileParser {
-  public parseFile(data: string) {
+  public readTables(data: string) {
     const tableReader = new TableReader();
-    const fileTables = tableReader.read(data);
+
+    return tableReader.read(data);
+  }
+
+  public parseFile(data: string | DataTable[]) {
+    let fileTables: DataTable[];
+    if (typeof data === "string") {
+      fileTables = this.readTables(data);
+    } else {
+      fileTables = data;
+    }
 
     if (_.isEmpty(fileTables)) {
       return new TestSuite({

@@ -56,3 +56,37 @@ export function nodeLocationToRange(node: Node) {
     }
   };
 }
+
+/**
+ * Checks if given node spans over the given line
+ *
+ * @param line
+ * @param node
+ */
+export function isOnLine(line: number, node: Node) {
+  if (!node) {
+    return false;
+  }
+
+  return node.location.start.line <= line &&
+    line <= node.location.end.line;
+}
+
+/**
+ * Checks if given node spans over the given position
+ *
+ * @param position
+ * @param range
+ */
+export function isInRange(position: Position, range: Node) {
+  if (!range) {
+    return false;
+  }
+
+  const location = range.location;
+
+  return (location.start.line < position.line ||
+    (location.start.line === position.line && location.start.column <= position.column)) &&
+    (position.line < location.end.line ||
+    (position.line === location.end.line && position.column <= location.end.column));
+}

@@ -170,6 +170,8 @@ connection.onCompletion((textDocumentPosition: TextDocumentPositionParams): Comp
     }
   }, workspace);
 
+  logger.debug(JSON.stringify(completionItems, null, 2));
+
   return completionItems;
 });
 

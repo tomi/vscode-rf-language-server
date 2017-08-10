@@ -23,7 +23,8 @@ import {
   Return,
   Teardown,
   Setup,
-  Template
+  Template,
+  SettingDeclaration
 } from "../parser/models";
 
 function isOfType(node: Node, typeName: string) {
@@ -126,4 +127,15 @@ export function isTeardown(node: Node): node is Teardown {
 
 export function isTemplate(node: Node): node is Template {
   return isOfType(node, "Template");
+}
+
+export function isSettingDeclaration(node: Node): node is SettingDeclaration {
+  return isDocumentation(node) ||
+    isArguments(node) ||
+    isReturn(node) ||
+    isTimeout(node) ||
+    isTags(node) ||
+    isTeardown(node) ||
+    isSetup(node) ||
+    isTemplate(node);
 }

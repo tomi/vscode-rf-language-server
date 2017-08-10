@@ -29,6 +29,18 @@ abstract class SymbolContainer<T> {
     });
   }
 
+  public filter(cb: ((item: T) => boolean)): T[] {
+    const filtered = [];
+
+    this.forEach((key, item) => {
+      if (cb(item)) {
+        filtered.push(item);
+      }
+    });
+
+    return filtered;
+  }
+
   public findByPrefix(prefix: string): T[] {
     const found: T[] = [];
     const normalizedPrefix = this._normalizeKey(prefix);
@@ -76,6 +88,16 @@ export class KeywordContainer extends SymbolContainer<UserKeyword> {
 export class VariableContainer extends SymbolContainer<VariableDeclaration> {
   public static Empty = new VariableContainer();
 
+  public findVariable(kind, name) {
+    const matches = this.findByPrefix(name);
+    if (matches.length === 0) {
+      return null;
+    }
+
+    const possibleMatch = matches[0];
+    return possibleMatch.kind === kind ? possibleMatch : null;
+  }
+
   protected getKey(item: VariableDeclaration) {
     return this._getVariableName(item);
   }
@@ -90,6 +112,7 @@ export class VariableContainer extends SymbolContainer<VariableDeclaration> {
     }
   }
 
+  // TODO: Move to formatters
   private _variableKindToIdentifier(kind: VariableKind) {
     switch (kind) {
       case "Scalar":     return "$";

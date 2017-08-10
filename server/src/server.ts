@@ -10,7 +10,7 @@ import {
   createConnection, IConnection, TextDocumentSyncKind,
   TextDocuments, InitializeParams, InitializeResult, TextDocumentPositionParams,
   RequestType, Location, Range, DocumentSymbolParams, WorkspaceSymbolParams,
-  SymbolInformation, FileChangeType, ReferenceParams, CompletionItem
+  SymbolInformation, FileChangeType, ReferenceParams, CompletionItem, DocumentHighlight
 } from "vscode-languageserver";
 
 import Workspace from "./intellisense/workspace/workspace";
@@ -19,6 +19,7 @@ import { findDefinition } from "./intellisense/definition-finder";
 import { findReferences } from "./intellisense/reference-finder";
 import { findCompletionItems } from "./intellisense/completion-provider";
 import { getFileSymbols, getWorkspaceSymbols } from "./intellisense/symbol-provider";
+import { findFileHighlights } from "./intellisense/highlight-provider";
 import { Settings, Config } from "./utils/settings";
 import { createFileSearchTrees } from "./intellisense/search-tree";
 import { ConsoleLogger } from "./logger";
@@ -29,10 +30,6 @@ import { createRobotFile } from "./intellisense/workspace/robot-file";
 import { createPythonFile } from "./intellisense/workspace/python-file";
 
 const workspace = new Workspace();
-
-function filePathFromUri(uri: string): string {
-  return Uri.parse(uri).path;
-}
 
 // Create a connection for the server. The connection uses Node"s IPC as a transport
 let connection: IConnection = createConnection(
@@ -64,6 +61,7 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
       documentSymbolProvider: true,
       workspaceSymbolProvider: true,
       referencesProvider: true,
+      documentHighlightProvider: true,
       completionProvider: {
         triggerCharacters: [
           "[", "{", "*"
@@ -72,6 +70,8 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
     },
   };
 });
+
+connection.onDocumentHighlight(onDocumentHighlight);
 
 // The settings have changed. Is send on server activation
 // as well.
@@ -89,13 +89,13 @@ connection.onDidChangeConfiguration(change => {
 connection.onDocumentSymbol((documentSymbol: DocumentSymbolParams): SymbolInformation[] => {
   logger.info("onDocumentSymbol...");
 
-  const filePath = filePathFromUri(documentSymbol.textDocument.uri);
-  const fileTree = workspace.getFile(filePath);
-  if (!fileTree) {
+  const filePath = _filePathFromUri(documentSymbol.textDocument.uri);
+  const file = workspace.getFile(filePath);
+  if (!file) {
     return [];
   }
 
-  return getFileSymbols(fileTree);
+  return getFileSymbols(file);
 });
 
 /**
@@ -115,7 +115,7 @@ connection.onWorkspaceSymbol((workspaceSymbol: WorkspaceSymbolParams): SymbolInf
 connection.onDefinition((textDocumentPosition: TextDocumentPositionParams): Location => {
   logger.info("onDefinition...");
 
-  const filePath = filePathFromUri(textDocumentPosition.textDocument.uri);
+  const filePath = _filePathFromUri(textDocumentPosition.textDocument.uri);
 
   const found = findDefinition({
     filePath,
@@ -141,7 +141,7 @@ connection.onDefinition((textDocumentPosition: TextDocumentPositionParams): Loca
 connection.onReferences((referenceParams: ReferenceParams): Location[] => {
   logger.info("onReferences...");
 
-  const filePath = filePathFromUri(referenceParams.textDocument.uri);
+  const filePath = _filePathFromUri(referenceParams.textDocument.uri);
 
   const foundReferences = findReferences({
       filePath,
@@ -160,15 +160,9 @@ connection.onReferences((referenceParams: ReferenceParams): Location[] => {
 connection.onCompletion((textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
   logger.info("onCompletion...");
 
-  const filePath = filePathFromUri(textDocumentPosition.textDocument.uri);
+  const location = _textPositionToLocation(textDocumentPosition);
 
-  const completionItems = findCompletionItems({
-    filePath,
-    position: {
-      line: textDocumentPosition.position.line,
-      column: textDocumentPosition.position.character,
-    }
-  }, workspace);
+  const completionItems = findCompletionItems(location, workspace);
 
   logger.debug(JSON.stringify(completionItems, null, 2));
 
@@ -197,7 +191,7 @@ connection.onDidChangeTextDocument(params => {
   logger.info("onDidChangeTextDocument");
 
   // Because syncKind is set to Full, entire file content is received
-  const filePath = filePathFromUri(params.textDocument.uri);
+  const filePath = _filePathFromUri(params.textDocument.uri);
   const fileData = _.first(params.contentChanges).text;
 
   debouncedParseFile(filePath, fileData);
@@ -209,7 +203,7 @@ connection.onDidChangeWatchedFiles(params => {
   // Remove deleted files
   params.changes
     .filter(change => change.type === FileChangeType.Deleted)
-    .map(deletedFile => filePathFromUri(deletedFile.uri))
+    .map(deletedFile => _filePathFromUri(deletedFile.uri))
     .forEach(deletedFilePath => {
       logger.info("Removing file", deletedFilePath);
       workspace.removeFileByPath(deletedFilePath);
@@ -218,10 +212,22 @@ connection.onDidChangeWatchedFiles(params => {
   // Parse created files
   params.changes
     .filter(change => change.type === FileChangeType.Created)
-    .map(createdFile => filePathFromUri(createdFile.uri))
+    .map(createdFile => _filePathFromUri(createdFile.uri))
     .filter(matchFilePathToConfig)
     .forEach(readAndParseFile);
 });
+
+function onDocumentHighlight(
+  textDocumentPosition: TextDocumentPositionParams
+): DocumentHighlight[] {
+  logger.info("onDocumentHighlight...");
+
+  const location = _textPositionToLocation(textDocumentPosition);
+
+  const highlights = findFileHighlights(location, workspace);
+
+  return highlights;
+}
 
 function matchFilePathToConfig(filePath: string) {
   const { include, exclude } = Config.getIncludeExclude();
@@ -269,6 +275,22 @@ function createWorkspaceFile(filePath: string, fileContents: string, createFn: W
     filePath;
 
   return createFn(fileContents, filePath, relativePath);
+}
+
+function _filePathFromUri(uri: string): string {
+  return Uri.parse(uri).path;
+}
+
+function _textPositionToLocation(position: TextDocumentPositionParams) {
+  const filePath = _filePathFromUri(position.textDocument.uri);
+
+  return {
+    filePath,
+    position: {
+      line: position.position.line,
+      column: position.position.character,
+    }
+  };
 }
 
 // Listen on the connection

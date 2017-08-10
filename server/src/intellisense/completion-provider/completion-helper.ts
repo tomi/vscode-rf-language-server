@@ -4,6 +4,7 @@ import {
   VariableContainer
 } from "../search-tree";
 import { ConsoleLogger as logger } from "../../logger";
+import { formatVariable } from "../formatters";
 import {
   CompletionItem,
   CompletionItemKind,
@@ -103,7 +104,7 @@ export function getVariableCompletions(
     ...globalVariables.findByPrefix(searchText),
     ...localVariables.findByPrefix(searchText)
   ].map(variable => {
-    const variableLabel = _formatVariable(variable);
+    const variableLabel = formatVariable(variable);
     const variableName = variable.id.name;
 
     return {
@@ -158,28 +159,15 @@ function _createKeywordSnippet(
   }
 }
 
-function _formatVariable(variable: VariableDeclaration) {
-  return `${_variableKindToIdentifier(variable.kind)}{${variable.id.name}}`;
-}
-
 function _removeFromBeginning(toCheck: string, partToRemove: string) {
   const regex = new RegExp(`^${_.escapeRegExp(partToRemove)}`, "i");
   return toCheck.replace(regex, "");
 }
 
-function _variableKindToIdentifier(kind: VariableKind) {
-  switch (kind) {
-    case "Scalar": return "$";
-    case "List": return "@";
-    case "Dictionary": return "&";
-    default: return null;
-  }
-}
-
 function _getKeywordArgs(keyword: UserKeyword): string {
   if (keyword.arguments) {
     return keyword.arguments.values
-      .map(arg => _formatVariable(arg))
+      .map(arg => formatVariable(arg))
       .join("  ");
   } else {
     return undefined;

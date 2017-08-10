@@ -1,5 +1,17 @@
 # Change Log
 
+## Version 1.0.0
+* Release date: August 10, 2017
+
+### What's new in this version
+* Improved code completion suggestions
+  * Suggestions take now the context better into consideration and know when keywords and when variables should be suggested
+  * Suggestions are now provided also for settings and tables
+* Add support for document highlights
+  * All occurrences of the selected keyword, variable or setting are highlighted in the current document
+* Fix parsing of library imports
+
+
 ## Version 0.8.1
 * Release date: July 25, 2017
 

@@ -24,6 +24,10 @@ A [Visual Studio Code](https://code.visualstudio.com/) extension that supports R
 * Shows variables, keywords and test cases
 * `⌘T` on Mac, `Ctrl+T` on Linux and Windows
 
+### Highlight All Occurrences of a Symbol in a Document
+* Highlights all occurrences of a variable, keyword or setting
+* Move the cursor to a variable, keyword or setting
+
 ### Show Code Completion Proposals
 * Suggests user keywords and variables
 * `⌃Space` on Mac, `Ctrl+Space` on Linux and Windows

@@ -1,46 +1,15 @@
 import Workspace from "./workspace/workspace";
 import WorkspaceFile from "./workspace/workspace-file";
-import { traverse } from "../traverse/traverse";
 import { nodeLocationToRange } from "../utils/position";
+import { SymbolKind } from "vscode-languageserver";
+import { formatVariable } from "./formatters";
+import { isVariableDeclaration } from "./type-guards";
 
 import {
-  isVariableDeclaration,
-  isTestCase,
-  isUserKeyword,
-  isVariablesTable
-} from "./type-guards";
-
-import {
-  Node,
-  Identifier,
   VariableDeclaration,
   TestCase,
   UserKeyword,
 } from "../parser/models";
-
-/**
- * A symbol kind.
- */
-const SymbolKind = {
-    File:        1,
-    Module:      2,
-    Namespace:   3,
-    Package:     4,
-    Class:       5,
-    Method:      6,
-    Property:    7,
-    Field:       8,
-    Constructor: 9,
-    Enum:        10,
-    Interface:   11,
-    Function:    12,
-    Variable:    13,
-    Constant:    14,
-    String:      15,
-    Number:      16,
-    Boolean:     17,
-    Array:       18,
-};
 
 /**
  * Returns all symbols for given file
@@ -49,34 +18,35 @@ const SymbolKind = {
  * @param workspaceTree
  */
 export function getFileSymbols(
-  workspaceFile: WorkspaceFile,
+  file: WorkspaceFile,
   useFileNameAsContainer: boolean = false,
   query: string = ""
 ) {
   const fileSymbols = [];
-  const idMatches = createIdMatcherFn(query);
+  const idMatches = _createIdMatcherFn(query);
+  const createVariableSymbol =
+    node => _createVariableSymbol(node, file, useFileNameAsContainer);
+  const createKeywordSymbol =
+    node => _createKeywordSymbol(node, file, useFileNameAsContainer);
+  const createTestCaseSymbol =
+    node => _createTestCaseSymbol(node, file, useFileNameAsContainer);
 
-  traverse(workspaceFile.ast, {
-    enter: (node: Node, parent: Node) => {
-      let symbol;
-      if (isVariableDeclaration(node) && isVariablesTable(parent) &&
-        idMatches(node.id)) {
-        symbol = getVariableSymbol(node, workspaceFile, useFileNameAsContainer);
-      }
-      else if (isTestCase(node) && idMatches(node.id)) {
-        symbol = getTestCaseSymbol(node, workspaceFile, useFileNameAsContainer);
-      }
-      else if (isUserKeyword(node) && idMatches(node.id)) {
-        symbol = getUserKeywordSymbol(node, workspaceFile, useFileNameAsContainer);
-      }
+  const variableSymbols = file.variables
+    .filter(idMatches)
+    .map(createVariableSymbol);
+  const keywordSymbols = file.keywords
+    .filter(idMatches)
+    .map(createKeywordSymbol);
+  const testCases = file.ast.testCasesTable ? file.ast.testCasesTable.testCases : [];
+  const testCaseSymbols = testCases
+    .filter(idMatches)
+    .map(createTestCaseSymbol);
 
-      if (symbol) {
-        fileSymbols.push(symbol);
-      }
-    }
-  });
-
-  return fileSymbols;
+  return [
+    ...variableSymbols,
+    ...keywordSymbols,
+    ...testCaseSymbols
+  ];
 }
 
 /**
@@ -104,21 +74,24 @@ export function getWorkspaceSymbols(
  *
  * @returns {function}
  */
-function createIdMatcherFn(query: string) {
+function _createIdMatcherFn(query: string) {
   const lowerQuery = query.toLowerCase();
 
-  return (identifier: Identifier) => {
-    return identifier.name.toLowerCase().includes(lowerQuery);
+  return (node: VariableDeclaration | UserKeyword | TestCase) => {
+    const toMatch = isVariableDeclaration(node) ?
+      formatVariable(node) : node.id.name;
+
+    return toMatch.toLowerCase().includes(lowerQuery);
   };
 }
 
-function getVariableSymbol(
+function _createVariableSymbol(
   node: VariableDeclaration,
   file: WorkspaceFile,
   useFileNameAsContainer: boolean
 ) {
   return {
-    name: node.id.name,
+    name: formatVariable(node),
     kind: SymbolKind.Variable,
     location: {
       uri: file.uri,
@@ -128,7 +101,7 @@ function getVariableSymbol(
   };
 }
 
-function getTestCaseSymbol(
+function _createTestCaseSymbol(
   node: TestCase,
   file: WorkspaceFile,
   useFileNameAsContainer: boolean
@@ -144,7 +117,7 @@ function getTestCaseSymbol(
  };
 }
 
-function getUserKeywordSymbol(
+function _createKeywordSymbol(
   node: UserKeyword,
   file: WorkspaceFile,
   useFileNameAsContainer: boolean

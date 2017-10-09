@@ -6,7 +6,6 @@ export interface Settings {
   includePaths?: string[];
   excludePaths?: string[];
   logLevel?: string;
-  pythonKeywords?: boolean;
 }
 
 export enum LogLevel {
@@ -51,13 +50,5 @@ export class Config {
       case "debug":  return LogLevel.Debug;
       default:       return defaultLogLevel;
     }
-  }
-
-  public static getHasPythonKeywords() {
-    if (!Config.settings) {
-      return false;
-    }
-
-    return Config.settings.pythonKeywords === true;
   }
 }

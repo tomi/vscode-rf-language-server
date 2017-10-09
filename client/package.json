@@ -16,18 +16,26 @@
     "onLanguage:robot"
   ],
   "galleryBanner": {
-      "theme": "dark",
-      "color": "#232d33"
+    "theme": "dark",
+    "color": "#232d33"
   },
   "private": true,
   "main": "./out/src/extension",
   "contributes": {
-    "languages": [{
+    "languages": [
+      {
         "id": "robot",
-        "extensions": [".robot"],
-        "aliases": ["robotframework", "RobotFramework"],
+        "extensions": [
+          ".robot"
+        ],
+        "aliases": [
+          "Robot Framework",
+          "robotframework",
+          "RobotFramework"
+        ],
         "configuration": "./robot-language-configuration.json"
-    }],
+      }
+    ],
     "grammars": [
       {
         "language": "robot",
@@ -36,14 +44,14 @@
       }
     ],
     "commands": [
-        {
-            "command": "rfIntellisense.rebuildSources",
-            "title": "RF Intellisense - Reindex robot files in the workspace"
-        },
-        {
-          "command": "rfIntellisense.reportBug",
-          "title": "RF Intellisense - Report a bug"
-        }
+      {
+        "command": "rfIntellisense.rebuildSources",
+        "title": "RF Intellisense - Reindex robot files in the workspace"
+      },
+      {
+        "command": "rfIntellisense.reportBug",
+        "title": "RF Intellisense - Report a bug"
+      }
     ],
     "configuration": {
       "type": "object",
@@ -58,11 +66,6 @@
           "type": "array",
           "default": [],
           "description": "An array of files/folders that should be ignored by the parser. Glob patterns are accepted (eg. **/*bad.robot)"
-        },
-        "rfLanguageServer.pythonKeywords": {
-          "type": "boolean",
-          "default": false,
-          "description": "Should python files in the project be parsed for keywords"
         },
         "rfLanguageServer.logLevel": {
           "type": "string",

@@ -91,7 +91,8 @@ export function getKeywordCompletions(
 export function getVariableCompletions(
   textToSearch: string,
   globalVariables: VariableContainer,
-  localVariables: VariableContainer = VariableContainer.Empty
+  localVariables: VariableContainer = VariableContainer.Empty,
+  suiteVariables: VariableContainer = VariableContainer.Empty
 ): CompletionItem[] {
   if (!_isInVariable(textToSearch)) {
     return [];
@@ -100,19 +101,42 @@ export function getVariableCompletions(
   const searchText = _getVariableSearchText(textToSearch);
   logger.debug(`Searching variables with ${ searchText }`);
 
-  return [
-    ...globalVariables.findByPrefix(searchText),
-    ...localVariables.findByPrefix(searchText)
-  ].map(variable => {
-    const variableLabel = formatVariable(variable);
-    const variableName = variable.id.name;
+  const localCompletions = localVariables
+    .findByPrefix(searchText)
+    .map(_localVarToCompletionItem);
+  const suiteCompletions = suiteVariables
+    .findByPrefix(searchText)
+    .map(_suiteVarToCompletionItem);
+  const globalCompletions = globalVariables
+    .findByPrefix(searchText)
+    .map(_globalVarToCompletionItem);
 
-    return {
-      label: variableLabel,
-      insertText: variableName,
-      kind: CompletionItemKind.Variable
-    };
-  });
+  return [
+    ...localCompletions,
+    ...suiteCompletions,
+    ...globalCompletions
+  ];
+}
+
+const _localVarToCompletionItem = variable =>
+  _variableToCompletionItem(`0-${ variable.id.name }`, variable);
+
+const _suiteVarToCompletionItem = variable =>
+  _variableToCompletionItem(`1-${ variable.id.name }`, variable);
+
+const _globalVarToCompletionItem = variable =>
+  _variableToCompletionItem(`2-${ variable.id.name }`, variable);
+
+function _variableToCompletionItem(sortText: string, variable: VariableDeclaration): CompletionItem {
+  const variableLabel = formatVariable(variable);
+  const variableName = variable.id.name;
+
+  return {
+    label: variableLabel,
+    insertText: variableName,
+    kind: CompletionItemKind.Variable,
+    sortText
+  };
 }
 
 function _isInVariable(text: string) {

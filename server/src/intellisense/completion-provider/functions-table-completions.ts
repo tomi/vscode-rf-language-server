@@ -48,8 +48,8 @@ export function getCompletions(
     const localVariables = findLocalVariables(functionNode, line);
     return getKeywordCompletions(textBefore, workspace, localVariables);
   } else {
-    const functionNode   = _findFunction(line, fileAst);
-    const nodeOnLine     = _findNodeOnLine(line, functionNode);
+    const functionNode = _findFunction(line, fileAst);
+    const nodeOnLine   = _findNodeOnLine(line, functionNode);
     if (!nodeOnLine) {
       return [];
     }
@@ -77,7 +77,11 @@ export function getCompletions(
       return getKeywordCompletions(textBefore, workspace, localVariables);
     }
 
-    return getVariableCompletions(textBefore, workspace.variables, localVariables);
+    return getVariableCompletions(
+      textBefore,
+      workspace.variables,
+      localVariables
+    );
   }
 }
 

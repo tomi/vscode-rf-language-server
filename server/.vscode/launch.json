@@ -28,8 +28,7 @@
         "${workspaceRoot}/../client/server/**/*.js",
         "!${workspaceRoot}/../client/server/**/test/**",
         "!${workspaceRoot}/../client/server/**/node_modules/**"
-      ],
-      "protocol": "legacy"
+      ]
 		}
 	]
 }

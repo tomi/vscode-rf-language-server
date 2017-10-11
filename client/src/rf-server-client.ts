@@ -67,7 +67,7 @@ export default class RFServerClient implements Disposable {
     // The server is implemented in node
     const serverModule = this._context.asAbsolutePath(SERVER_PATH);
     // The debug options for the server
-    const debugOptions = { execArgv: ["--nolazy", "--debug=6009"] };
+    const debugOptions = { execArgv: ["--nolazy", "--inspect=6009"] };
 
     const include = Config.getInclude();
 
@@ -93,7 +93,8 @@ export default class RFServerClient implements Disposable {
       "rfLanguageServer",
       "Robot Framework Intellisense Server",
       serverOptions,
-      clientOptions
+      clientOptions,
+      true
     );
   }
 }

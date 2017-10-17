@@ -30,6 +30,11 @@ import * as asyncFs from "./utils/async-fs";
 import { createRobotFile } from "./intellisense/workspace/robot-file";
 import { createPythonFile } from "./intellisense/workspace/python-file";
 
+const parsersByFile = new Map([
+  [".robot", createRobotFile],
+  [".txt",   createRobotFile],
+  [".py",    createPythonFile]
+]);
 const workspace = new Workspace();
 
 // Create a connection for the server. The connection uses Node's IPC as a transport
@@ -69,7 +74,9 @@ function onBuildFromFiles(message: BuildFromFilesParam) {
 
   workspace.clear();
 
-  message.files.forEach(readAndParseFile);
+  message.files
+    .filter(_shouldAcceptFile)
+    .forEach(_readAndParseFile);
 }
 
 /**
@@ -130,11 +137,15 @@ function onDidChangeConfiguration(change) {
 function onDidChangeTextDocument(params: DidChangeTextDocumentParams) {
   logger.info("onDidChangeTextDocument");
 
-  // Because syncKind is set to Full, entire file content is received
   const filePath = _filePathFromUri(params.textDocument.uri);
+  if (!_shouldAcceptFile(filePath)) {
+    return;
+  }
+
+  // Because syncKind is set to Full, entire file content is received
   const fileData = _.first(params.contentChanges).text;
 
-  debouncedParseFile(filePath, fileData);
+  _parseFile(filePath, fileData);
 }
 
 function onDidChangeWatchedFiles(params) {
@@ -153,8 +164,8 @@ function onDidChangeWatchedFiles(params) {
   params.changes
     .filter(change => change.type === FileChangeType.Created)
     .map(createdFile => _filePathFromUri(createdFile.uri))
-    .filter(matchFilePathToConfig)
-    .forEach(readAndParseFile);
+    .filter(_shouldAcceptFile)
+    .forEach(_readAndParseFile);
 }
 
 function onDocumentHighlight(
@@ -242,7 +253,13 @@ function onWorkspaceSymbol(workspaceSymbol: WorkspaceSymbolParams): SymbolInform
   return getWorkspaceSymbols(workspace, query);
 }
 
-function matchFilePathToConfig(filePath: string) {
+function _shouldAcceptFile(filePath: string) {
+  const fileExt = path.extname(filePath);
+  if (!parsersByFile.has(fileExt)) {
+    logger.debug(`Not accepting file ${ filePath }. Extension ${ fileExt } is not supported.`);
+    return false;
+  }
+
   const { include, exclude } = Config.getIncludeExclude();
 
   const hasIncludePatterns = include.length > 0;
@@ -256,9 +273,10 @@ function matchFilePathToConfig(filePath: string) {
   return shouldInclude && !shouldExclude;
 }
 
-const debouncedParseFile = (filePath: string, fileContents: string) => {
+function _parseFile(filePath: string, fileContents: string) {
   try {
-    const file = createWorkspaceFile(filePath, fileContents, createRobotFile);
+    const createFn = _getParserFn(filePath);
+    const file = _createWorkspaceFile(filePath, fileContents, createFn);
 
     workspace.addFile(file);
   } catch (error) {
@@ -266,15 +284,11 @@ const debouncedParseFile = (filePath: string, fileContents: string) => {
   }
 };
 
-async function readAndParseFile(filePath: string) {
-  logger.info("Parsing", filePath);
-
-  const createFn = path.extname(filePath) === ".py" ?
-    createPythonFile : createRobotFile;
-
+async function _readAndParseFile(filePath: string) {
   try {
+    const createFn = _getParserFn(filePath);
     const fileContents = await asyncFs.readFileAsync(filePath, "utf-8");
-    const file = createWorkspaceFile(filePath, fileContents, createFn);
+    const file = _createWorkspaceFile(filePath, fileContents, createFn);
 
     workspace.addFile(file);
   } catch (error) {
@@ -282,11 +296,23 @@ async function readAndParseFile(filePath: string) {
   }
 }
 
-function createWorkspaceFile(filePath: string, fileContents: string, createFn: WorkspaceFileParserFn) {
+function _getParserFn(filePath: string) {
+  const fileExt = path.extname(filePath);
+
+  const parserFn = parsersByFile.get(fileExt);
+  if (!parserFn) {
+    throw new Error(`Unsupported file extension ${ fileExt }`);
+  }
+
+  return parserFn;
+}
+
+function _createWorkspaceFile(filePath: string, fileContents: string, createFn: WorkspaceFileParserFn) {
   const relativePath = workspaceRoot ?
     path.relative(workspaceRoot, filePath) :
     filePath;
 
+  logger.info("Parsing", filePath);
   return createFn(fileContents, filePath, relativePath);
 }
 

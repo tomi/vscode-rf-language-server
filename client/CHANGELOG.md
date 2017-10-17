@@ -1,5 +1,21 @@
 # Change Log
 
+## Version 2.0.0
+* Release date: October 17, 2017
+
+### What's new in this version
+* Local variables are shown first in completion suggestions
+* Python files are still supported, but `rfLanguageServer.pythonKeywords` setting has been removed. Python files need to be included using `rfLanguageServer.includePaths`.
+  * There's a migration support that automatically updates the settings so that everything works as before.
+* Add support for `.txt` files. They are not included by default and need to included using `rfLanguageServer.includePaths`. For syntax highlight support, use `files.associations` setting:
+```json
+"files.associations": {
+    "*.txt": "robot"
+}
+```
+* Improved server logging
+
+
 ## Version 1.0.0
 * Release date: August 10, 2017
 

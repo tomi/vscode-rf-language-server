@@ -6,6 +6,12 @@ A [Visual Studio Code](https://code.visualstudio.com/) extension that supports R
 
 ### Syntax highlighting
 * Supports `.robot` files
+* Can be added for `.txt` files using the `files.associations` setting:
+```json
+"files.associations": {
+    "*.txt": "robot"
+}
+```
 
 ### Goto definition
 * For variables
@@ -34,7 +40,13 @@ A [Visual Studio Code](https://code.visualstudio.com/) extension that supports R
 
 ### Support for python keywords
 * Keywords defined in `.py` files are also included
-* Requires that the `.py` files are included in `rfLanguageServer.includePaths` settings
+* Requires that the `.py` files are included with `rfLanguageServer.includePaths` setting. E.g.
+```json
+"rfLanguageServer.includePaths": [
+  "**/*.robot",
+  "**/*.py"
+]
+```
 
 ## Configuration
 

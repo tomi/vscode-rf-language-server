@@ -2,61 +2,47 @@
 
 import * as path from "path";
 
-import { commands, workspace, Disposable, ExtensionContext } from "vscode";
-import {
-    LanguageClient, LanguageClientOptions,
-    SettingMonitor, ServerOptions,
-    TransportKind
-} from "vscode-languageclient";
+import { commands, workspace, ExtensionContext } from "vscode";
+import CommandHandler from "./command-handler";
+import RFServerClient from "./rf-server-client";
+import { Config } from "./utils/config";
+import { runMigrations } from "./migration-helper";
 
-import Intellisense from "./intellisense";
+let rfLanguageServerClient: RFServerClient;
+let commandHandler: CommandHandler;
 
 export function activate(context: ExtensionContext) {
 
-  // The server is implemented in node
-  let serverModule = context.asAbsolutePath(path.join("server", "server.js"));
-  // The debug options for the server
-  let debugOptions = { execArgv: ["--nolazy", "--debug=6009"] };
+  rfLanguageServerClient = new RFServerClient(context);
+  commandHandler = new CommandHandler(rfLanguageServerClient);
 
-  // If the extension is launched in debug mode then the debug server options are used
-  // Otherwise the run options are used
-  let serverOptions: ServerOptions = {
-    run : { module: serverModule, transport: TransportKind.ipc },
-    debug: { module: serverModule, transport: TransportKind.ipc, options: debugOptions }
-  };
+  runMigrations();
 
-  // Options to control the language client
-  let clientOptions: LanguageClientOptions = {
-    // Register the server for plain text documents
-    documentSelector: ["robot"],
-    synchronize: {
-      // Synchronize the setting section "rfLanguageServer" to the server
-      configurationSection: "rfLanguageServer",
-      // Notify the server about file changes to ".clientrc files contain in the workspace
-      fileEvents: workspace.createFileSystemWatcher("{**/*.robot,**/*.py")
+  context.subscriptions.push(
+    commands.registerCommand("rfIntellisense.reportBug", commandHandler.reportBug));
+  context.subscriptions.push(
+    commands.registerCommand("rfIntellisense.rebuildSources", () =>
+      commandHandler.parseAll()
+  ));
+
+  rfLanguageServerClient.start()
+    .then(() => commandHandler.parseAll());
+
+  let currentIncludePattern = Config.getInclude();
+  const disposable = workspace.onDidChangeConfiguration(() => {
+    const newIncludePattern = Config.getInclude();
+    if (currentIncludePattern === newIncludePattern) {
+      return;
     }
-  };
 
-  // Create the language client and start the client.
-  let langClient = new LanguageClient(
-    "rfLanguageServer",
-    "Robot Framework Intellisense Server",
-    serverOptions,
-    clientOptions
-  );
-
-  let disposable = langClient.start();
-
-  langClient.onReady().then(() => {
-    let intellisense: Intellisense = new Intellisense(langClient);
-
-    context.subscriptions.push(commands.registerCommand("rfIntellisense.reportBug", intellisense.reportBug));
-    context.subscriptions.push(commands.registerCommand("rfIntellisense.rebuildSources", () => {
-      intellisense.parseAll();
-    }));
+    currentIncludePattern = newIncludePattern;
+    console.log("Configuration has changed. Restarting language server..");
+    rfLanguageServerClient.restart()
+      .then(() => commandHandler.parseAll());
   });
 
-  // Push the disposable to the context"s subscriptions so that the
+  // Push the disposable to the context's subscriptions so that the
   // client can be deactivated on extension deactivation
+  context.subscriptions.push(rfLanguageServerClient);
   context.subscriptions.push(disposable);
 }

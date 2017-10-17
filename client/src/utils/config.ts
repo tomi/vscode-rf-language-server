@@ -2,38 +2,54 @@
 
 import { workspace } from "vscode";
 
-const CONFIG_BLOCK_NAME = "rfLanguageServer";
+export const CONFIG_BLOCK_NAME = "rfLanguageServer";
 
 export class Config {
-    public static settings = workspace.getConfiguration(CONFIG_BLOCK_NAME);
+  public static settings = workspace.getConfiguration(CONFIG_BLOCK_NAME);
 
-    public static reloadConfig() {
-        Config.settings = workspace.getConfiguration(CONFIG_BLOCK_NAME);
-    }
+  public static reloadConfig() {
+    Config.settings = workspace.getConfiguration(CONFIG_BLOCK_NAME);
+  }
 
-    public static getIncludeExclude() {
-        Config.reloadConfig();
+  public static getSettings() {
+    Config.reloadConfig();
 
-        if (!Config.settings) {
-            return {
-                include: [],
-                exclude: []
-            };
-        }
+    return Config.settings;
+  }
 
-        return {
-            include: Config.settings.get<string[]>("includePaths"),
-            exclude: Config.settings.get<string[]>("excludePaths")
-        };
-    }
+  /**
+   * Returns configured include patterns or default pattern
+   */
+  public static getInclude() {
+    Config.reloadConfig();
 
-    public static getHasPythonKeywords() {
-        Config.reloadConfig();
+    const includePatterns = Config.settings ?
+      Config.settings.get<string[]>("includePaths") :
+      [];
 
-        if (!Config.settings) {
-            return false;
-        }
+    return _createGlob(
+      includePatterns.length > 0 ? includePatterns : ["**/*.robot"]
+    );
+  }
 
-        return Config.settings.get<boolean>("pythonKeywords") === true;
-    }
+  public static getExclude() {
+    Config.reloadConfig();
+
+    const exlcudePatterns = Config.settings ?
+      Config.settings.get<string[]>("excludePaths") :
+      [];
+
+    return _createGlob(exlcudePatterns);
+  }
 }
+
+function _createGlob(patterns: string[]) {
+  switch (patterns.length) {
+    case 0:
+      return "";
+    case 1:
+      return patterns[0];
+    default:
+      return `{${patterns.join(",")}}`;
+  }
+};

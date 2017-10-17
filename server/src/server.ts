@@ -8,9 +8,10 @@ import * as path from "path";
 import {
   IPCMessageReader, IPCMessageWriter,
   createConnection, IConnection, TextDocumentSyncKind,
-  TextDocuments, InitializeParams, InitializeResult, TextDocumentPositionParams,
+  InitializeParams, InitializeResult, TextDocumentPositionParams,
   RequestType, Location, Range, DocumentSymbolParams, WorkspaceSymbolParams,
-  SymbolInformation, FileChangeType, ReferenceParams, CompletionItem, DocumentHighlight
+  SymbolInformation, FileChangeType, ReferenceParams, CompletionItem, DocumentHighlight,
+  DidChangeTextDocumentParams, TextDocumentSyncOptions
 } from "vscode-languageserver";
 
 import Workspace from "./intellisense/workspace/workspace";
@@ -29,90 +30,76 @@ import * as asyncFs from "./utils/async-fs";
 import { createRobotFile } from "./intellisense/workspace/robot-file";
 import { createPythonFile } from "./intellisense/workspace/python-file";
 
+const parsersByFile = new Map([
+  [".robot", createRobotFile],
+  [".txt",   createRobotFile],
+  [".py",    createPythonFile]
+]);
 const workspace = new Workspace();
 
-// Create a connection for the server. The connection uses Node"s IPC as a transport
+// Create a connection for the server. The connection uses Node's IPC as a transport
 let connection: IConnection = createConnection(
   new IPCMessageReader(process), new IPCMessageWriter(process));
 
-// Create a simple text document manager. The text document manager
-// supports full document sync only
-let documents: TextDocuments = new TextDocuments();
-// Make the text document manager listen on the connection
-// for open, change and close text document events
-documents.listen(connection);
-
 const logger = ConsoleLogger;
+
+export interface BuildFromFilesParam {
+  files: string[];
+}
+
+export const BuildFromFilesRequest =
+  new RequestType<BuildFromFilesParam, void, void, void>("buildFromFiles");
 
 // After the server has started the client sends an initilize request. The server receives
 // in the passed params the rootPath of the workspace plus the client capabilites.
 let workspaceRoot: string;
-connection.onInitialize((params: InitializeParams): InitializeResult => {
-  logger.info("Initializing...");
 
-  const rootUri = params.rootUri;
-  workspaceRoot = rootUri && Uri.parse(rootUri).fsPath;
-
-  return {
-    capabilities: {
-      // Tell the client that the server works in FULL text document sync mode
-      textDocumentSync: documents.syncKind,
-      definitionProvider: true,
-      documentSymbolProvider: true,
-      workspaceSymbolProvider: true,
-      referencesProvider: true,
-      documentHighlightProvider: true,
-      completionProvider: {
-        triggerCharacters: [
-          "[", "{", "*"
-        ]
-      }
-    },
-  };
-});
-
+connection.onInitialize(onInitialize);
 connection.onDocumentHighlight(onDocumentHighlight);
-
-// The settings have changed. Is send on server activation
-// as well.
-connection.onDidChangeConfiguration(change => {
-  logger.info("onDidChangeConfiguration...");
-
-  if (change.settings && change.settings.rfLanguageServer) {
-    Config.setSettings(change.settings.rfLanguageServer);
-  }
-});
-
-/**
- * Provides document symbols
- */
-connection.onDocumentSymbol((documentSymbol: DocumentSymbolParams): SymbolInformation[] => {
-  logger.info("onDocumentSymbol...");
-
-  const filePath = _filePathFromUri(documentSymbol.textDocument.uri);
-  const file = workspace.getFile(filePath);
-  if (!file) {
-    return [];
-  }
-
-  return getFileSymbols(file);
-});
+connection.onDidChangeConfiguration(onDidChangeConfiguration);
+connection.onDocumentSymbol(onDocumentSymbol);
+connection.onWorkspaceSymbol(onWorkspaceSymbol);
+connection.onDefinition(onDefinition);
+connection.onReferences(onReferences);
+connection.onCompletion(onCompletion);
+connection.onRequest(BuildFromFilesRequest, onBuildFromFiles);
+// Called when contents of a file changes
+connection.onDidChangeTextDocument(onDidChangeTextDocument);
+// Called when a file gets deleted or added
+connection.onDidChangeWatchedFiles(onDidChangeWatchedFiles);
 
 /**
- * Provides workspace symbols
+ * Parse files
  */
-connection.onWorkspaceSymbol((workspaceSymbol: WorkspaceSymbolParams): SymbolInformation[] => {
-  logger.info("onWorkspaceSymbol...");
+function onBuildFromFiles(message: BuildFromFilesParam) {
+  logger.info("buildFromFiles", message);
 
-  const query = workspaceSymbol.query;
+  workspace.clear();
 
-  return getWorkspaceSymbols(workspace, query);
-});
+  message.files
+    .filter(_shouldAcceptFile)
+    .forEach(_readAndParseFile);
+}
+
+/**
+ * Provides completion items for given text position
+ */
+function onCompletion(textDocumentPosition: TextDocumentPositionParams): CompletionItem[] {
+  logger.info("onCompletion...");
+
+  const location = _textPositionToLocation(textDocumentPosition);
+
+  const completionItems = findCompletionItems(location, workspace);
+
+  logger.debug(JSON.stringify(completionItems, null, 2));
+
+  return completionItems;
+}
 
 /**
  * Finds the definition for an item in the cursor position
  */
-connection.onDefinition((textDocumentPosition: TextDocumentPositionParams): Location => {
+function onDefinition(textDocumentPosition: TextDocumentPositionParams) {
   logger.info("onDefinition...");
 
   const filePath = _filePathFromUri(textDocumentPosition.textDocument.uri);
@@ -133,72 +120,38 @@ connection.onDefinition((textDocumentPosition: TextDocumentPositionParams): Loca
     uri: found.uri,
     range: found.range
   };
-});
-
-/**
- * Finds references for the symbol in document position
- */
-connection.onReferences((referenceParams: ReferenceParams): Location[] => {
-  logger.info("onReferences...");
-
-  const filePath = _filePathFromUri(referenceParams.textDocument.uri);
-
-  const foundReferences = findReferences({
-      filePath,
-      position: {
-        line:   referenceParams.position.line,
-        column: referenceParams.position.character
-      }
-  }, workspace);
-
-  return foundReferences;
-});
-
-/**
- * Provides completion items for given text position
- */
-connection.onCompletion((textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
-  logger.info("onCompletion...");
-
-  const location = _textPositionToLocation(textDocumentPosition);
-
-  const completionItems = findCompletionItems(location, workspace);
-
-  logger.debug(JSON.stringify(completionItems, null, 2));
-
-  return completionItems;
-});
-
-export interface BuildFromFilesParam {
-  files: string[];
 }
 
-export const BuildFromFilesRequest =
-  new RequestType<BuildFromFilesParam, void, void, void>("buildFromFiles");
+/**
+ * Configuration has changed
+ */
+function onDidChangeConfiguration(change) {
+  logger.info("onDidChangeConfiguration...");
 
-connection.onRequest(BuildFromFilesRequest, message => {
-  logger.info("buildFromFiles", message);
-
-  workspace.clear();
-
-  message.files.forEach(readAndParseFile);
-});
+  if (change.settings && change.settings.rfLanguageServer) {
+    Config.setSettings(change.settings.rfLanguageServer);
+  }
+}
 
 /**
  * Message sent when the content of a text document did change in VSCode.
  */
-connection.onDidChangeTextDocument(params => {
-  logger.info("onDidChangeTextDocument");
+function onDidChangeTextDocument(params: DidChangeTextDocumentParams) {
+  logger.info("onDidChangeTextDocument", params.textDocument.uri);
+
+  const filePath = _filePathFromUri(params.textDocument.uri);
+  if (!_shouldAcceptFile(filePath)) {
+    return;
+  }
 
   // Because syncKind is set to Full, entire file content is received
-  const filePath = _filePathFromUri(params.textDocument.uri);
   const fileData = _.first(params.contentChanges).text;
 
-  debouncedParseFile(filePath, fileData);
-});
+  _parseFile(filePath, fileData);
+}
 
-connection.onDidChangeWatchedFiles(params => {
-  logger.info(`onDidChangeWatchedFiles ${ params.changes }`);
+function onDidChangeWatchedFiles(params) {
+  logger.info("onDidChangeWatchedFiles", params.changes.map(f => f.uri).join(","));
 
   // Remove deleted files
   params.changes
@@ -213,9 +166,9 @@ connection.onDidChangeWatchedFiles(params => {
   params.changes
     .filter(change => change.type === FileChangeType.Created)
     .map(createdFile => _filePathFromUri(createdFile.uri))
-    .filter(matchFilePathToConfig)
-    .forEach(readAndParseFile);
-});
+    .filter(_shouldAcceptFile)
+    .forEach(_readAndParseFile);
+}
 
 function onDocumentHighlight(
   textDocumentPosition: TextDocumentPositionParams
@@ -229,7 +182,86 @@ function onDocumentHighlight(
   return highlights;
 }
 
-function matchFilePathToConfig(filePath: string) {
+/**
+ * Provides document symbols
+ */
+function onDocumentSymbol(documentSymbol: DocumentSymbolParams): SymbolInformation[] {
+  logger.info("onDocumentSymbol...");
+
+  const filePath = _filePathFromUri(documentSymbol.textDocument.uri);
+  const file = workspace.getFile(filePath);
+  if (!file) {
+    return [];
+  }
+
+  return getFileSymbols(file);
+}
+
+/**
+ *
+ * @param params
+ */
+function onInitialize(params: InitializeParams): InitializeResult {
+  logger.info("Initializing...");
+
+  const rootUri = params.rootUri;
+  workspaceRoot = rootUri && Uri.parse(rootUri).fsPath;
+
+  return {
+    capabilities: {
+      // Tell the client that the server works in FULL text document sync mode
+      textDocumentSync: TextDocumentSyncKind.Full,
+      definitionProvider: true,
+      documentSymbolProvider: true,
+      workspaceSymbolProvider: true,
+      referencesProvider: true,
+      documentHighlightProvider: true,
+      completionProvider: {
+        triggerCharacters: [
+          "[", "{", "*"
+        ]
+      }
+    },
+  };
+}
+
+/**
+ * Finds references for the symbol in document position
+ */
+function onReferences(referenceParams: ReferenceParams): Location[] {
+  logger.info("onReferences...");
+
+  const filePath = _filePathFromUri(referenceParams.textDocument.uri);
+
+  const foundReferences = findReferences({
+    filePath,
+    position: {
+      line: referenceParams.position.line,
+      column: referenceParams.position.character
+    }
+  }, workspace);
+
+  return foundReferences;
+}
+
+/**
+ * Provides workspace symbols
+ */
+function onWorkspaceSymbol(workspaceSymbol: WorkspaceSymbolParams): SymbolInformation[] {
+  logger.info("onWorkspaceSymbol...");
+
+  const query = workspaceSymbol.query;
+
+  return getWorkspaceSymbols(workspace, query);
+}
+
+function _shouldAcceptFile(filePath: string) {
+  const fileExt = path.extname(filePath);
+  if (!parsersByFile.has(fileExt)) {
+    logger.debug(`Not accepting file ${ filePath }. Extension ${ fileExt } is not supported.`);
+    return false;
+  }
+
   const { include, exclude } = Config.getIncludeExclude();
 
   const hasIncludePatterns = include.length > 0;
@@ -240,12 +272,19 @@ function matchFilePathToConfig(filePath: string) {
   const shouldExclude = hasExcludePatterns &&
     _.some(exclude, pattern => minimatch(filePath, pattern));
 
+  if (!shouldInclude) {
+    logger.debug(`Not accepting file ${ filePath }. It doesn't match any include pattern.`);
+  } else if (shouldExclude) {
+    logger.debug(`Not accepting file ${ filePath }. It matches an exclude pattern.`);
+  }
+
   return shouldInclude && !shouldExclude;
 }
 
-const debouncedParseFile = (filePath: string, fileContents: string) => {
+function _parseFile(filePath: string, fileContents: string) {
   try {
-    const file = createWorkspaceFile(filePath, fileContents, createRobotFile);
+    const createFn = _getParserFn(filePath);
+    const file = _createWorkspaceFile(filePath, fileContents, createFn);
 
     workspace.addFile(file);
   } catch (error) {
@@ -253,15 +292,11 @@ const debouncedParseFile = (filePath: string, fileContents: string) => {
   }
 };
 
-async function readAndParseFile(filePath: string) {
-  logger.info("Parsing", filePath);
-
-  const createFn = path.extname(filePath) === ".py" ?
-    createPythonFile : createRobotFile;
-
+async function _readAndParseFile(filePath: string) {
   try {
+    const createFn = _getParserFn(filePath);
     const fileContents = await asyncFs.readFileAsync(filePath, "utf-8");
-    const file = createWorkspaceFile(filePath, fileContents, createFn);
+    const file = _createWorkspaceFile(filePath, fileContents, createFn);
 
     workspace.addFile(file);
   } catch (error) {
@@ -269,11 +304,23 @@ async function readAndParseFile(filePath: string) {
   }
 }
 
-function createWorkspaceFile(filePath: string, fileContents: string, createFn: WorkspaceFileParserFn) {
+function _getParserFn(filePath: string) {
+  const fileExt = path.extname(filePath);
+
+  const parserFn = parsersByFile.get(fileExt);
+  if (!parserFn) {
+    throw new Error(`Unsupported file extension ${ fileExt }`);
+  }
+
+  return parserFn;
+}
+
+function _createWorkspaceFile(filePath: string, fileContents: string, createFn: WorkspaceFileParserFn) {
   const relativePath = workspaceRoot ?
     path.relative(workspaceRoot, filePath) :
     filePath;
 
+  logger.info("Parsing", filePath);
   return createFn(fileContents, filePath, relativePath);
 }
 

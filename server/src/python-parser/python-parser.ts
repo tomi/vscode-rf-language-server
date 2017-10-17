@@ -167,7 +167,6 @@ function findKeywords(data: string, lineIndexes: LineInfo[]) {
     const [fullMatch, name, argsStr] = result;
 
     if (excludeKeyword(name)) {
-      logger.info(`Excluding function ${ name }`);
       return;
     }
 

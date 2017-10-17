@@ -21,7 +21,7 @@ export class ConsoleLogger {
 
   private static log(logFn, message, optionalParams) {
       if (optionalParams.length > 0) {
-        logFn(message, optionalParams);
+        logFn(message, ...optionalParams);
       } else {
         logFn(message);
       }

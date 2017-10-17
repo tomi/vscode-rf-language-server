@@ -7,24 +7,6 @@ export const CONFIG_BLOCK_NAME = "rfLanguageServer";
 export class Config {
   public static settings = workspace.getConfiguration(CONFIG_BLOCK_NAME);
 
-  public static hasIncludeConfigChanged() {
-    const oldConfig = Config.settings;
-    const newConfig = workspace.getConfiguration(CONFIG_BLOCK_NAME);
-
-    if (!!newConfig !== !!oldConfig) {
-      return true;
-    }
-
-    if (!newConfig) {
-      return true;
-    }
-
-    return !_areEqual(
-      oldConfig.get<string[]>("includePaths"),
-      newConfig.get<string[]>("includePaths"),
-    );
-  }
-
   public static reloadConfig() {
     Config.settings = workspace.getConfiguration(CONFIG_BLOCK_NAME);
   }
@@ -35,22 +17,9 @@ export class Config {
     return Config.settings;
   }
 
-  public static getIncludeExclude() {
-    Config.reloadConfig();
-
-    if (!Config.settings) {
-      return {
-        include: [],
-        exclude: []
-      };
-    }
-
-    return {
-      include: Config.settings.get<string[]>("includePaths"),
-      exclude: Config.settings.get<string[]>("excludePaths")
-    };
-  }
-
+  /**
+   * Returns configured include patterns or default pattern
+   */
   public static getInclude() {
     Config.reloadConfig();
 

@@ -25,15 +25,20 @@ export function activate(context: ExtensionContext) {
       commandHandler.parseAll()
   ));
 
-  rfLanguageServerClient.start().then(() => commandHandler.parseAll());
+  rfLanguageServerClient.start()
+    .then(() => commandHandler.parseAll());
 
+  let currentIncludePattern = Config.getInclude();
   const disposable = workspace.onDidChangeConfiguration(() => {
-    if (!Config.hasIncludeConfigChanged()) {
+    const newIncludePattern = Config.getInclude();
+    if (currentIncludePattern === newIncludePattern) {
       return;
     }
 
+    currentIncludePattern = newIncludePattern;
     console.log("Configuration has changed. Restarting language server..");
-    rfLanguageServerClient.restart().then(() => commandHandler.parseAll());
+    rfLanguageServerClient.restart()
+      .then(() => commandHandler.parseAll());
   });
 
   // Push the disposable to the context's subscriptions so that the

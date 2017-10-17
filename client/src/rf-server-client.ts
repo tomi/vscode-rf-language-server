@@ -16,6 +16,9 @@ export interface BuildFromFilesParam {
 const BuildFromFilesRequestType =
   new RequestType<BuildFromFilesParam, void, void, void>("buildFromFiles");
 
+/**
+ * Client to connect to the language server
+ */
 export default class RFServerClient implements Disposable {
   private _client: LanguageClient;
   private _context: ExtensionContext;

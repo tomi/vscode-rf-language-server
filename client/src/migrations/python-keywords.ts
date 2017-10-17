@@ -24,8 +24,14 @@ async function _checkPythonKeywordsUsage() {
         const result = await _promptShouldUpdate();
         if (result === YES) {
             _replacePythonKeywords(config, hasLocal, hasGlobal);
+            const infoMsg =
+                `**pythonKeywords** setting has been replaced with a '\\*\\*/*.py' include pattern.`;
+            window.showInformationMessage(infoMsg);
         } else if (result === NO) {
             _removePythonKeywords(config);
+            const infoMsg =
+                `**pythonKeywords** setting has been removed.`;
+            window.showInformationMessage(infoMsg);
         }
     }
 }

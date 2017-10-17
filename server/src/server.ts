@@ -63,7 +63,9 @@ connection.onDefinition(onDefinition);
 connection.onReferences(onReferences);
 connection.onCompletion(onCompletion);
 connection.onRequest(BuildFromFilesRequest, onBuildFromFiles);
+// Called when contents of a file changes
 connection.onDidChangeTextDocument(onDidChangeTextDocument);
+// Called when a file gets deleted or added
 connection.onDidChangeWatchedFiles(onDidChangeWatchedFiles);
 
 /**
@@ -135,7 +137,7 @@ function onDidChangeConfiguration(change) {
  * Message sent when the content of a text document did change in VSCode.
  */
 function onDidChangeTextDocument(params: DidChangeTextDocumentParams) {
-  logger.info("onDidChangeTextDocument");
+  logger.info("onDidChangeTextDocument", params.textDocument.uri);
 
   const filePath = _filePathFromUri(params.textDocument.uri);
   if (!_shouldAcceptFile(filePath)) {
@@ -149,7 +151,7 @@ function onDidChangeTextDocument(params: DidChangeTextDocumentParams) {
 }
 
 function onDidChangeWatchedFiles(params) {
-  logger.info(`onDidChangeWatchedFiles ${params.changes}`);
+  logger.info("onDidChangeWatchedFiles", params.changes.map(f => f.uri).join(","));
 
   // Remove deleted files
   params.changes
@@ -269,6 +271,12 @@ function _shouldAcceptFile(filePath: string) {
     _.some(include, pattern => minimatch(filePath, pattern));
   const shouldExclude = hasExcludePatterns &&
     _.some(exclude, pattern => minimatch(filePath, pattern));
+
+  if (!shouldInclude) {
+    logger.debug(`Not accepting file ${ filePath }. It doesn't match any include pattern.`);
+  } else if (shouldExclude) {
+    logger.debug(`Not accepting file ${ filePath }. It matches an exclude pattern.`);
+  }
 
   return shouldInclude && !shouldExclude;
 }

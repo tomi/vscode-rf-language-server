@@ -43,14 +43,6 @@ export class Config {
   }
 }
 
-function _areEqual(a: any[], b: any[]) {
-  if (a.length !== b.length) {
-    return false;
-  }
-
-  return a.every((val, idx) => val === b[idx]);
-}
-
 function _createGlob(patterns: string[]) {
   switch (patterns.length) {
     case 0:

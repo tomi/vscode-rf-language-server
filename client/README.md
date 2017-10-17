@@ -47,6 +47,9 @@ By default all `.robot` files are parsed. This can be configured using parameter
 | `rfLanguageServer.logLevel` | What information of the language server is logged in the Output. Possible values `off`, `errors`, `info`, `debug`|
 | `rfLanguageServer.trace.server` | what information of the communication between VSCode and the rfLanguageServer is logged to the Output. Possible values `off`, `messages`, `verbose`|
 
+The `includePaths` and `excludePaths` properties take a list of glob-like file patterns. Even though any files can be matched this way, only files with supported extensions are included (i.e. `.robot`, `.txt`, and `.py`).
+
+If the `includePaths` is left unspecified, the parser defaults to including all `.robot` files in the containing directory and subdirectories except those excluded using the `excludePaths` property.
 
 ## Known issues
 

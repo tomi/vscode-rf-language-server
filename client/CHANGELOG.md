@@ -1,7 +1,7 @@
 # Change Log
 
 ## Version 2.0.0
-* Release date: October 17, 2017
+* Release date: October 18, 2017
 
 ### What's new in this version
 * Local variables are shown first in completion suggestions

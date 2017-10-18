@@ -67,6 +67,11 @@
           "default": [],
           "description": "An array of files/folders that should be ignored by the parser. Glob patterns are accepted (eg. **/*bad.robot)"
         },
+        "rfLanguageServer.pythonKeywords": {
+          "type": "boolean",
+          "default": false,
+          "description": "DEPRECATED. Use rfLanguageServer.includePaths instead"
+        },
         "rfLanguageServer.logLevel": {
           "type": "string",
           "enum": [

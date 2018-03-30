@@ -194,7 +194,7 @@ Suite Teardown    suiteTeardown    arg1    arg2
       location(0, 0, 3, 0),
       {
         suiteSetup: new SuiteSetting(
-          new Identifier("Suite Setup", location(1, 0, 1, 11)),
+          new Identifier("Suite Setup", location(1, 0, 1, 11)), [
           new CallExpression(
             new Identifier("suiteSetup", location(1, 18, 1, 28)),
             [
@@ -202,11 +202,11 @@ Suite Teardown    suiteTeardown    arg1    arg2
               new Literal("arg2", location(1, 43, 1, 47)),
             ],
             location(1, 18, 1, 47)
-          ),
+          )],
           location(1, 0, 1, 47)
         ),
         suiteTeardown: new SuiteSetting(
-          new Identifier("Suite Teardown", location(2, 0, 2, 14)),
+          new Identifier("Suite Teardown", location(2, 0, 2, 14)), [
           new CallExpression(
             new Identifier("suiteTeardown", location(2, 18, 2, 31)),
             [
@@ -214,7 +214,7 @@ Suite Teardown    suiteTeardown    arg1    arg2
               new Literal("arg2", location(2, 43, 2, 47)),
             ],
             location(2, 18, 2, 47)
-          ),
+          )],
           location(2, 0, 2, 47)
         ),
       }
@@ -234,7 +234,7 @@ Test Teardown     testTeardown     arg1    arg2
       location(0, 0, 3, 0),
       {
         testSetup: new SuiteSetting(
-          new Identifier("Test Setup", location(1, 0, 1, 10)),
+          new Identifier("Test Setup", location(1, 0, 1, 10)), [
           new CallExpression(
             new Identifier("testSetup", location(1, 18, 1, 27)),
             [
@@ -242,11 +242,11 @@ Test Teardown     testTeardown     arg1    arg2
               new Literal("arg2", location(1, 43, 1, 47)),
             ],
             location(1, 18, 1, 47)
-          ),
+          )],
           location(1, 0, 1, 47)
         ),
         testTeardown: new SuiteSetting(
-          new Identifier("Test Teardown", location(2, 0, 2, 13)),
+          new Identifier("Test Teardown", location(2, 0, 2, 13)), [
           new CallExpression(
             new Identifier("testTeardown", location(2, 18, 2, 30)),
             [
@@ -254,7 +254,7 @@ Test Teardown     testTeardown     arg1    arg2
               new Literal("arg2", location(2, 43, 2, 47)),
             ],
             location(2, 18, 2, 47)
-          ),
+          )],
           location(2, 0, 2, 47)
         ),
       }
@@ -275,7 +275,7 @@ Test Setup        testSetup
       location(0, 0, 4, 0),
       {
         testSetup: new SuiteSetting(
-          new Identifier("Test Setup", location(1, 0, 1, 10)),
+          new Identifier("Test Setup", location(1, 0, 1, 10)), [
           new CallExpression(
             new Identifier("testSetup", location(1, 18, 1, 27)),
             [
@@ -283,7 +283,7 @@ Test Setup        testSetup
               new Literal("arg2", location(3, 18, 3, 22)),
             ],
             location(1, 18, 3, 22)
-          ),
+          )],
           location(1, 0, 3, 22)
         ),
       }

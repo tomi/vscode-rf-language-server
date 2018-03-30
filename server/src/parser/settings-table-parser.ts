@@ -119,15 +119,32 @@ function parseVariableImport(settingsTable: SettingsTable, firstCell: DataCell, 
 
 function createParseSettingFn(propertyName) {
   return (settingsTable: SettingsTable, nameCell: DataCell, valueCells: DataCell[]) => {
-    const name = parseIdentifier(nameCell);
-
-    const value = _.isEmpty(valueCells) ?
-      new EmptyNode(nameCell.location.end) :
-      parseCallExpression(valueCells);
-
     const lastCell = _.last(valueCells) || nameCell;
     const location = positionHelper.locationFromStartEnd(nameCell.location, lastCell.location);
-    const setting = new SuiteSetting(name, value, location);
+    const name = parseIdentifier(nameCell);
+    let setting = new SuiteSetting(name, new EmptyNode(nameCell.location.end), location);
+
+    if (!_.isEmpty(valueCells)) {
+      let callExpressionArray = [];
+      let effectiveKeyword = [];
+      for (let singleValueCell of valueCells) {
+        if (singleValueCell.content === "Run Keywords") { continue; }
+        if (singleValueCell.content === "AND") {
+
+          let singleCallExpression = parseCallExpression(effectiveKeyword);
+          callExpressionArray.push(singleCallExpression);
+
+          effectiveKeyword = [];
+          continue;
+        }
+        effectiveKeyword.push(singleValueCell);
+      }
+
+      let singleCallExpression = parseCallExpression(effectiveKeyword);
+      callExpressionArray.push(singleCallExpression);
+      setting = new SuiteSetting(name, callExpressionArray, location);
+    }
+
     settingsTable[propertyName] = setting;
   };
 }

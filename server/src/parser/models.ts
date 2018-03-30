@@ -177,7 +177,7 @@ export class SuiteSetting implements Node {
 
   constructor(
     public name: Identifier,
-    public value: CallExpression | EmptyNode,
+    public value: CallExpression[] | EmptyNode,
     public location: SourceLocation
   ) { }
 }

@@ -79,16 +79,59 @@ describe("RF Parser", () => {
 
     it("should parse suite setup", () => {
       const actualTable = settingsTableTest("Suite Setup  Open Default Browser");
-
       const expected = settingsTable({
         suiteSetup: new SuiteSetting(
-          new Identifier("Suite Setup", location(1, 0, 1, 11)),
+          new Identifier("Suite Setup", location(1, 0, 1, 11)), [
           new CallExpression(
             new Identifier("Open Default Browser", location(1, 13, 1, 33)),
             [],
             location(1, 13, 1, 33)
-          ),
+          )],
           location(1, 0, 1, 33)
+        )
+      });
+
+      chai.assert.deepEqual(actualTable, expected);
+    });
+
+    it("should parse suite setup with AND Keywords", () => {
+      const actualTable = settingsTableTest("Suite Setup    Open Default Browser    AND    Say Hello");
+      const expected = settingsTable({
+        suiteSetup: new SuiteSetting(
+          new Identifier("Suite Setup", location(1, 0, 1, 11)), [
+          new CallExpression(
+            new Identifier("Open Default Browser", location(1, 15, 1, 35)),
+            [],
+            location(1, 15, 1, 35)
+          ),
+          new CallExpression(
+            new Identifier("Say Hello", location(1, 46, 1, 55)),
+            [],
+            location(1, 46, 1, 55)
+          )],
+          location(1, 0, 1, 55)
+        )
+      });
+
+      chai.assert.deepEqual(actualTable, expected);
+    });
+
+    it("should parse suite setup with Run Keywords AND Keywords", () => {
+      const actualTable = settingsTableTest("Suite Setup    Run Keywords    Open Default Browser    AND    Say Hello");
+      const expected = settingsTable({
+        suiteSetup: new SuiteSetting(
+          new Identifier("Suite Setup", location(1, 0, 1, 11)), [
+          new CallExpression(
+            new Identifier("Open Default Browser", location(1, 31, 1, 51)),
+            [],
+            location(1, 31, 1, 51)
+          ),
+          new CallExpression(
+            new Identifier("Say Hello", location(1, 62, 1, 71)),
+            [],
+            location(1, 62, 1, 71)
+          )],
+          location(1, 0, 1, 71)
         )
       });
 
@@ -100,12 +143,12 @@ describe("RF Parser", () => {
 
       const expected = settingsTable({
         suiteTeardown: new SuiteSetting(
-          new Identifier("Suite Teardown", location(1, 0, 1, 14)),
+          new Identifier("Suite Teardown", location(1, 0, 1, 14)), [
           new CallExpression(
             new Identifier("Open Default Browser", location(1, 16, 1, 36)),
             [],
             location(1, 16, 1, 36)
-          ),
+          )],
           location(1, 0, 1, 36)
         )
       });

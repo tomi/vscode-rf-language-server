@@ -139,6 +139,23 @@ describe("RF Parser", () => {
       chai.assert.deepEqual(actualTable, expected);
     });
 
+    it("should parse suite setup with Run Keywords AND Ignore Error", () => {
+      const actualTable = settingsTableTest("Suite Setup    Run Keyword And Ignore Error    Open Default Browser");
+      const expected = settingsTable({
+        suiteSetup: new SuiteSetting(
+          new Identifier("Suite Setup", location(1, 0, 1, 11)), [
+          new CallExpression(
+            new Identifier("Open Default Browser", location(1, 47, 1, 67)),
+            [],
+            location(1, 47, 1, 67)
+          )],
+          location(1, 0, 1, 67)
+        )
+      });
+
+      chai.assert.deepEqual(actualTable, expected);
+    });
+
     it("should parse suite teardown", () => {
       const actualTable = settingsTableTest("Suite Teardown  Open Default Browser");
 

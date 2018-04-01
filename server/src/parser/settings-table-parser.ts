@@ -128,7 +128,9 @@ function createParseSettingFn(propertyName) {
       let callExpressionArray = [];
       let effectiveKeyword = [];
       for (let singleValueCell of valueCells) {
-        if (singleValueCell.content === "Run Keywords") { continue; }
+        if (singleValueCell.content === "Run Keywords" || singleValueCell.content === "Run Keyword And Ignore Error") {
+          continue;
+        }
         if (singleValueCell.content === "AND") {
 
           let singleCallExpression = parseCallExpression(effectiveKeyword);

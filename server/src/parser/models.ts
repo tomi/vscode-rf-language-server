@@ -315,7 +315,7 @@ export class Teardown implements SettingDeclaration {
    */
   constructor(
     public id: Identifier,
-    public keyword: CallExpression,
+    public keyword: CallExpression[] = [],
     public location: SourceLocation
   ) { }
 }
@@ -332,7 +332,7 @@ export class Setup implements SettingDeclaration {
    */
   constructor(
     public id: Identifier,
-    public keyword: CallExpression,
+    public keyword: CallExpression[] = [],
     public location: SourceLocation
   ) { }
 }

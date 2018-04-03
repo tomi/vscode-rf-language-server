@@ -1,6 +1,7 @@
 import * as _ from "lodash";
 
 import * as positionHelper from "./position-helper";
+import { decomposeKeywords } from "./composite-keywords-parser";
 import { TableRowIterator } from "./row-iterator";
 import {
   DataCell,
@@ -125,25 +126,7 @@ function createParseSettingFn(propertyName) {
     let setting = new SuiteSetting(name, new EmptyNode(nameCell.location.end), location);
 
     if (!_.isEmpty(valueCells)) {
-      let callExpressionArray = [];
-      let effectiveKeyword = [];
-      for (let singleValueCell of valueCells) {
-        if (singleValueCell.content === "Run Keywords" || singleValueCell.content === "Run Keyword And Ignore Error") {
-          continue;
-        }
-        if (singleValueCell.content === "AND") {
-
-          let singleCallExpression = parseCallExpression(effectiveKeyword);
-          callExpressionArray.push(singleCallExpression);
-
-          effectiveKeyword = [];
-          continue;
-        }
-        effectiveKeyword.push(singleValueCell);
-      }
-
-      let singleCallExpression = parseCallExpression(effectiveKeyword);
-      callExpressionArray.push(singleCallExpression);
+      let callExpressionArray = decomposeKeywords(valueCells);
       setting = new SuiteSetting(name, callExpressionArray, location);
     }
 

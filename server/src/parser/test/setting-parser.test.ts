@@ -21,7 +21,8 @@ import {
   Return,
   Teardown,
   Tags,
-  Timeout
+  Timeout,
+  Setup
 } from "../models";
 
 import {
@@ -240,6 +241,62 @@ describe("Setting parser", () => {
     });
   });
 
+  describe("[Setup]", () => {
+    it("should recognise", () => {
+      shouldReturnTrue("[Setup]");
+    });
+
+    it("should parse keyword without Run Keywords", () => {
+      const nameCell = new DataCell("[Setup]", location(0, 5, 0, 12));
+      const runkeywordsCell = new DataCell("Run Keywords", location(0, 18, 0, 30));
+      const dataCell = new DataCell("Keyword To Call", location(0, 35, 0, 49));
+      const argCell = new DataCell("Argument1", location(0, 54, 0, 63));
+
+      const expected = new Setup(
+        new Identifier("[Setup]", location(0, 5, 0, 12)), [
+        new CallExpression(
+          new Identifier("Keyword To Call", location(0, 35, 0, 49)),
+          [
+            new Literal("Argument1", location(0, 54, 0, 63))
+          ],
+          location(0, 35, 0, 63)
+        )],
+        location(0, 5, 0, 63)
+      );
+
+      const actual = parseSetting(nameCell, [runkeywordsCell, dataCell, argCell]);
+
+      chai.assert.deepEqual(actual, expected);
+    });
+
+    it("should parse keyword without Run Keywords AND", () => {
+      const nameCell = new DataCell("[Setup]", location(0, 5, 0, 13));
+      const runkeywordsCell = new DataCell("Run Keywords", location(0, 17, 0, 29));
+      const data1Cell = new DataCell("Say Hello", location(0, 33, 0, 42));
+      const andCell = new DataCell("AND", location(0, 46, 0, 49));
+      const data2Cell = new DataCell("Kiss Goodbye", location(0, 53, 0, 65));
+
+      const expected = new Setup(
+        new Identifier("[Setup]", location(0, 5, 0, 13)), [
+        new CallExpression(
+          new Identifier("Say Hello", location(0, 33, 0, 42)),
+          [],
+          location(0, 33, 0, 42)
+        ),
+        new CallExpression(
+          new Identifier("Kiss Goodbye", location(0, 53, 0, 65)),
+          [],
+          location(0, 53, 0, 65)
+        )],
+        location(0, 5, 0, 65)
+      );
+
+      const actual = parseSetting(nameCell, [runkeywordsCell, data1Cell, andCell, data2Cell]);
+
+      chai.assert.deepEqual(actual, expected);
+    });
+  });
+
   describe("[Teardown]", () => {
     it("should recognise", () => {
       shouldReturnTrue("[Teardown]");
@@ -253,12 +310,12 @@ describe("Setting parser", () => {
       const dataCell = new DataCell(varValue, varLoc);
 
       const expected = new Teardown(
-        new Identifier("[Teardown]", FIRST_CELL_LOC),
+        new Identifier("[Teardown]", FIRST_CELL_LOC), [
         new CallExpression(
           new Identifier(varValue, varLoc),
           [],
           varLoc
-        ),
+        )],
         location(
           FIRST_CELL_LOC.start.line,
           FIRST_CELL_LOC.start.column,
@@ -275,26 +332,76 @@ describe("Setting parser", () => {
     it("should parse keyword without params", () => {
       const varValue = "Keyword To Call";
       const varLoc = location(0, 20, 0, 30);
-      const argValue = "Argument1";
-      const argLoc = location(0, 35, 0, 40);
 
       const nameCell = new DataCell("[Teardown]", FIRST_CELL_LOC);
       const dataCell = new DataCell(varValue, varLoc);
-      const argCell = new DataCell(argValue, argLoc);
 
       const expected = new Teardown(
-        new Identifier("[Teardown]", FIRST_CELL_LOC),
+        new Identifier("[Teardown]", FIRST_CELL_LOC), [
         new CallExpression(
           new Identifier(varValue, varLoc),
-          [
-            new Literal(argValue, argLoc)
-          ],
-          locationFromStartEnd(dataCell.location, argCell.location)
-        ),
-        locationFromStartEnd(FIRST_CELL_LOC, argCell.location)
+          [],
+          varLoc
+        )],
+        location(
+          FIRST_CELL_LOC.start.line,
+          FIRST_CELL_LOC.start.column,
+          dataCell.location.end.line,
+          dataCell.location.end.column
+        )
       );
 
-      const actual = parseSetting(nameCell, [dataCell, argCell]);
+      const actual = parseSetting(nameCell, [dataCell]);
+
+      chai.assert.deepEqual(actual, expected);
+    });
+
+    it("should parse keyword without Run Keywords", () => {
+      const nameCell = new DataCell("[Teardown]", location(0, 5, 0, 15));
+      const runkeywordsCell = new DataCell("Run Keywords", location(0, 20, 0, 32));
+      const dataCell = new DataCell("Keyword To Call", location(0, 37, 0, 51));
+      const argCell = new DataCell("Argument1", location(0, 56, 0, 65));
+
+      const expected = new Teardown(
+        new Identifier("[Teardown]", location(0, 5, 0, 15)), [
+        new CallExpression(
+          new Identifier("Keyword To Call", location(0, 37, 0, 51)),
+          [
+            new Literal("Argument1", location(0, 56, 0, 65))
+          ],
+          location(0, 37, 0, 65)
+        )],
+        location(0, 5, 0, 65)
+      );
+
+      const actual = parseSetting(nameCell, [runkeywordsCell, dataCell, argCell]);
+
+      chai.assert.deepEqual(actual, expected);
+    });
+
+    it("should parse keyword without Run Keywords AND", () => {
+      const nameCell = new DataCell("[Teardown]", location(0, 5, 0, 15));
+      const runkeywordsCell = new DataCell("Run Keywords", location(0, 19, 0, 31));
+      const data1Cell = new DataCell("Say Hello", location(0, 35, 0, 44));
+      const andCell = new DataCell("AND", location(0, 48, 0, 51));
+      const data2Cell = new DataCell("Kiss Goodbye", location(0, 55, 0, 67));
+
+      const expected = new Teardown(
+        new Identifier("[Teardown]", location(0, 5, 0, 15)), [
+        new CallExpression(
+          new Identifier("Say Hello", location(0, 35, 0, 44)),
+          [],
+          location(0, 35, 0, 44)
+        ),
+        new CallExpression(
+          new Identifier("Kiss Goodbye", location(0, 55, 0, 67)),
+          [],
+          location(0, 55, 0, 67)
+        )],
+        location(0, 5, 0, 67)
+      );
+
+      const actual = parseSetting(nameCell, [runkeywordsCell, data1Cell, andCell, data2Cell]);
 
       chai.assert.deepEqual(actual, expected);
     });

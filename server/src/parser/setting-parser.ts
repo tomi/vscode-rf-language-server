@@ -1,6 +1,7 @@
 import * as _ from "lodash";
 
 import { DataCell } from "./table-models";
+import { decomposeKeywords } from "./composite-keywords-parser";
 
 import {
   Identifier,
@@ -185,10 +186,10 @@ function parseSetup(id: Identifier, values: DataCell[]): SettingDeclaration {
     return new Setup(id, undefined, id.location);
   }
 
-  const callExpression = parseCallExpression(values);
-  const location = locationFromStartEnd(id.location, callExpression.location);
-
-  return new Setup(id, callExpression, location);
+  const lastCell = _.last(values) || id;
+  const location = locationFromStartEnd(id.location, lastCell.location);
+  let callExpressionArray = decomposeKeywords(values);
+  return new Setup(id, callExpressionArray, location);
 }
 
 /**
@@ -202,10 +203,10 @@ function parseTeardown(id: Identifier, values: DataCell[]): SettingDeclaration {
     return new Teardown(id, undefined, id.location);
   }
 
-  const callExpression = parseCallExpression(values);
-  const location = locationFromStartEnd(id.location, callExpression.location);
-
-  return new Teardown(id, callExpression, location);
+  const lastCell = _.last(values) || id;
+  const location = locationFromStartEnd(id.location, lastCell.location);
+  let callExpressionArray = decomposeKeywords(values);
+  return new Teardown(id, callExpressionArray, location);
 }
 
 function parseTags(id: Identifier, values: DataCell[]): SettingDeclaration {

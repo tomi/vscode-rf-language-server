@@ -405,6 +405,32 @@ describe("Setting parser", () => {
 
       chai.assert.deepEqual(actual, expected);
     });
+
+    it("should parse keyword when there no AND concat between two expression", () => {
+      const nameCell = new DataCell("[Teardown]", location(0, 5, 0, 15));
+      const runkeywordsCell = new DataCell("Run Keywords", location(0, 19, 0, 31));
+      const data1Cell = new DataCell("Say Hello", location(0, 35, 0, 44));
+      const data2Cell = new DataCell("Kiss Goodbye", location(0, 48, 0, 60));
+
+      const expected = new Teardown(
+        new Identifier("[Teardown]", location(0, 5, 0, 15)), [
+        new CallExpression(
+          new Identifier("Say Hello", location(0, 35, 0, 44)),
+          [],
+          location(0, 35, 0, 44)
+        ),
+        new CallExpression(
+          new Identifier("Kiss Goodbye", location(0, 48, 0, 60)),
+          [],
+          location(0, 48, 0, 60)
+        )],
+        location(0, 5, 0, 60)
+      );
+
+      const actual = parseSetting(nameCell, [runkeywordsCell, data1Cell, data2Cell]);
+
+      chai.assert.deepEqual(actual, expected);
+    });
   });
 
   describe("[Tags]", () => {

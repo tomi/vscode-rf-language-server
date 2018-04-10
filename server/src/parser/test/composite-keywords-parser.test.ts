@@ -7,7 +7,9 @@ import { DataCell } from "../table-models";
 
 import {
     CallExpression,
-    Identifier
+    Identifier,
+    Literal,
+    VariableExpression
 } from "../models";
 
 describe("Composite keywords parser", () => {
@@ -60,7 +62,87 @@ describe("Composite keywords parser", () => {
                     [],
                     location(0, 55, 0, 67)
                 )
-            ]
+            ];
+
+            chai.assert.equal(callExpressionArray.length, 2);
+            chai.assert.deepEqual(callExpressionArray, result);
+        });
+
+        it("treat datacell as CallExpression due to single space exist", () => {
+            const data1Cell = new DataCell("Say Hello", location(0, 35, 0, 44));
+            const data2Cell = new DataCell("Kiss Goodbye", location(0, 55, 0, 67));
+
+            let callExpressionArray = decomposeKeywords([data1Cell, data2Cell]);
+
+            const result = [
+                new CallExpression(
+                    new Identifier("Say Hello", location(0, 35, 0, 44)),
+                    [],
+                    location(0, 35, 0, 44)
+                ),
+                new CallExpression(
+                    new Identifier("Kiss Goodbye", location(0, 55, 0, 67)),
+                    [],
+                    location(0, 55, 0, 67)
+                )
+            ];
+
+            chai.assert.equal(callExpressionArray.length, 2);
+            chai.assert.deepEqual(callExpressionArray, result);
+        });
+
+        it("treat datacell as argument of variable type due to single space not exist", () => {
+            const data1Cell = new DataCell("Say Hello", location(0, 35, 0, 44));
+            const data2Cell = new DataCell("${Lucy}", location(0, 48, 0, 55));
+
+            let callExpressionArray = decomposeKeywords([data1Cell, data2Cell]);
+
+            const result = [
+                new CallExpression(
+                    new Identifier("Say Hello", location(0, 35, 0, 44)),
+                    [
+                        new VariableExpression(
+                            new Identifier("Lucy", location(0, 50, 0, 54)),
+                            "Scalar",
+                            location(0, 48, 0, 55)
+                        )
+                    ],
+                    location(0, 35, 0, 55)
+                )
+            ];
+
+            chai.assert.equal(callExpressionArray.length, 1);
+            chai.assert.deepEqual(callExpressionArray, result);
+        });
+
+        it("compose correct callExpressions with multi-datacell", () => {
+            const data1Cell = new DataCell("Say Hello", location(0, 35, 0, 44));
+            const data2Cell = new DataCell("${Lucy}", location(0, 48, 0, 55));
+            const data3Cell = new DataCell("Kiss Goodbye", location(0, 59, 0, 71));
+            const data4Cell = new DataCell("Coco", location(0, 75, 0, 79));
+
+            let callExpressionArray = decomposeKeywords([data1Cell, data2Cell, data3Cell, data4Cell]);
+
+            const result = [
+                new CallExpression(
+                    new Identifier("Say Hello", location(0, 35, 0, 44)),
+                    [
+                        new VariableExpression(
+                            new Identifier("Lucy", location(0, 50, 0, 54)),
+                            "Scalar",
+                            location(0, 48, 0, 55)
+                        )
+                    ],
+                    location(0, 35, 0, 55)
+                ),
+                new CallExpression(
+                    new Identifier("Kiss Goodbye", location(0, 59, 0, 71)),
+                    [
+                        new Literal("Coco", location(0, 75, 0, 79))
+                    ],
+                    location(0, 59, 0, 79)
+                )
+            ];
 
             chai.assert.equal(callExpressionArray.length, 2);
             chai.assert.deepEqual(callExpressionArray, result);

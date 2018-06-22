@@ -325,7 +325,7 @@ function _createWorkspaceFile(filePath: string, fileContents: string, createFn: 
 }
 
 function _filePathFromUri(uri: string): string {
-  return Uri.parse(uri).path;
+  return Uri.parse(uri).fsPath;
 }
 
 function _textPositionToLocation(position: TextDocumentPositionParams) {

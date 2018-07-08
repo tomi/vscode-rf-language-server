@@ -1,5 +1,12 @@
 # Change Log
 
+## Version 2.0.1
+* Release date: July 9, 2018
+
+### What's new in this version
+* Fix file path of robot being interpreted incorrectly on Windows. This prevented goto definition and some other features from working. Big thanks to [@edchapel](https://github.com/edchapel) for fixing this!
+
+
 ## Version 2.0.0
 * Release date: October 18, 2017
 

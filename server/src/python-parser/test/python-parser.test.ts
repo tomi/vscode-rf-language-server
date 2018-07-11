@@ -43,7 +43,7 @@ function createSuite(location, keywords) {
   });
 }
 
-function createKeyword(keywordName: string, location, args?: [string, string][]) {
+function createKeyword(keywordName: string, location, args?: Array<[string, string]>) {
   const keyword = new UserKeyword(new Identifier(keywordName, location));
   keyword.location = location;
 

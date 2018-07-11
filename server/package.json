@@ -13,7 +13,7 @@
   "dependencies": {
     "lodash": "4.17.4",
     "minimatch": "~3.0.3",
-    "node-ternary-search-trie": "git@github.com:tomi/node-ternary-search-trie.git",
+    "node-ternary-search-trie": "https://github.com/tomi/node-ternary-search-trie.git",
     "vscode-languageserver": "~3.2.0",
     "vscode-uri": "1.0.0"
   },
@@ -31,12 +31,12 @@
   },
   "main": "index.js",
   "scripts": {
-    "compile": "installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc -p .",
-    "watch": "npm run clean && installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc --watch -p .",
-    "test": "mocha --compilers ts:ts-node/register,tsx:ts-node/register **/*.test.ts",
+    "build-tests": "tsc --outDir out",
     "clean": "rm -rf ../client/server",
+    "compile": "installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc -p .",
     "lint": "tslint --project .",
-    "build-tests": "tsc --outDir out"
+    "test": "mocha --compilers ts:ts-node/register,tsx:ts-node/register **/*.test.ts",
+    "watch": "npm run clean && installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc --watch -p ."
   },
   "repository": {
     "type": "git",

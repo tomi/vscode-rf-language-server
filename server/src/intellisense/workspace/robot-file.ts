@@ -1,4 +1,4 @@
-import * as Trie from "node-ternary-search-trie";
+import * as path from "path";
 import { TestSuite } from "../../parser/models";
 import { DataTable } from "../../parser/table-models";
 import { FileParser as RobotParser } from "../../parser/parser";
@@ -37,7 +37,15 @@ export function createRobotFile(
   relativePath: string,
 ): RobotFile {
   const tables = robotParser.readTables(contents);
-  const ast    = robotParser.parseFile(tables);
+
+  // Set the namespace for all keywords to the file name.
+  // Robot docs:
+  //    Resource files are specified in the full keyword name, similarly as library names.
+  //    The name of the resource is derived from the basename of the resource file without the file extension.
+  // http://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#handling-keywords-with-same-names
+  const namespace = path.parse(relativePath).name;
+
+  const ast = robotParser.parseFile(tables, namespace);
 
   return new RobotFile(absolutePath, relativePath, ast, tables);
 }

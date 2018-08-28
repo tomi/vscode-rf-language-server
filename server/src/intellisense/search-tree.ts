@@ -83,6 +83,43 @@ export class KeywordContainer extends SymbolContainer<UserKeyword> {
 }
 
 /**
+ * Container for global keywords. Indexed without the namespace.
+ * Keywords from different namespaces with the same name are grouped in an array.
+ */
+export class GlobalKeywordContainer extends SymbolContainer<UserKeyword[]> {
+  public addKeyword(item: UserKeyword) {
+    this.add([item]);
+
+    const key = item.id.name.toLowerCase();
+    const keywords = this.tree.get(key) as UserKeyword[];
+    if (keywords) {
+      keywords.push(item);
+    } else {
+      this.tree.set(key, [ item ]);
+    }
+  }
+
+  public removeKeyword(item: UserKeyword) {
+    this.remove([item]);
+
+    const key = item.id.name.toLowerCase();
+    const keywords = this.tree.get(key) as UserKeyword[];
+    if (keywords) {
+      const update = keywords.filter(keyword => keyword.id.fullName !== item.id.fullName);
+      if (update.length > 0) {
+        this.tree.set(key, update);
+      } else {
+        this.tree.del(key);
+      }
+    }
+  }
+
+  protected getKey(item: UserKeyword[]) {
+    return item[0].id.fullName;
+  }
+}
+
+/**
  * Container for variables
  */
 export class VariableContainer extends SymbolContainer<VariableDeclaration> {
@@ -125,7 +162,6 @@ export class VariableContainer extends SymbolContainer<VariableDeclaration> {
 
 export interface Symbols {
   keywords: KeywordContainer;
-
   variables: VariableContainer;
 }
 

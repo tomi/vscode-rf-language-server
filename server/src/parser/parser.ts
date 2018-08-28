@@ -21,7 +21,7 @@ export class FileParser {
     return tableReader.read(data);
   }
 
-  public parseFile(data: string | DataTable[]) {
+  public parseFile(data: string | DataTable[], namespace?: string) {
     let fileTables: DataTable[];
     if (typeof data === "string") {
       fileTables = this.readTables(data);
@@ -56,7 +56,7 @@ export class FileParser {
 
         testDataFile.variablesTable = parsedTable;
       } else if (KEYWORDS_TABLES.has(lowerCaseTableName)) {
-        const parsedTable = parseKeywordsTable(dataTable);
+        const parsedTable = parseKeywordsTable(dataTable, namespace);
 
         testDataFile.keywordsTable = parsedTable;
       } else if (TEST_CASES_TABLES.has(lowerCaseTableName)) {

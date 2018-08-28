@@ -30,14 +30,14 @@ export function location(startLine, startColumn, endLine?, endColumn?) {
 const parser = new PythonParser();
 
 function parseAndAssert(data: string, expected: any) {
-  const actual = parser.parseFile(data);
+  const actual = parser.parseFile(data, undefined as string);
 
   chai.assert.deepEqual(actual, expected);
 }
 
 function createSuite(location, keywords) {
   return Object.assign(new TestSuite(location), {
-    keywordsTable: Object.assign(new KeywordsTable(location), {
+    keywordsTable: Object.assign(new KeywordsTable(undefined, location), {
       keywords
     })
   });

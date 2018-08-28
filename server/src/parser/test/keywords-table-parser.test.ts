@@ -10,6 +10,7 @@ import {
   Step,
   CallExpression,
   Identifier,
+  NamespacedIdentifier,
   Literal,
   VariableExpression,
   ScalarDeclaration,
@@ -33,7 +34,7 @@ function parseAndAssert(tableDefinition: string, expected: KeywordsTable) {
 }
 
 function keywordsTable(location, keywords) {
-  return Object.assign(new KeywordsTable(location), { keywords });
+  return Object.assign(new KeywordsTable(undefined, location), { keywords });
 }
 
 function keyword(
@@ -132,6 +133,52 @@ Keyword Name
               location(2, 4, 3, 18)
             ),
             location(2, 4, 3, 18)
+          ),
+        ]
+      )
+    ]);
+
+    parseAndAssert(data, expected);
+  });
+
+  it("should parse steps with explicit keywords", () => {
+    const data =
+`*** Keywords ***
+Keyword Name
+    MyLibrary.Step 1    arg1      arg2
+    Deep.Library.Step 1    \${VAR}    a longer arg2
+`;
+
+    const expected = keywordsTable(location(0, 0, 4, 0), [
+      keyword(
+        location(1, 0, 3, 50),
+        new Identifier("Keyword Name", location(1, 0, 1, 12)),
+        [
+          new Step(
+            new CallExpression(
+              new NamespacedIdentifier("MyLibrary", "Step 1", location(2, 4, 2, 20)),
+              [
+                new Literal("arg1", location(2, 24, 2, 28)),
+                new Literal("arg2", location(2, 34, 2, 38)),
+              ],
+              location(2, 4, 2, 38)
+            ),
+            location(2, 4, 2, 38)
+          ),
+          new Step(
+            new CallExpression(
+              new NamespacedIdentifier("Deep.Library", "Step 1", location(3, 4, 3, 23)),
+              [
+                new VariableExpression(
+                  new Identifier("VAR", location(3, 29, 3, 32)),
+                  "Scalar",
+                  location(3, 27, 3, 33)
+                ),
+                new Literal("a longer arg2", location(3, 37, 3, 50)),
+              ],
+              location(3, 4, 3, 50)
+            ),
+            location(3, 4, 3, 50)
           ),
         ]
       )

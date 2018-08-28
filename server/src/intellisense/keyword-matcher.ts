@@ -1,20 +1,22 @@
 import * as _ from "lodash";
 import {
   UserKeyword,
-  Identifier
+  Identifier,
+  NamespacedIdentifier
 } from "../parser/models";
 
 import { parseVariableString } from "../parser/primitive-parsers";
+import { isNamespacedIdentifier } from "./type-guards";
 
 // As per RF documentation, the variables are matched with .*? regex
 const ARGUMENT_REGEX = ".*?";
 
-function sanizeKeywordName(name: string) {
+function sanitizeKeywordName(name: string) {
   return name.replace(/ /g, "").replace(/_/g, "");
 }
 
 function createKeywordRegex(keywordName: string) {
-  const sanitizedName = sanizeKeywordName(keywordName);
+  const sanitizedName = sanitizeKeywordName(keywordName);
   const parseResult = parseVariableString(sanitizedName);
 
   const regexParts = parseResult.map(result => {
@@ -31,10 +33,17 @@ export function identifierMatchesKeyword(
   identifier: Identifier,
   keyword: UserKeyword
 ) {
+  if (isNamespacedIdentifier(identifier)) {
+    // When the identifier is explicit, the namespace must match the keyword case-insensitively.
+    if (identifier.namespace && identifier.namespace.toLowerCase() !== keyword.id.namespace.toLowerCase()) {
+      return false;
+    }
+  }
+
   const keywordName = keyword.id.name;
   const regex = createKeywordRegex(keywordName);
 
-  const sanitizedIdentifierName = sanizeKeywordName(identifier.name);
+  const sanitizedIdentifierName = sanitizeKeywordName(identifier.name);
   return regex.test(sanitizedIdentifierName);
 }
 

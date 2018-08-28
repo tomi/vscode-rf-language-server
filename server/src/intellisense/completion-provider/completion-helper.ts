@@ -1,8 +1,5 @@
 import * as _ from "lodash";
-import {
-  Symbols,
-  VariableContainer
-} from "../search-tree";
+import { VariableContainer } from "../search-tree";
 import { ConsoleLogger as logger } from "../../logger";
 import { formatVariable } from "../formatters";
 import {
@@ -15,6 +12,7 @@ import {
   UserKeyword,
   VariableKind
 } from "../../parser/models";
+import { Workspace } from "../workspace/workspace";
 
 const VARIABLE_PREFIXES = new Set(["$", "@", "%", "&"]);
 
@@ -41,23 +39,30 @@ export function getSyntaxCompletions(
 /**
  *
  * @param textToSearch
- * @param symbols
+ * @param workspace
  * @param localVariables
  */
 export function getKeywordCompletions(
   textToSearch: string,
-  symbols: Symbols,
+  workspace: Workspace,
   localVariables?: VariableContainer
 ): CompletionItem[] {
   if (_isInVariable(textToSearch)) {
-    return getVariableCompletions(textToSearch, symbols.variables, localVariables);
+    return getVariableCompletions(textToSearch, workspace.variables, localVariables);
   }
 
   logger.debug(`Searching keywords with ${ textToSearch }`);
 
-  return symbols.keywords.findByPrefix(textToSearch)
-    .map(keyword => {
-      let [insertText, insertTextFormat] = _createKeywordSnippet(keyword);
+  const keywordGroups = workspace.findKeywords(textToSearch);
+  const keywords = keywordGroups.map(keywordGroup => {
+    // A keyword is ambiguous when there are multiples in the global workspace with the same name.
+    const ambiguousKeyword = keywordGroup.length > 1;
+    return keywordGroup.map(keyword => {
+      const shouldSuggestNamespace = ambiguousKeyword ||
+        // Assuming namespaces 'Page1' and 'Page2'...
+        textToSearch.startsWith(keyword.id.namespace) || // User typed 'Page1.Someth'
+        keyword.id.namespace.startsWith(textToSearch);   // User typed 'Page'
+      let [insertText, insertTextFormat] = _createKeywordSnippet(keyword, shouldSuggestNamespace);
       const detail = _getKeywordArgs(keyword);
       const documentation = _getKeywordDocumentation(keyword);
 
@@ -72,7 +77,7 @@ export function getKeywordCompletions(
       }
 
       return {
-        label: keyword.id.name,
+        label: shouldSuggestNamespace ? keyword.id.fullName : keyword.id.name,
         kind: CompletionItemKind.Function,
         insertText,
         insertTextFormat,
@@ -80,6 +85,9 @@ export function getKeywordCompletions(
         documentation
       };
     });
+  });
+
+  return _.flatten(keywords);
 }
 
 /**
@@ -170,16 +178,18 @@ function _getVariableSearchText(textBefore: string) {
  * @param keyword
  */
 function _createKeywordSnippet(
-  keyword: UserKeyword
+  keyword: UserKeyword,
+  suggestNamespace: boolean
 ): [string, InsertTextFormat] {
+  const keywordName = suggestNamespace ? keyword.id.fullName : keyword.id.name;
   if (keyword.arguments) {
     const args = keyword.arguments.values
       .map((arg, idx) => `\${${idx + 1}:${arg.id.name}}`)
       .join("  ");
 
-    return [`${keyword.id.name}  ${args}`, InsertTextFormat.Snippet];
+    return [`${keywordName}  ${args}`, InsertTextFormat.Snippet];
   } else {
-    return [keyword.id.name, InsertTextFormat.PlainText];
+    return [keywordName, InsertTextFormat.PlainText];
   }
 }
 

@@ -1,16 +1,16 @@
-import * as Trie from "node-ternary-search-trie";
 import * as path from "path";
 import { TestSuite } from "../../parser/models";
-import { DataTable } from "../../parser/table-models";
 import WorkspaceFile from "./workspace-file";
 
 import { PythonParser } from "../../python-parser/python-parser";
-import WorkspaceFileParserFn from "./workspace-file-parser";
 
 const pythonParser = new PythonParser();
 
 export class PythonFile extends WorkspaceFile {
     constructor(
+        // The namespace for this file is based on the filename.
+        namespace: string,
+
         // Absolute path of the file in the file system
         filePath: string,
 
@@ -20,7 +20,7 @@ export class PythonFile extends WorkspaceFile {
         // AST of the file
         fileTree: TestSuite,
     ) {
-        super(filePath, relativePath, fileTree);
+        super(namespace, filePath, relativePath, fileTree);
     }
 }
 
@@ -36,8 +36,9 @@ export function createPythonFile(
   absolutePath: string,
   relativePath: string,
 ): PythonFile {
+  // TODO: Is this how namespaces work for python files?
   const namespace = path.parse(absolutePath).name;
   const ast = pythonParser.parseFile(contents, namespace);
 
-  return new PythonFile(absolutePath, relativePath, ast);
+  return new PythonFile(namespace, absolutePath, relativePath, ast);
 }

@@ -10,8 +10,12 @@ import {
   Identifier,
   Arguments,
   ScalarDeclaration,
-  Literal
+  Literal,
+  NamespacedIdentifier
 } from "../../parser/models";
+
+const parser = new PythonParser();
+const NAMESPACE = "";
 
 export function location(startLine, startColumn, endLine?, endColumn?) {
   if (_.isObject(startLine) && _.isObject(startColumn)) {
@@ -27,24 +31,22 @@ export function location(startLine, startColumn, endLine?, endColumn?) {
   };
 }
 
-const parser = new PythonParser();
-
 function parseAndAssert(data: string, expected: any) {
-  const actual = parser.parseFile(data, undefined as string);
+  const actual = parser.parseFile(data, NAMESPACE);
 
   chai.assert.deepEqual(actual, expected);
 }
 
 function createSuite(location, keywords) {
   return Object.assign(new TestSuite(location), {
-    keywordsTable: Object.assign(new KeywordsTable(undefined, location), {
+    keywordsTable: Object.assign(new KeywordsTable(location), {
       keywords
     })
   });
 }
 
 function createKeyword(keywordName: string, location, args?: Array<[string, string]>) {
-  const keyword = new UserKeyword(new Identifier(keywordName, location));
+  const keyword = new UserKeyword(new NamespacedIdentifier(NAMESPACE, keywordName, location));
   keyword.location = location;
 
   if (args) {

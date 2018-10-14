@@ -16,15 +16,13 @@ import {
 } from "../models";
 
 import {
-  position,
   location,
-  table,
-  row,
-  cell
 } from "./test-helper";
 
+const NAMESPACE = "";
+
 function parseAndAssert(tableDefinition: string, expected: TestCasesTable) {
-  const actual = parser.parseFile(tableDefinition).testCasesTable;
+  const actual = parser.parseFile(tableDefinition, NAMESPACE).testCasesTable;
 
   chai.assert.deepEqual(actual, expected);
 }

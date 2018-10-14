@@ -8,7 +8,8 @@ import {
   ScalarDeclaration,
   UserKeyword,
   KeywordsTable,
-  TestSuite
+  TestSuite,
+  NamespacedIdentifier
 } from "../parser/models";
 
 const logger = ConsoleLogger;
@@ -27,10 +28,10 @@ export class PythonParser {
     const lineIndexes = getLineIndexes(data);
     const suiteRange = createRange(_.first(lineIndexes), _.last(lineIndexes));
 
-    const keywords = findKeywords(data, lineIndexes);
+    const keywords = findKeywords(namespace, data, lineIndexes);
 
     return Object.assign(new TestSuite(suiteRange), {
-      keywordsTable: Object.assign(new KeywordsTable(namespace, suiteRange), {
+      keywordsTable: Object.assign(new KeywordsTable(suiteRange), {
         keywords
       })
     });
@@ -158,7 +159,7 @@ function startsWithWs(str: string) {
     str.startsWith("\r");
 }
 
-function findKeywords(data: string, lineIndexes: LineInfo[]) {
+function findKeywords(namespace: string, data: string, lineIndexes: LineInfo[]) {
   const keywords = [];
   const regex = new RegExp(FUNCTION_DECLARATION_REGEX, "mg");
 
@@ -185,7 +186,7 @@ function findKeywords(data: string, lineIndexes: LineInfo[]) {
     const args = parseArguments(argsStr, keywordRange);
 
     const keyword = Object.assign(
-      new UserKeyword(new Identifier(name, keywordRange)),
+      new UserKeyword(new NamespacedIdentifier(namespace, name, keywordRange)),
       { location: keywordRange }
     );
 

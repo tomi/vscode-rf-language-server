@@ -22,7 +22,6 @@ export function getFileSymbols(
   useFileNameAsContainer: boolean = false,
   query: string = ""
 ) {
-  const fileSymbols = [];
   const idMatches = _createIdMatcherFn(query);
   const createVariableSymbol =
     node => _createVariableSymbol(node, file, useFileNameAsContainer);

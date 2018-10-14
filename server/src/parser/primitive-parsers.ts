@@ -1,8 +1,6 @@
 import * as _ from "lodash";
 
 import {
-  DataTable,
-  DataRow,
   DataCell
 } from "./table-models";
 
@@ -129,28 +127,33 @@ export function parseVariableString(stringToParse: string): StringParseResult[] 
   return parts;
 }
 
-function getExplicitKeywordRegex() {
-  // Matches explicitly namespaced keywords.
+function getNamespaceAndName(value: string): [string, string] {
+  // Matches explicitly namespaced keyword calls
   // For example:
-  // BuiltIn.Run Keyword              --> ["BuiltIn.Run Keyword",              "BuiltIn",             "Run Keyword"]
-  // com.company.Library.Some Keyword --> ["com.company.Library.Some Keyword", "com.company.Library", "Some Keyword"]
+  // BuiltIn.Run Keyword              --> ["BuiltIn",             "Run Keyword"]
+  // com.company.Library.Some Keyword --> ["com.company.Library", "Some Keyword"]
   // See http://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#handling-keywords-with-same-names
-  return /^(?:(.+)\.)(.+)$/;
+  const indexOfLastDot = value.lastIndexOf(".");
+
+  return [value.slice(0, indexOfLastDot), value.slice(indexOfLastDot + 1)];
 }
 
 export function parseIdentifier(cell: DataCell): Identifier {
-  if (!cell.content.includes(".")) {
-    return new Identifier(cell.content, cell.location);
-  }
+  return new Identifier(cell.content, cell.location);
+}
 
-  const regex = getExplicitKeywordRegex();
-  const match = cell.content.match(regex);
-  if (!match) {
-    return new Identifier(cell.content, cell.location);
-  }
+export function parseNamespacedIdentifier(cell: DataCell): NamespacedIdentifier {
+  const [namespace, keyword] = getNamespaceAndName(cell.content);
 
-  const [ , namespace, keyword ] = match;
   return new NamespacedIdentifier(namespace, keyword, cell.location);
+}
+
+export function parseNamespacedOrNormalIdentifier(cell: DataCell): Identifier | NamespacedIdentifier {
+  if (cell.content.includes(".")) {
+    return parseNamespacedIdentifier(cell);
+  } else {
+    return parseIdentifier(cell);
+  }
 }
 
 export function parseValueExpression(cell: DataCell): ValueExpression {
@@ -184,7 +187,7 @@ export function parseCallExpression(cells: DataCell[]): CallExpression {
   const firstCell = _.first(cells);
   const lastCell = _.last(cells);
 
-  const callee = parseIdentifier(firstCell);
+  const callee = parseNamespacedOrNormalIdentifier(firstCell);
   const args = _.drop(cells, 1).map(parseValueExpression);
 
   return new CallExpression(callee, args, {

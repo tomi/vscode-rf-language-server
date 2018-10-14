@@ -8,6 +8,9 @@ const robotParser = new RobotParser();
 
 export class RobotFile extends WorkspaceFile {
     constructor(
+        // The namespace for this file is based on the filename.
+        namespace: string,
+
         // Absolute path of the file in the file system
         filePath: string,
 
@@ -20,7 +23,7 @@ export class RobotFile extends WorkspaceFile {
         // Tables read from the robot file
         public tables: DataTable[]
     ) {
-        super(filePath, relativePath, fileAst);
+        super(namespace, filePath, relativePath, fileAst);
     }
 }
 
@@ -47,5 +50,5 @@ export function createRobotFile(
 
   const ast = robotParser.parseFile(tables, namespace);
 
-  return new RobotFile(absolutePath, relativePath, ast, tables);
+  return new RobotFile(namespace, absolutePath, relativePath, ast, tables);
 }

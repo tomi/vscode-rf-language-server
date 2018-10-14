@@ -14,20 +14,19 @@ import {
 
 import {
   location,
-  table,
-  row,
 } from "./test-helper";
 
 const parser = new FileParser();
+const NAMESPACE = "";
 
 function parseAndAssert(stringToParse: string, expected: any) {
-  const actual = parser.parseFile(stringToParse);
+  const actual = parser.parseFile(stringToParse, NAMESPACE);
 
   chai.assert.deepEqual(actual, expected);
 }
 
 function shouldRecogniseTable(tableDef, tableProperty) {
-  const parsed = parser.parseFile(tableDef);
+  const parsed = parser.parseFile(tableDef, NAMESPACE);
 
   chai.assert.isObject(parsed[tableProperty]);
 }
@@ -46,7 +45,7 @@ describe("RF Parser", () => {
 
     function settingsTableTest(row: string) {
       const tableDefinition = `*Settings\n${ row }`;
-      const parsed = parser.parseFile(tableDefinition);
+      const parsed = parser.parseFile(tableDefinition, NAMESPACE);
 
       chai.assert.isObject(parsed);
       chai.assert.isObject(parsed.settingsTable);

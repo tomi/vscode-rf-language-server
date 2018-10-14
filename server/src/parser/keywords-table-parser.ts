@@ -28,8 +28,8 @@ const keywordSettings = new Set([
   "[Teardown]", "[Tags]", "[Timeout]"
 ]);
 
-export function parseKeywordsTable(dataTable: DataTable): KeywordsTable {
-  const keywordsTable = new KeywordsTable(dataTable.location);
+export function parseKeywordsTable(dataTable: DataTable, namespace: string): KeywordsTable {
+  const keywordsTable = new KeywordsTable(namespace, dataTable.location);
   let currentKeyword: UserKeyword;
 
   const iterator = new TableRowIterator(dataTable);

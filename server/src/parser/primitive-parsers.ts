@@ -12,6 +12,7 @@ import {
 
 import {
   Identifier,
+  NamespacedIdentifier,
   Literal,
   ValueExpression,
   CallExpression,
@@ -128,8 +129,28 @@ export function parseVariableString(stringToParse: string): StringParseResult[] 
   return parts;
 }
 
+function getExplicitKeywordRegex() {
+  // Matches explicitly namespaced keywords.
+  // For example:
+  // BuiltIn.Run Keyword              --> ["BuiltIn.Run Keyword",              "BuiltIn",             "Run Keyword"]
+  // com.company.Library.Some Keyword --> ["com.company.Library.Some Keyword", "com.company.Library", "Some Keyword"]
+  // See http://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#handling-keywords-with-same-names
+  return /^(?:(.+)\.)(.+)$/;
+}
+
 export function parseIdentifier(cell: DataCell): Identifier {
-  return new Identifier(cell.content, cell.location);
+  if (!cell.content.includes(".")) {
+    return new Identifier(cell.content, cell.location);
+  }
+
+  const regex = getExplicitKeywordRegex();
+  const match = cell.content.match(regex);
+  if (!match) {
+    return new Identifier(cell.content, cell.location);
+  }
+
+  const [ , namespace, keyword ] = match;
+  return new NamespacedIdentifier(namespace, keyword, cell.location);
 }
 
 export function parseValueExpression(cell: DataCell): ValueExpression {

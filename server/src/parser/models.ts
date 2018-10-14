@@ -5,6 +5,9 @@ import {
   SourceLocation,
   Position
 } from "./table-models";
+import {
+  isNamespacedIdentifier
+} from "../intellisense/type-guards";
 
 export interface Node {
   type: string;
@@ -24,6 +27,29 @@ export class Identifier implements Node {
     public name: string,
     public location: SourceLocation
   ) { }
+}
+
+export class NamespacedIdentifier extends Identifier {
+  public type = "NamespacedIdentifier";
+
+  public fullName: string;
+
+  public get namespace(): string { return this._namespace; }
+  public set namespace(value: string) {
+    this._namespace = value;
+    this.fullName = !!this.namespace ? this.namespace + "." + this.name : this.name;
+  }
+
+  private _namespace: string | undefined;
+
+  constructor(
+    namespace: string | undefined,
+    public name: string,
+    public location: SourceLocation
+  ) {
+    super(name, location);
+    this.namespace = namespace;
+  }
 }
 
 export type VariableKind = "Scalar" | "List" | "Dictionary";
@@ -449,6 +475,7 @@ export class Step implements Node {
 export class UserKeyword implements FunctionDeclaration {
   public type = "UserKeyword";
   public steps: Step[] = [];
+  public id: NamespacedIdentifier;
   public arguments: Arguments;
   public return: Return;
   public documentation: Documentation;
@@ -458,13 +485,18 @@ export class UserKeyword implements FunctionDeclaration {
   public location: SourceLocation;
 
   constructor(
-    public id: Identifier,
+    id: Identifier,
     private startPosition?: Position
   ) {
     this.location = {
       start: startPosition,
       end: startPosition
     };
+    if (!isNamespacedIdentifier(id)) {
+      this.id = new NamespacedIdentifier(undefined, id.name, id.location);
+    } else {
+      this.id = id;
+    }
   }
 
   public addStep(step: Step) {
@@ -481,10 +513,12 @@ export class KeywordsTable implements Node {
   public keywords: UserKeyword[] = [];
 
   constructor(
+    public namespace: string,
     public location: SourceLocation
   ) { }
 
   public addKeyword(keyword: UserKeyword) {
+    keyword.id.namespace = this.namespace;
     this.keywords.push(keyword);
   }
 }

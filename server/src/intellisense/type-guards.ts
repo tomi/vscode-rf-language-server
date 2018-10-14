@@ -2,6 +2,7 @@ import {
   Node,
   Step,
   Identifier,
+  NamespacedIdentifier,
   Literal,
   TemplateLiteral,
   VariableExpression,
@@ -32,7 +33,11 @@ function isOfType(node: Node, typeName: string) {
 }
 
 export function isIdentifier(node: Node): node is Identifier {
-  return isOfType(node, "Identifier");
+  return isNamespacedIdentifier(node) || isOfType(node, "Identifier");
+}
+
+export function isNamespacedIdentifier(node: Node): node is NamespacedIdentifier {
+  return isOfType(node, "NamespacedIdentifier");
 }
 
 export function isVariableExpression(node: Node): node is VariableExpression {

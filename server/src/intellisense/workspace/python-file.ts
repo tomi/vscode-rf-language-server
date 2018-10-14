@@ -1,4 +1,5 @@
 import * as Trie from "node-ternary-search-trie";
+import * as path from "path";
 import { TestSuite } from "../../parser/models";
 import { DataTable } from "../../parser/table-models";
 import WorkspaceFile from "./workspace-file";
@@ -35,7 +36,8 @@ export function createPythonFile(
   absolutePath: string,
   relativePath: string,
 ): PythonFile {
-  const ast = pythonParser.parseFile(contents);
+  const namespace = path.parse(absolutePath).name;
+  const ast = pythonParser.parseFile(contents, namespace);
 
   return new PythonFile(absolutePath, relativePath, ast);
 }

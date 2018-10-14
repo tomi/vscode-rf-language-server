@@ -23,14 +23,14 @@ export class PythonParser {
    * @param data python file contents
    * @param filePath
    */
-  public parseFile(data: string): TestSuite {
+  public parseFile(data: string, namespace: string): TestSuite {
     const lineIndexes = getLineIndexes(data);
     const suiteRange = createRange(_.first(lineIndexes), _.last(lineIndexes));
 
     const keywords = findKeywords(data, lineIndexes);
 
     return Object.assign(new TestSuite(suiteRange), {
-      keywordsTable: Object.assign(new KeywordsTable(suiteRange), {
+      keywordsTable: Object.assign(new KeywordsTable(namespace, suiteRange), {
         keywords
       })
     });

@@ -3,7 +3,7 @@ import WorkspaceFile from "./workspace/workspace-file";
 import { nodeLocationToRange } from "../utils/position";
 import { SymbolKind } from "vscode-languageserver";
 import { formatVariable } from "./formatters";
-import { isVariableDeclaration } from "./type-guards";
+import { isVariableDeclaration, isUserKeyword } from "./type-guards";
 
 import {
   VariableDeclaration,
@@ -78,6 +78,14 @@ function _createIdMatcherFn(query: string) {
   const lowerQuery = query.toLowerCase();
 
   return (node: VariableDeclaration | UserKeyword | TestCase) => {
+    if (query.includes(".") && isUserKeyword(node)) {
+      // Query must be considered an explicit keyword to match this node.
+      // Only keywords with namespaces shall match.
+      if (node.id.namespace) {
+        return node.id.fullName.toLowerCase().includes(lowerQuery);
+      }
+    }
+
     const toMatch = isVariableDeclaration(node) ?
       formatVariable(node) : node.id.name;
 

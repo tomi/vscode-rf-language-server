@@ -24,7 +24,8 @@ import {
   isCallExpression,
   isVariableDeclaration,
   isFunctionDeclaration,
-  isUserKeyword
+  isUserKeyword,
+  isNamespacedIdentifier
 } from "./type-guards";
 
 import { Range } from "./models";
@@ -119,8 +120,6 @@ export function findKeywordDefinition(
   keywordLocation: FileNode,
   workspaceTree: Workspace
 ): KeywordDefinition {
-  const identifier = callExpression.callee;
-
   let foundDefinition = findKeywordDefinitionFromFile(callExpression, keywordLocation.file.ast);
   if (foundDefinition) {
     return {
@@ -128,6 +127,23 @@ export function findKeywordDefinition(
       uri:   keywordLocation.file.uri,
       range: nodeLocationToRange(foundDefinition)
     };
+  }
+
+  const identifier = callExpression.callee;
+  if (isNamespacedIdentifier(identifier)) {
+    const file = workspaceTree.getFileByNamespace(identifier.namespace);
+    logger.info("Found matching file by namespace");
+    if (!!file) {
+      foundDefinition = findKeywordDefinitionFromFile(callExpression, file.ast);
+      logger.info("Found matching keyword by namespace");
+      if (foundDefinition) {
+        return {
+          node:  foundDefinition,
+          uri:   file.uri,
+          range: nodeLocationToRange(foundDefinition)
+        };
+      }
+    }
   }
 
   // TODO: iterate in import order

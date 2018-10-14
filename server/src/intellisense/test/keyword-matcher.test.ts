@@ -5,6 +5,7 @@ import { identifierMatchesKeyword } from "../keyword-matcher";
 import { Location } from "../../utils/position";
 import {
   Identifier,
+  NamespacedIdentifier,
   UserKeyword
 } from "../../parser/models";
 
@@ -27,7 +28,9 @@ describe("Keyword matcher", () => {
     }
 
     const identifier = name => new Identifier(name, dummyLoc);
-    const keyword    = name => new UserKeyword(new Identifier(name, dummyLoc), dummyPos);
+    const keyword    = name => new UserKeyword(identifier(name), dummyPos);
+    const nsIdentifier = (namespace, name) => new NamespacedIdentifier(namespace, name, dummyLoc);
+    const nsKeyword    = (namespace, name) => new UserKeyword(nsIdentifier(namespace, name), dummyPos);
 
     it("should match identifier to user keyword with same name", () => {
       shouldMatch(
@@ -105,6 +108,44 @@ describe("Keyword matcher", () => {
       createMatchTest("Keyword ^ $ . * + ? ( ) [ ] { } |");
       createMatchTest("Keyword[a-z|c?d]");
     });
-  });
 
+    describe("with explicit keywords", () => {
+      it("should match exactly", () => {
+        shouldMatch(
+          nsIdentifier("MyLibrary", "Keyword"),
+          nsKeyword("MyLibrary", "Keyword")
+        );
+      });
+
+      it("should match case-insensitively", () => {
+        shouldMatch(
+          nsIdentifier("mylibrary", "Keyword"),
+          nsKeyword("MyLibrary", "Keyword")
+          );
+      });
+
+      describe("should not match if namespace includes the special character", () => {
+        it("<space>", () =>
+          shouldNotMatch(nsIdentifier("My Library", "Keyword"), nsKeyword("MyLibrary", "Keyword"))
+        );
+        it("'.'", () =>
+          shouldNotMatch(nsIdentifier("My.Library", "Keyword"), nsKeyword("MyLibrary", "Keyword"))
+        );
+        it("'_'", () =>
+          shouldNotMatch(nsIdentifier("My_Library", "Keyword"), nsKeyword("MyLibrary", "Keyword"))
+        );
+      });
+
+      it("should match any explicit keyword when not fully specified", () => {
+        shouldMatch(
+          identifier("The Keyword"),
+          nsKeyword("MyLibrary", "The Keyword")
+        );
+        shouldMatch(
+          identifier("The Keyword"),
+          nsKeyword("com.company.Library", "The Keyword")
+        );
+      });
+    });
+  });
 });

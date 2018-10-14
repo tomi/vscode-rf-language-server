@@ -21,7 +21,7 @@ export class FileParser {
     return tableReader.read(data);
   }
 
-  public parseFile(data: string | DataTable[], namespace?: string) {
+  public parseFile(data: string | DataTable[], namespace: string) {
     let fileTables: DataTable[];
     if (typeof data === "string") {
       fileTables = this.readTables(data);

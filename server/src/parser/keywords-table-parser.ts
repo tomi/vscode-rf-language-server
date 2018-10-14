@@ -8,11 +8,10 @@ import {
 } from "./table-models";
 
 import {
-  CallExpression,
   KeywordsTable,
   UserKeyword,
-  Step,
-  SettingDeclaration
+  SettingDeclaration,
+  NamespacedIdentifier
 } from "./models";
 
 import * as SettingParser from "./setting-parser";
@@ -29,7 +28,7 @@ const keywordSettings = new Set([
 ]);
 
 export function parseKeywordsTable(dataTable: DataTable, namespace: string): KeywordsTable {
-  const keywordsTable = new KeywordsTable(namespace, dataTable.location);
+  const keywordsTable = new KeywordsTable(dataTable.location);
   let currentKeyword: UserKeyword;
 
   const iterator = new TableRowIterator(dataTable);
@@ -41,8 +40,13 @@ export function parseKeywordsTable(dataTable: DataTable, namespace: string): Key
 
     if (startsKeyword(row)) {
       const identifier = parseIdentifier(row.first());
+      const namespacedIdentifier = new NamespacedIdentifier(
+        namespace,
+        identifier.name,
+        identifier.location
+      );
 
-      currentKeyword = new UserKeyword(identifier, row.location.start);
+      currentKeyword = new UserKeyword(namespacedIdentifier, row.location.start);
       keywordsTable.addKeyword(currentKeyword);
     } else if (currentKeyword) {
       const firstRowDataCells = row.getCellsByRange(1);

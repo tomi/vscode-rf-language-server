@@ -2,7 +2,6 @@ import * as _ from "lodash";
 import * as chai from "chai";
 
 import { identifierMatchesKeyword } from "../keyword-matcher";
-import { Location } from "../../utils/position";
 import {
   Identifier,
   NamespacedIdentifier,
@@ -28,7 +27,7 @@ describe("Keyword matcher", () => {
     }
 
     const identifier = name => new Identifier(name, dummyLoc);
-    const keyword    = name => new UserKeyword(identifier(name), dummyPos);
+    const keyword    = name => new UserKeyword(nsIdentifier("", name), dummyPos);
     const nsIdentifier = (namespace, name) => new NamespacedIdentifier(namespace, name, dummyLoc);
     const nsKeyword    = (namespace, name) => new UserKeyword(nsIdentifier(namespace, name), dummyPos);
 

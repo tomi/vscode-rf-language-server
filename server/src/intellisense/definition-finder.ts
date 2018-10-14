@@ -2,19 +2,15 @@ import * as _ from "lodash";
 import Workspace from "./workspace/workspace";
 import {
   Node,
-  Identifier,
   CallExpression,
   VariableExpression,
   VariableDeclaration,
-  ScalarDeclaration,
-  ListDeclaration,
-  DictionaryDeclaration,
   UserKeyword,
   TestSuite
 } from "../parser/models";
 import { ConsoleLogger } from "../logger";
 import { traverse, VisitorOption } from "../traverse/traverse";
-import { Location, Position } from "../utils/position";
+import { Location } from "../utils/position";
 import { identifierMatchesKeyword } from "./keyword-matcher";
 import { FileNode, findNodeInPos } from "./node-locator";
 import { nodeLocationToRange } from "../utils/position";
@@ -132,17 +128,23 @@ export function findKeywordDefinition(
   const identifier = callExpression.callee;
   if (isNamespacedIdentifier(identifier)) {
     const file = workspaceTree.getFileByNamespace(identifier.namespace);
-    logger.info("Found matching file by namespace");
     if (!!file) {
+      logger.info(`Found matching file by namespace ${identifier.namespace}`);
+
       foundDefinition = findKeywordDefinitionFromFile(callExpression, file.ast);
-      logger.info("Found matching keyword by namespace");
       if (foundDefinition) {
+        logger.info("Found matching keyword by namespace");
+
         return {
           node:  foundDefinition,
           uri:   file.uri,
           range: nodeLocationToRange(foundDefinition)
         };
+      } else {
+        logger.info(`No keyword found from file`);
       }
+    } else {
+      logger.info(`No matching file found for namespace ${identifier.namespace}`);
     }
   }
 

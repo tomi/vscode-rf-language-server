@@ -4,6 +4,7 @@
 * Better completion provider
 * Hover provider
 * Support for built-in libraries
+* Show all matches with Go To definition when there are multiple keywords with same name
 
 # Parser
 * Accessing list and dictionary variables

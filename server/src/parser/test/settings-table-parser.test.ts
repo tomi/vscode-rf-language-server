@@ -20,13 +20,12 @@ import {
 
 import {
   location,
-  table,
-  row,
-  cell
 } from "./test-helper";
 
+const NAMESPACE = "";
+
 function parseAndAssert(tableDefinition, expected) {
-  const actual = parser.parseFile(tableDefinition).settingsTable;
+  const actual = parser.parseFile(tableDefinition, NAMESPACE).settingsTable;
 
   chai.assert.deepEqual(actual, expected);
 }

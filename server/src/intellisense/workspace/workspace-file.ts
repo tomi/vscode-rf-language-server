@@ -1,5 +1,4 @@
 import * as _ from "lodash";
-import * as path from "path";
 import { TestSuite } from "../../parser/models";
 import {
   Symbols,
@@ -11,9 +10,6 @@ import {
 import Uri from "vscode-uri";
 
 abstract class WorkspaceFile implements Symbols {
-  // The namespace for this file is based on the filename.
-  public namespace: string;
-
   // All the variables in the file
   public variables: VariableContainer;
 
@@ -21,6 +17,9 @@ abstract class WorkspaceFile implements Symbols {
   public keywords: KeywordContainer;
 
   constructor(
+    // The namespace for this file is based on the filename.
+    public namespace: string,
+
     // Absolute path of the file in the file system
     public filePath: string,
 
@@ -34,7 +33,6 @@ abstract class WorkspaceFile implements Symbols {
 
     this.keywords  = keywords;
     this.variables = variables;
-    this.namespace = path.parse(this.filePath).name;
   }
 
   public get uri() {

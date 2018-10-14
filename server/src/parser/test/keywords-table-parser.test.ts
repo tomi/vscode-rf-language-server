@@ -20,21 +20,19 @@ import {
 } from "../models";
 
 import {
-  position,
   location,
-  table,
-  row,
-  cell
 } from "./test-helper";
 
+const NAMESPACE = "";
+
 function parseAndAssert(tableDefinition: string, expected: KeywordsTable) {
-  const actual = parser.parseFile(tableDefinition).keywordsTable;
+  const actual = parser.parseFile(tableDefinition, NAMESPACE).keywordsTable;
 
   chai.assert.deepEqual(actual, expected);
 }
 
 function keywordsTable(location, keywords) {
-  return Object.assign(new KeywordsTable(undefined, location), { keywords });
+  return Object.assign(new KeywordsTable(location), { keywords });
 }
 
 function keyword(
@@ -44,7 +42,7 @@ function keyword(
   settings: any = {}
 ) {
   return Object.assign(
-    new UserKeyword(name, location.start),
+    new UserKeyword(new NamespacedIdentifier(NAMESPACE, name.name, name.location), location.start),
     { location },
     { steps },
     settings

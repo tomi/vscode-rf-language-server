@@ -1,13 +1,9 @@
 import * as _ from "lodash";
 
 import {
-  // SourceBlock,
   SourceLocation,
   Position
 } from "./table-models";
-import {
-  isNamespacedIdentifier
-} from "../intellisense/type-guards";
 
 export interface Node {
   type: string;
@@ -32,23 +28,16 @@ export class Identifier implements Node {
 export class NamespacedIdentifier extends Identifier {
   public type = "NamespacedIdentifier";
 
-  public fullName: string;
-
-  public get namespace(): string { return this._namespace; }
-  public set namespace(value: string) {
-    this._namespace = value;
-    this.fullName = !!this.namespace ? this.namespace + "." + this.name : this.name;
+  public get fullName(): string {
+    return `${this.namespace}.${this.name}`;
   }
 
-  private _namespace: string | undefined;
-
   constructor(
-    namespace: string | undefined,
+    public namespace: string,
     public name: string,
     public location: SourceLocation
   ) {
     super(name, location);
-    this.namespace = namespace;
   }
 }
 
@@ -475,7 +464,6 @@ export class Step implements Node {
 export class UserKeyword implements FunctionDeclaration {
   public type = "UserKeyword";
   public steps: Step[] = [];
-  public id: NamespacedIdentifier;
   public arguments: Arguments;
   public return: Return;
   public documentation: Documentation;
@@ -485,18 +473,13 @@ export class UserKeyword implements FunctionDeclaration {
   public location: SourceLocation;
 
   constructor(
-    id: Identifier,
-    private startPosition?: Position
+    public id: NamespacedIdentifier,
+    startPosition?: Position
   ) {
     this.location = {
       start: startPosition,
       end: startPosition
     };
-    if (!isNamespacedIdentifier(id)) {
-      this.id = new NamespacedIdentifier(undefined, id.name, id.location);
-    } else {
-      this.id = id;
-    }
   }
 
   public addStep(step: Step) {
@@ -513,12 +496,10 @@ export class KeywordsTable implements Node {
   public keywords: UserKeyword[] = [];
 
   constructor(
-    public namespace: string,
     public location: SourceLocation
   ) { }
 
   public addKeyword(keyword: UserKeyword) {
-    keyword.id.namespace = this.namespace;
     this.keywords.push(keyword);
   }
 }

@@ -2,7 +2,6 @@ import * as _ from "lodash";
 import {
   UserKeyword,
   Identifier,
-  NamespacedIdentifier
 } from "../parser/models";
 
 import { parseVariableString } from "../parser/primitive-parsers";

@@ -1,5 +1,14 @@
 # Change Log
 
+## Version 2.1.1
+* Release date: October 14, 2018
+
+### What's new in this version
+* We have an icon now. Big thanks to [@tumit](https://github.com/tumit) for providing this!
+* Support for explicitly specified keywords. Huge thanks to [@edchapel](https://github.com/edchapel) for implementing this!
+  * The extension now understands from which resource file the keyword is being called, if the keyword's full name is specified. See [Robot Framework documentation](http://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#handling-keywords-with-same-names) for details.
+
+
 ## Version 2.0.1
 * Release date: July 9, 2018
 

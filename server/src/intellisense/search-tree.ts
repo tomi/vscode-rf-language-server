@@ -158,7 +158,7 @@ export class VariableContainer extends SymbolContainer<VariableDeclaration> {
       default:           return null;
     }
   }
-};
+}
 
 export interface Symbols {
   keywords: KeywordContainer;

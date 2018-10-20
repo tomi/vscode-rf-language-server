@@ -42,6 +42,4 @@ abstract class WorkspaceFile implements Symbols {
 
 export default WorkspaceFile;
 
-export interface WorkspaceFileParserFn {
-  (contents: string, absolutePath: string, relativePath: string): WorkspaceFile;
-}
+export type WorkspaceFileParserFn = (contents: string, absolutePath: string, relativePath: string) => WorkspaceFile;

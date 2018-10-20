@@ -127,7 +127,7 @@ const NodeSettings = {
 export interface Visitor {
   enter?: (node: Node, parent: Node) => any;
   leave?: (node: Node, parent: Node) => any;
-};
+}
 
 function visit(node: Node, parent: Node, visitor: Visitor) {
   if (visitor.enter) {

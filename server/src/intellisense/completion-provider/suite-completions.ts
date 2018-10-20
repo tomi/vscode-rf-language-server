@@ -41,8 +41,3 @@ function _getMissingTables(ast: TestSuite) {
 
   return tables;
 }
-
-function removeFromBeginning(toCheck: string, partToRemove: string) {
-  const regex = new RegExp(`^${_.escapeRegExp(partToRemove)}`, "i");
-  return toCheck.replace(regex, "");
-}

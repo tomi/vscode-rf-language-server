@@ -1,4 +1,4 @@
-import { window, workspace, Disposable, ExtensionContext } from "vscode";
+import { window, workspace } from "vscode";
 
 import { Config } from "./utils/config";
 import RFServerClient from "./rf-server-client";
@@ -42,7 +42,7 @@ export default class CommandHandler {
   public reportBug() {
     _openLinkInBrowser("https://github.com/tomi/vscode-rf-language-server/issues");
   }
-};
+}
 
 function _openLinkInBrowser(url: string) {
   let openCommand: string = "";

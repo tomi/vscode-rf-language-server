@@ -11,11 +11,6 @@ export function formatVariable(variable: VariableDeclaration) {
   return `${ identifier }{${ name }}`;
 }
 
-function _removeFromBeginning(toCheck: string, partToRemove: string) {
-  const regex = new RegExp(`^${_.escapeRegExp(partToRemove)}`, "i");
-  return toCheck.replace(regex, "");
-}
-
 function _variableKindToIdentifier(kind: VariableKind) {
   switch (kind) {
     case "Scalar":     return "$";

@@ -6,15 +6,11 @@ import { DataCell } from "../table-models";
 
 import {
   Identifier,
-  ScalarDeclaration,
-  TemplateElement,
-  TemplateLiteral,
-  Step
 } from "../models";
 
-import { location } from "./test-helper";
+import { createLocation } from "./test-helper";
 
-const DUMMY_LOC = location(0, 0, 0, 0);
+const DUMMY_LOC = createLocation(0, 0, 0, 0);
 
 function assertIsVariable(cellData: string) {
   const cell = new DataCell(cellData, DUMMY_LOC);

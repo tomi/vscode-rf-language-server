@@ -4,14 +4,11 @@ import * as chai from "chai";
 import { TableReader } from "../table-reader";
 
 import {
-  SourceLocation,
-  DataTable,
-  DataRow,
   DataCell,
 } from "../table-models";
 
 import {
-  location,
+  createLocation,
   table,
   row,
 } from "./test-helper";
@@ -19,8 +16,8 @@ import {
 const reader = new TableReader();
 
 function header(text) {
-  return row(location(0, 0, 0, text.length), [
-    new DataCell(text, location(0, 0, 0, text.length))
+  return row(createLocation(0, 0, 0, text.length), [
+    new DataCell(text, createLocation(0, 0, 0, text.length))
   ]);
 }
 
@@ -64,9 +61,9 @@ describe("TableReader", () => {
       table("Table", {
         header: header("*Table"),
         rows: [
-          row(location(1, 0, 1, 9), [
-            new DataCell("", location(1, 0, 1, 0)),
-            new DataCell("cell1", location(1, 4, 1, 9))
+          row(createLocation(1, 0, 1, 9), [
+            new DataCell("", createLocation(1, 0, 1, 0)),
+            new DataCell("cell1", createLocation(1, 4, 1, 9))
           ])
         ]
       })
@@ -84,9 +81,9 @@ describe("TableReader", () => {
       table("Table", {
         header: header("*** Table"),
         rows: [
-          row(location(1, 0, 1, 14), [
-            new DataCell("cell1", location(1, 0, 1, 5)),
-            new DataCell("cell2", location(1, 9, 1, 14))
+          row(createLocation(1, 0, 1, 14), [
+            new DataCell("cell1", createLocation(1, 0, 1, 5)),
+            new DataCell("cell2", createLocation(1, 9, 1, 14))
           ])
         ]
       })
@@ -104,8 +101,8 @@ describe("TableReader", () => {
       table("Table", {
         header: header("*** Table"),
         rows: [
-          row(location(1, 0, 1, 9), [
-            new DataCell("cell1", location(1, 0, 1, 5)),
+          row(createLocation(1, 0, 1, 9), [
+            new DataCell("cell1", createLocation(1, 0, 1, 5)),
           ])
         ]
       })
@@ -123,12 +120,12 @@ describe("TableReader", () => {
       table("Table", {
         header: header("*** Table "),
         rows: [
-          row(location(1, 0, 1, 0), [
-            new DataCell("", location(1, 0, 1, 0))
+          row(createLocation(1, 0, 1, 0), [
+            new DataCell("", createLocation(1, 0, 1, 0))
           ]),
-          row(location(2, 0, 2, 14), [
-            new DataCell("cell1", location(2, 0, 2, 5)),
-            new DataCell("cell2", location(2, 9, 2, 14))
+          row(createLocation(2, 0, 2, 14), [
+            new DataCell("cell1", createLocation(2, 0, 2, 5)),
+            new DataCell("cell2", createLocation(2, 9, 2, 14))
           ]),
         ]
       })

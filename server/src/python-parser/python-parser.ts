@@ -1,5 +1,4 @@
 import * as _ from "lodash";
-import { ConsoleLogger } from "../logger";
 
 import {
   Identifier,
@@ -11,8 +10,6 @@ import {
   TestSuite,
   NamespacedIdentifier
 } from "../parser/models";
-
-const logger = ConsoleLogger;
 
 /**
  * Parser for python files
@@ -176,7 +173,7 @@ function findKeywords(namespace: string, data: string, lineIndexes: LineInfo[]) 
     }
 
     let startIdx = result.index;
-    let endIdx   = startIdx + fullMatch.length;
+    const endIdx = startIdx + fullMatch.length;
     if (startsWithWs(fullMatch)) {
       startIdx++;
     }
@@ -214,7 +211,7 @@ function parseArguments(args: string, range) {
     .map(arg => arg.trim())
     .filter((arg, idx) => !_.isEmpty(arg) && !isSelfArg(arg, idx))
     .map(argumentName => {
-      let value: string = undefined;
+      let value: string;
 
       if (argumentName.includes("=")) {
         const nameAndValue = argumentName.split("=");

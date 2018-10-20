@@ -6,30 +6,20 @@ import { isSetting, parseSetting } from "../setting-parser";
 import { DataCell } from "../table-models";
 
 import {
-  KeywordsTable,
-  UserKeyword,
-  Step,
   CallExpression,
   Identifier,
   Literal,
   VariableExpression,
   ScalarDeclaration,
   ListDeclaration,
-  VariableKind,
   Documentation,
   Arguments,
   Return,
   Teardown,
-  Tags,
-  Timeout
 } from "../models";
 
 import {
-  position,
-  location,
-  table,
-  row,
-  cell
+  createLocation,
 } from "./test-helper";
 
 import {
@@ -37,8 +27,8 @@ import {
 } from "../position-helper";
 
 describe("Setting parser", () => {
-  const dummyLoc = location(0, 0, 0, 0);
-  const FIRST_CELL_LOC = location(0, 5, 0, 10);
+  const dummyLoc = createLocation(0, 0, 0, 0);
+  const FIRST_CELL_LOC = createLocation(0, 5, 0, 10);
 
   const shouldReturnTrue = cellValue => {
     const cell = new DataCell(cellValue, dummyLoc);
@@ -54,7 +44,7 @@ describe("Setting parser", () => {
 
     it("should parse regular", () => {
       const docValue = "This is documentation";
-      const docLoc = location(0, 20, 0, 30);
+      const docLoc = createLocation(0, 20, 0, 30);
 
       const nameCell = new DataCell("[Documentation]", FIRST_CELL_LOC);
       const dataCell = new DataCell(docValue, docLoc);
@@ -62,7 +52,7 @@ describe("Setting parser", () => {
       const expected = new Documentation(
         new Identifier("[Documentation]", FIRST_CELL_LOC),
         new Literal(docValue, docLoc),
-        location(
+        createLocation(
           FIRST_CELL_LOC.start.line,
           FIRST_CELL_LOC.start.column,
           dataCell.location.end.line,
@@ -97,9 +87,9 @@ describe("Setting parser", () => {
 
     it("should parse regular", () => {
       const arg1Val = "${arg1}";
-      const arg1Loc = location(0, 20, 0, 27);
+      const arg1Loc = createLocation(0, 20, 0, 27);
       const arg2Val = "@{arg2}";
-      const arg2Loc = location(0, 30, 0, 37);
+      const arg2Loc = createLocation(0, 30, 0, 37);
 
       const nameCell = new DataCell("[Arguments]", FIRST_CELL_LOC);
       const arg1Cell = new DataCell(arg1Val, arg1Loc);
@@ -109,17 +99,17 @@ describe("Setting parser", () => {
         new Identifier("[Arguments]", FIRST_CELL_LOC),
         [
           new ScalarDeclaration(
-            new Identifier("arg1", location(0, 20, 0, 27)),
+            new Identifier("arg1", createLocation(0, 20, 0, 27)),
             undefined,
             arg1Loc
           ),
           new ListDeclaration(
-            new Identifier("arg2", location(0, 30, 0, 37)),
+            new Identifier("arg2", createLocation(0, 30, 0, 37)),
             [],
             arg2Loc
           )
         ],
-        location(
+        createLocation(
           FIRST_CELL_LOC.start.line,
           FIRST_CELL_LOC.start.column,
           arg2Cell.location.end.line,
@@ -134,9 +124,9 @@ describe("Setting parser", () => {
 
     it("should parse arguments with default values", () => {
       const arg1Val = "${arg1} = default value";
-      const arg1Loc = location(0, 20, 0, 27);
+      const arg1Loc = createLocation(0, 20, 0, 27);
       const arg2Val = "@{arg2}=${DEFAULT VALUE}";
-      const arg2Loc = location(0, 30, 0, 37);
+      const arg2Loc = createLocation(0, 30, 0, 37);
 
       const nameCell = new DataCell("[Arguments]", FIRST_CELL_LOC);
       const arg1Cell = new DataCell(arg1Val, arg1Loc);
@@ -146,17 +136,17 @@ describe("Setting parser", () => {
         new Identifier("[Arguments]", FIRST_CELL_LOC),
         [
           new ScalarDeclaration(
-            new Identifier("arg1", location(0, 20, 0, 27)),
+            new Identifier("arg1", createLocation(0, 20, 0, 27)),
             undefined,
             arg1Loc
           ),
           new ListDeclaration(
-            new Identifier("arg2", location(0, 30, 0, 37)),
+            new Identifier("arg2", createLocation(0, 30, 0, 37)),
             [],
             arg2Loc
           )
         ],
-        location(
+        createLocation(
           FIRST_CELL_LOC.start.line,
           FIRST_CELL_LOC.start.column,
           arg2Cell.location.end.line,
@@ -185,9 +175,9 @@ describe("Setting parser", () => {
 
     it("should ignore invalid values", () => {
       const arg1Val = "not an argument";
-      const arg1Loc = location(0, 20, 0, 27);
+      const arg1Loc = createLocation(0, 20, 0, 27);
       const arg2Val = "another not argument";
-      const arg2Loc = location(0, 30, 0, 37);
+      const arg2Loc = createLocation(0, 30, 0, 37);
 
       const nameCell = new DataCell("[Arguments]", FIRST_CELL_LOC);
       const arg1Cell = new DataCell(arg1Val, arg1Loc);
@@ -212,7 +202,7 @@ describe("Setting parser", () => {
 
     it("should parse single variable", () => {
       const varValue = "${VARIABLE}";
-      const varLoc = location(0, 20, 0, 31);
+      const varLoc = createLocation(0, 20, 0, 31);
 
       const nameCell = new DataCell("[Return]", FIRST_CELL_LOC);
       const dataCell = new DataCell(varValue, varLoc);
@@ -221,12 +211,12 @@ describe("Setting parser", () => {
         new Identifier("[Return]", FIRST_CELL_LOC),
         [
           new VariableExpression(
-            new Identifier("VARIABLE", location(0, 22, 0, 30)),
+            new Identifier("VARIABLE", createLocation(0, 22, 0, 30)),
             "Scalar",
             varLoc
           )
         ],
-        location(
+        createLocation(
           FIRST_CELL_LOC.start.line,
           FIRST_CELL_LOC.start.column,
           varLoc.end.line,
@@ -247,7 +237,7 @@ describe("Setting parser", () => {
 
     it("should parse keyword without params", () => {
       const varValue = "Keyword To Call";
-      const varLoc = location(0, 20, 0, 30);
+      const varLoc = createLocation(0, 20, 0, 30);
 
       const nameCell = new DataCell("[Teardown]", FIRST_CELL_LOC);
       const dataCell = new DataCell(varValue, varLoc);
@@ -259,7 +249,7 @@ describe("Setting parser", () => {
           [],
           varLoc
         ),
-        location(
+        createLocation(
           FIRST_CELL_LOC.start.line,
           FIRST_CELL_LOC.start.column,
           dataCell.location.end.line,
@@ -274,9 +264,9 @@ describe("Setting parser", () => {
 
     it("should parse keyword without params", () => {
       const varValue = "Keyword To Call";
-      const varLoc = location(0, 20, 0, 30);
+      const varLoc = createLocation(0, 20, 0, 30);
       const argValue = "Argument1";
-      const argLoc = location(0, 35, 0, 40);
+      const argLoc = createLocation(0, 35, 0, 40);
 
       const nameCell = new DataCell("[Teardown]", FIRST_CELL_LOC);
       const dataCell = new DataCell(varValue, varLoc);

@@ -52,4 +52,4 @@ function _createGlob(patterns: string[]) {
     default:
       return `{${patterns.join(",")}}`;
   }
-};
+}

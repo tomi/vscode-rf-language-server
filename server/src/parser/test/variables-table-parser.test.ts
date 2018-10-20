@@ -4,15 +4,13 @@ import * as chai from "chai";
 import { parseVariablesTable } from "../variables-table-parser";
 import {
   VariablesTable,
-  ScalarDeclaration,
-  ListDeclaration
 } from "../models";
 
 import {
-  location,
+  createLocation,
   table,
   row,
-  cell
+  createCell
 } from "./test-helper";
 
 function parseAndAssert(tableDefinition, expected) {
@@ -29,20 +27,20 @@ describe("Parsing Variables table", () => {
 
   it("should skip invalid data", () => {
     const tableDefinition = table("Variables", {
-      header: row(location(0, 0, 0, 10)),
+      header: row(createLocation(0, 0, 0, 10)),
       rows: [
-        row(location(1, 0, 1, 10), [
-          cell(location(1, 0, 1, 10), "not a variable"),
-          cell(location(1, 0, 1, 10), "cell2")
+        row(createLocation(1, 0, 1, 10), [
+          createCell(createLocation(1, 0, 1, 10), "not a variable"),
+          createCell(createLocation(1, 0, 1, 10), "cell2")
         ]),
-        row(location(2, 0, 2, 10), [
-          cell(location(2, 0, 2, 10), "!another invalid"),
-          cell(location(2, 0, 2, 10), "data")
+        row(createLocation(2, 0, 2, 10), [
+          createCell(createLocation(2, 0, 2, 10), "!another invalid"),
+          createCell(createLocation(2, 0, 2, 10), "data")
         ]),
       ]
     });
 
-    const expected = variablesTable(location(0, 0, 2, 10), []);
+    const expected = variablesTable(createLocation(0, 0, 2, 10), []);
 
     parseAndAssert(tableDefinition, expected);
   });

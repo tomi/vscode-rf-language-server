@@ -83,7 +83,7 @@ function getTemplateLiteral(parseResult: StringParseResult[], cell: DataCell): T
 
 export function parseVariableString(stringToParse: string): StringParseResult[] {
   const typeAndNameRegex = /([$,@,%,&]){([^}]+)}/g;
-  let parts = [];
+  const parts = [];
 
   let index = 0;
   let match = typeAndNameRegex.exec(stringToParse);

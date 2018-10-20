@@ -1,32 +1,22 @@
 {
-	"version": "0.1.0",
-	"command": "npm",
-	"isShellCommand": true,
-	"showOutput": "silent",
-  "suppressTaskName": true,
-	"problemMatcher": "$tsc-watch",
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
   "tasks": [
     {
-      "taskName": "watch",
-    	"args": ["run", "watch"]
+      "type": "npm",
+      "script": "watch",
+      "problemMatcher": [
+        "$tsc-watch"
+      ],
+      "isBackground": true
     },
     {
-      "taskName": "build",
-      "args": ["run", "compile"],
-      "isBuildCommand": true
-    },
-    {
-      "taskName": "test",
-      "args": ["test"],
-      "isTestCommand": true
-    },
-    {
-      "taskName": "build-tests",
-      "args": ["run", "build-tests"]
-    },
-    {
-      "taskName": "lint",
-      "args": ["run", "lint"]
+      "type": "npm",
+      "script": "lint",
+      "problemMatcher": [
+        "$tslint5"
+      ]
     }
   ]
 }

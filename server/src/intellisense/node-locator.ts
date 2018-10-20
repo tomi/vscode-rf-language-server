@@ -3,9 +3,6 @@ import WorkspaceFile from "./workspace/workspace-file";
 import {
   Node,
   FunctionDeclaration,
-  UserKeyword,
-  TestCase,
-  VariableDeclaration
 } from "../parser/models";
 import * as typeGuards from "./type-guards";
 import { DataTable, DataRow, DataCell } from "../parser/table-models";
@@ -77,7 +74,7 @@ export function findLocationInfo(location: Location, tables: DataTable[]): Locat
 
   const row = table.rows.find(r => isOnLine(r.location)) || table.header;
 
-  let cell = row.cells.find(c => isOnCell(c.location));
+  const cell = row.cells.find(c => isOnCell(c.location));
   let textBefore = "";
   let textAfter = "";
   if (cell) {

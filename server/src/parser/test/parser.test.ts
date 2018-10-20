@@ -3,7 +3,6 @@ import * as chai from "chai";
 
 import { FileParser } from "../parser";
 import {
-  TestSuite,
   SettingsTable,
   ResourceImport,
   Identifier,
@@ -13,26 +12,16 @@ import {
 } from "../models";
 
 import {
-  location,
+  createLocation,
 } from "./test-helper";
 
 const parser = new FileParser();
 const NAMESPACE = "";
 
-function parseAndAssert(stringToParse: string, expected: any) {
-  const actual = parser.parseFile(stringToParse, NAMESPACE);
-
-  chai.assert.deepEqual(actual, expected);
-}
-
 function shouldRecogniseTable(tableDef, tableProperty) {
   const parsed = parser.parseFile(tableDef, NAMESPACE);
 
   chai.assert.isObject(parsed[tableProperty]);
-}
-
-function testSuite(location, content) {
-  return Object.assign(new TestSuite(location), content);
 }
 
 function settingsTable(content) {
@@ -51,7 +40,7 @@ describe("RF Parser", () => {
       chai.assert.isObject(parsed.settingsTable);
       chai.assert.deepEqual(
         parsed.settingsTable.location,
-        location(0, 0, 1, row.length)
+        createLocation(0, 0, 1, row.length)
       );
 
       parsed.settingsTable.location = null;
@@ -68,8 +57,8 @@ describe("RF Parser", () => {
       const expected = settingsTable({
         resourceImports: [
           new ResourceImport(
-            new Literal("resources/smoke_resources.robot", location(1, 11, 1, 42)),
-            location(1, 0, 1, 42)
+            new Literal("resources/smoke_resources.robot", createLocation(1, 11, 1, 42)),
+            createLocation(1, 0, 1, 42)
           )
         ]
       });
@@ -82,13 +71,13 @@ describe("RF Parser", () => {
 
       const expected = settingsTable({
         suiteSetup: new SuiteSetting(
-          new Identifier("Suite Setup", location(1, 0, 1, 11)),
+          new Identifier("Suite Setup", createLocation(1, 0, 1, 11)),
           new CallExpression(
-            new Identifier("Open Default Browser", location(1, 13, 1, 33)),
+            new Identifier("Open Default Browser", createLocation(1, 13, 1, 33)),
             [],
-            location(1, 13, 1, 33)
+            createLocation(1, 13, 1, 33)
           ),
-          location(1, 0, 1, 33)
+          createLocation(1, 0, 1, 33)
         )
       });
 
@@ -100,13 +89,13 @@ describe("RF Parser", () => {
 
       const expected = settingsTable({
         suiteTeardown: new SuiteSetting(
-          new Identifier("Suite Teardown", location(1, 0, 1, 14)),
+          new Identifier("Suite Teardown", createLocation(1, 0, 1, 14)),
           new CallExpression(
-            new Identifier("Open Default Browser", location(1, 16, 1, 36)),
+            new Identifier("Open Default Browser", createLocation(1, 16, 1, 36)),
             [],
-            location(1, 16, 1, 36)
+            createLocation(1, 16, 1, 36)
           ),
-          location(1, 0, 1, 36)
+          createLocation(1, 0, 1, 36)
         )
       });
 

@@ -16,7 +16,7 @@ import {
 } from "../models";
 
 import {
-  location,
+  createLocation,
 } from "./test-helper";
 
 const NAMESPACE = "";
@@ -54,7 +54,7 @@ describe("Parsing Test Cases table", () => {
     !another invalid   data
 `;
 
-    const expected = testCasesTable(location(0, 0, 3, 0), []);
+    const expected = testCasesTable(createLocation(0, 0, 3, 0), []);
 
     parseAndAssert(data, expected);
   });
@@ -67,36 +67,36 @@ TestCas Name
     Step 2    \${VAR}    a longer arg2
 `;
 
-    const expected = testCasesTable(location(0, 0, 4, 0), [
+    const expected = testCasesTable(createLocation(0, 0, 4, 0), [
       testCase(
-        location(1, 0, 3, 37),
-        new Identifier("TestCas Name", location(1, 0, 1, 12)),
+        createLocation(1, 0, 3, 37),
+        new Identifier("TestCas Name", createLocation(1, 0, 1, 12)),
         [
           new Step(
             new CallExpression(
-              new Identifier("Step 1", location(2, 4, 2, 10)),
+              new Identifier("Step 1", createLocation(2, 4, 2, 10)),
               [
-                new Literal("arg1", location(2, 14, 2, 18)),
-                new Literal("arg2", location(2, 24, 2, 28)),
+                new Literal("arg1", createLocation(2, 14, 2, 18)),
+                new Literal("arg2", createLocation(2, 24, 2, 28)),
               ],
-              location(2, 4, 2, 28)
+              createLocation(2, 4, 2, 28)
             ),
-            location(2, 4, 2, 28)
+            createLocation(2, 4, 2, 28)
           ),
           new Step(
             new CallExpression(
-              new Identifier("Step 2", location(3, 4, 3, 10)),
+              new Identifier("Step 2", createLocation(3, 4, 3, 10)),
               [
                 new VariableExpression(
-                  new Identifier("VAR", location(3, 16, 3, 19)),
+                  new Identifier("VAR", createLocation(3, 16, 3, 19)),
                   "Scalar",
-                  location(3, 14, 3, 20)
+                  createLocation(3, 14, 3, 20)
                 ),
-                new Literal("a longer arg2", location(3, 24, 3, 37)),
+                new Literal("a longer arg2", createLocation(3, 24, 3, 37)),
               ],
-              location(3, 4, 3, 37)
+              createLocation(3, 4, 3, 37)
             ),
-            location(3, 4, 3, 37)
+            createLocation(3, 4, 3, 37)
           ),
         ]
       )
@@ -113,21 +113,21 @@ TestCas Name
     ...       arg2
 `;
 
-    const expected = testCasesTable(location(0, 0, 4, 0), [
+    const expected = testCasesTable(createLocation(0, 0, 4, 0), [
       testCase(
-        location(1, 0, 3, 18),
-        new Identifier("TestCas Name", location(1, 0, 1, 12)),
+        createLocation(1, 0, 3, 18),
+        new Identifier("TestCas Name", createLocation(1, 0, 1, 12)),
         [
           new Step(
             new CallExpression(
-              new Identifier("Step 1", location(2, 4, 2, 10)),
+              new Identifier("Step 1", createLocation(2, 4, 2, 10)),
               [
-                new Literal("arg1", location(2, 14, 2, 18)),
-                new Literal("arg2", location(3, 14, 3, 18)),
+                new Literal("arg1", createLocation(2, 14, 2, 18)),
+                new Literal("arg2", createLocation(3, 14, 3, 18)),
               ],
-              location(2, 4, 3, 18)
+              createLocation(2, 4, 3, 18)
             ),
-            location(2, 4, 3, 18)
+            createLocation(2, 4, 3, 18)
           ),
         ]
       )
@@ -144,36 +144,36 @@ TestCas Name
     Deep.Library.Step 1    \${VAR}    a longer arg2
 `;
 
-    const expected = testCasesTable(location(0, 0, 4, 0), [
+    const expected = testCasesTable(createLocation(0, 0, 4, 0), [
       testCase(
-        location(1, 0, 3, 50),
-        new Identifier("TestCas Name", location(1, 0, 1, 12)),
+        createLocation(1, 0, 3, 50),
+        new Identifier("TestCas Name", createLocation(1, 0, 1, 12)),
         [
           new Step(
             new CallExpression(
-              new NamespacedIdentifier("MyLibrary", "Step 1", location(2, 4, 2, 20)),
+              new NamespacedIdentifier("MyLibrary", "Step 1", createLocation(2, 4, 2, 20)),
               [
-                new Literal("arg1", location(2, 24, 2, 28)),
-                new Literal("arg2", location(2, 34, 2, 38)),
+                new Literal("arg1", createLocation(2, 24, 2, 28)),
+                new Literal("arg2", createLocation(2, 34, 2, 38)),
               ],
-              location(2, 4, 2, 38)
+              createLocation(2, 4, 2, 38)
             ),
-            location(2, 4, 2, 38)
+            createLocation(2, 4, 2, 38)
           ),
           new Step(
             new CallExpression(
-              new NamespacedIdentifier("Deep.Library", "Step 1", location(3, 4, 3, 23)),
+              new NamespacedIdentifier("Deep.Library", "Step 1", createLocation(3, 4, 3, 23)),
               [
                 new VariableExpression(
-                  new Identifier("VAR", location(3, 29, 3, 32)),
+                  new Identifier("VAR", createLocation(3, 29, 3, 32)),
                   "Scalar",
-                  location(3, 27, 3, 33)
+                  createLocation(3, 27, 3, 33)
                 ),
-                new Literal("a longer arg2", location(3, 37, 3, 50)),
+                new Literal("a longer arg2", createLocation(3, 37, 3, 50)),
               ],
-              location(3, 4, 3, 50)
+              createLocation(3, 4, 3, 50)
             ),
-            location(3, 4, 3, 50)
+            createLocation(3, 4, 3, 50)
           ),
         ]
       )

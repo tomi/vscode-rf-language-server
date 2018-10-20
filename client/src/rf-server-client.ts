@@ -1,8 +1,8 @@
 import * as path from "path";
-import { commands, workspace, Disposable, ExtensionContext } from "vscode";
+import { workspace, Disposable, ExtensionContext } from "vscode";
 import {
   LanguageClient, LanguageClientOptions,
-  SettingMonitor, ServerOptions,
+  ServerOptions,
   TransportKind, RequestType
 } from "vscode-languageclient";
 import { Config, CONFIG_BLOCK_NAME } from "./utils/config";
@@ -76,7 +76,7 @@ export default class RFServerClient implements Disposable {
 
     // If the extension is launched in debug mode then the debug server options are used
     // Otherwise the run options are used
-    let serverOptions: ServerOptions = {
+    const serverOptions: ServerOptions = {
       run:   { module: serverModule, transport: TransportKind.ipc },
       debug: { module: serverModule, transport: TransportKind.ipc, options: debugOptions }
     };

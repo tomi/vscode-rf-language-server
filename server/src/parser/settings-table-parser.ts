@@ -9,7 +9,6 @@ import {
 } from "./table-models";
 
 import {
-  Identifier,
   EmptyNode,
   SettingsTable,
   LibraryImport,
@@ -42,7 +41,7 @@ export function parseSettingsTable(dataTable: DataTable): SettingsTable {
 
   const iterator = new TableRowIterator(dataTable);
   while (!iterator.isDone()) {
-    let row = iterator.takeRow();
+    const row = iterator.takeRow();
     if (row.isEmpty()) {
       continue;
     }
@@ -96,7 +95,7 @@ function parseLibraryImport(settingsTable: SettingsTable, firstCell: DataCell, r
 }
 
 function parseResourceImport(settingsTable: SettingsTable, firstCell: DataCell, restCells: DataCell[]) {
-  const [firstDataCell, ...restDataCells] = restCells;
+  const [firstDataCell] = restCells;
   const target = parseValueExpression(firstDataCell);
 
   const lastCell = _.last(restCells) || firstCell;
@@ -107,7 +106,7 @@ function parseResourceImport(settingsTable: SettingsTable, firstCell: DataCell, 
 }
 
 function parseVariableImport(settingsTable: SettingsTable, firstCell: DataCell, restCells: DataCell[]) {
-  const [firstDataCell, ...restDataCells] = restCells;
+  const [firstDataCell] = restCells;
   const target = parseValueExpression(firstDataCell);
 
   const lastCell = _.last(restCells) || firstCell;

@@ -1,15 +1,7 @@
 import * as _ from "lodash";
 import {
   Node,
-  Identifier,
-  CallExpression,
-  VariableExpression,
-  VariableDeclaration,
-  ScalarDeclaration,
-  ListDeclaration,
-  DictionaryDeclaration,
   UserKeyword,
-  TestSuite
 } from "../parser/models";
 import { traverse, VisitorOption } from "../traverse/traverse";
 import { findKeywordDefinition } from "./definition-finder";

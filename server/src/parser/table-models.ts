@@ -98,7 +98,7 @@ export class DataRow {
       return false;
     }
 
-    for (let cell of this.cells) {
+    for (const cell of this.cells) {
       if (cell.isRowContinuation()) {
         return true;
       } else if (!cell.isEmpty()) {
@@ -154,4 +154,4 @@ export class DataCell {
   public isRowContinuation() {
     return /^\.\.\.$/.test(this.content);
   }
-};
+}

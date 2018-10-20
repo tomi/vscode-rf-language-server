@@ -2,7 +2,7 @@ import * as _ from "lodash";
 import * as typeGuards from "./type-guards";
 import Workspace from "./workspace/workspace";
 import { ConsoleLogger as logger } from "../logger";
-import { DocumentHighlight, DocumentHighlightKind } from "vscode-languageserver";
+import { DocumentHighlight } from "vscode-languageserver";
 import { Location, nodeLocationToRange } from "../utils/position";
 import { filter } from "../utils/ast-util";
 import {
@@ -15,8 +15,6 @@ import {
   VariableDeclaration,
   VariableExpression,
   FunctionDeclaration,
-  CallExpression,
-  UserKeyword,
   SettingDeclaration
 } from "../parser/models";
 

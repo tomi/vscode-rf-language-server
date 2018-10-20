@@ -17,7 +17,7 @@ import {
 const parser = new PythonParser();
 const NAMESPACE = "";
 
-export function location(startLine, startColumn, endLine?, endColumn?) {
+function createLocation(startLine, startColumn, endLine?, endColumn?) {
   if (_.isObject(startLine) && _.isObject(startColumn)) {
     return {
       start: startLine,
@@ -69,8 +69,8 @@ describe("PythonParser", () => {
   it("should parse function without args", () => {
     const data = "def name():\n  print('hello')";
 
-    const expected = createSuite(location(0, 0, 1, 16), [
-      createKeyword("name", location(0, 0, 0, 11))
+    const expected = createSuite(createLocation(0, 0, 1, 16), [
+      createKeyword("name", createLocation(0, 0, 0, 11))
     ]);
 
     parseAndAssert(data, expected);
@@ -79,8 +79,8 @@ describe("PythonParser", () => {
   it("should parse function with one argument", () => {
     const data = "def name(arg1):\n  print('hello')";
 
-    const expected = createSuite(location(0, 0, 1, 16), [
-      createKeyword("name", location(0, 0, 0, 15), [["arg1", undefined]])
+    const expected = createSuite(createLocation(0, 0, 1, 16), [
+      createKeyword("name", createLocation(0, 0, 0, 15), [["arg1", undefined]])
     ]);
 
     parseAndAssert(data, expected);
@@ -89,8 +89,8 @@ describe("PythonParser", () => {
   it("should parse argument default value", () => {
     const data = "def name(arg1=200):\n  print('hello')";
 
-    const expected = createSuite(location(0, 0, 1, 16), [
-      createKeyword("name", location(0, 0, 0, 19), [["arg1", "200"]])
+    const expected = createSuite(createLocation(0, 0, 1, 16), [
+      createKeyword("name", createLocation(0, 0, 0, 19), [["arg1", "200"]])
     ]);
 
     parseAndAssert(data, expected);
@@ -99,8 +99,8 @@ describe("PythonParser", () => {
   it("should skip self argument", () => {
     const data = "def name(self):\n  print('hello')";
 
-    const expected = createSuite(location(0, 0, 1, 16), [
-      createKeyword("name", location(0, 0, 0, 15))
+    const expected = createSuite(createLocation(0, 0, 1, 16), [
+      createKeyword("name", createLocation(0, 0, 0, 15))
     ]);
 
     parseAndAssert(data, expected);
@@ -108,14 +108,14 @@ describe("PythonParser", () => {
 
   it("should skip commented out function", () => {
     const data = "# def name():\n  print('hello')";
-    const expected = createSuite(location(0, 0, 1, 16), []);
+    const expected = createSuite(createLocation(0, 0, 1, 16), []);
 
     parseAndAssert(data, expected);
   });
 
   it("should skip private function", () => {
     const data = "def _private():\n  print('hello')";
-    const expected = createSuite(location(0, 0, 1, 16), []);
+    const expected = createSuite(createLocation(0, 0, 1, 16), []);
 
     parseAndAssert(data, expected);
   });
@@ -123,8 +123,8 @@ describe("PythonParser", () => {
   it("should ignore whitespace before the function", () => {
     const data = "   def name(arg1):\n  print('hello')";
 
-    const expected = createSuite(location(0, 0, 1, 16), [
-      createKeyword("name", location(0, 3, 0, 18), [["arg1", undefined]])
+    const expected = createSuite(createLocation(0, 0, 1, 16), [
+      createKeyword("name", createLocation(0, 3, 0, 18), [["arg1", undefined]])
     ]);
 
     parseAndAssert(data, expected);

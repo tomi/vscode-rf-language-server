@@ -9,9 +9,9 @@ import {
   IPCMessageReader, IPCMessageWriter,
   createConnection, IConnection, TextDocumentSyncKind,
   InitializeParams, InitializeResult, TextDocumentPositionParams,
-  RequestType, Location, Range, DocumentSymbolParams, WorkspaceSymbolParams,
+  RequestType, Location, DocumentSymbolParams, WorkspaceSymbolParams,
   SymbolInformation, FileChangeType, ReferenceParams, CompletionItem, DocumentHighlight,
-  DidChangeTextDocumentParams, TextDocumentSyncOptions
+  DidChangeTextDocumentParams
 } from "vscode-languageserver";
 
 import Workspace from "./intellisense/workspace/workspace";
@@ -21,8 +21,7 @@ import { findReferences } from "./intellisense/reference-finder";
 import { findCompletionItems } from "./intellisense/completion-provider";
 import { getFileSymbols, getWorkspaceSymbols } from "./intellisense/symbol-provider";
 import { findFileHighlights } from "./intellisense/highlight-provider";
-import { Settings, Config } from "./utils/settings";
-import { createFileSearchTrees } from "./intellisense/search-tree";
+import { Config } from "./utils/settings";
 import { ConsoleLogger } from "./logger";
 
 import * as asyncFs from "./utils/async-fs";
@@ -38,7 +37,7 @@ const parsersByFile = new Map([
 const workspace = new Workspace();
 
 // Create a connection for the server. The connection uses Node's IPC as a transport
-let connection: IConnection = createConnection(
+const connection: IConnection = createConnection(
   new IPCMessageReader(process), new IPCMessageWriter(process));
 
 const logger = ConsoleLogger;
@@ -290,7 +289,7 @@ function _parseFile(filePath: string, fileContents: string) {
   } catch (error) {
     logger.error("Failed to parse", filePath, error);
   }
-};
+}
 
 async function _readAndParseFile(filePath: string) {
   try {

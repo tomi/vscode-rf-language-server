@@ -1,7 +1,5 @@
 "use strict";
 
-const CONFIG_BLOCK_NAME = "rfLanguageServer";
-
 export interface Settings {
   includePaths?: string[];
   excludePaths?: string[];
@@ -13,7 +11,7 @@ export enum LogLevel {
     Errors,
     Info,
     Debug
-};
+}
 
 const defaultLogLevel = LogLevel.Off;
 

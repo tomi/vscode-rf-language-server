@@ -1,7 +1,5 @@
 "use strict";
 
-import * as path from "path";
-
 import { commands, workspace, ExtensionContext } from "vscode";
 import CommandHandler from "./command-handler";
 import RFServerClient from "./rf-server-client";

@@ -1,11 +1,8 @@
 import * as _ from "lodash";
-import * as Trie from "node-ternary-search-trie";
 import WorkspaceFile from "./workspace-file";
 import {
-  KeywordContainer,
   GlobalKeywordContainer,
   VariableContainer,
-  removeFileSymbols
 } from "../search-tree";
 import { UserKeyword } from "../../parser/models";
 

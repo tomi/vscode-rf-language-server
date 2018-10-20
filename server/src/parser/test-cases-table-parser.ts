@@ -10,8 +10,6 @@ import {
 import {
   TestCasesTable,
   TestCase,
-  Step,
-  CallExpression,
   SettingDeclaration
 } from "./models";
 
@@ -19,14 +17,7 @@ import * as SettingParser from "./setting-parser";
 
 import {
   parseIdentifier,
-  parseValueExpression,
 } from "./primitive-parsers";
-
-import {
-  isVariable,
-  parseTypeAndName,
-  parseVariableDeclaration
-} from "./variable-parsers";
 
 import { parseStep } from "./function-parsers";
 
@@ -41,7 +32,7 @@ export function parseTestCasesTable(dataTable: DataTable): TestCasesTable {
 
   const iterator = new TableRowIterator(dataTable);
   while (!iterator.isDone()) {
-    let row = iterator.takeRow();
+    const row = iterator.takeRow();
     if (row.isEmpty()) {
       continue;
     }

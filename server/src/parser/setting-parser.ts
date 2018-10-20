@@ -4,7 +4,6 @@ import { DataCell } from "./table-models";
 
 import {
   Identifier,
-  Expression,
   Literal,
   SettingDeclaration,
   Documentation,
@@ -14,7 +13,6 @@ import {
   Teardown,
   Tags,
   Timeout,
-  TemplateLiteral
 } from "./models";
 
 import {
@@ -231,5 +229,5 @@ function parseTimeout(id: Identifier, values: DataCell[]): SettingDeclaration {
     (message || value || id).location
   );
 
-  return new Timeout(id, value, message, id.location);
+  return new Timeout(id, value, message, loc);
 }

@@ -10,7 +10,6 @@ import {
 import {
   VariableDeclaration,
   UserKeyword,
-  VariableKind
 } from "../../parser/models";
 import { Workspace } from "../workspace/workspace";
 
@@ -62,6 +61,8 @@ export function getKeywordCompletions(
         // Assuming namespaces 'Page1' and 'Page2'...
         textToSearch.startsWith(keyword.id.namespace) || // User typed 'Page1.Someth'
         keyword.id.namespace.startsWith(textToSearch);   // User typed 'Page'
+
+      // tslint:disable-next-line:prefer-const
       let [insertText, insertTextFormat] = _createKeywordSnippet(keyword, shouldSuggestNamespace);
       const detail = _getKeywordArgs(keyword);
       const documentation = _getKeywordDocumentation(keyword);

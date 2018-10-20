@@ -3,7 +3,6 @@ import * as _ from "lodash";
 import {
   DataTable,
   DataRow,
-  DataCell
 } from "./table-models";
 
 export class TableRowIterator {
@@ -41,7 +40,7 @@ export class TableRowIterator {
    *
    * @param predicateFn
    */
-  public takeRowWhile(predicateFn: (row: DataRow) => Boolean): DataRow[] {
+  public takeRowWhile(predicateFn: (row: DataRow) => boolean): DataRow[] {
     const rows = [];
 
     let row = this.peekRow();

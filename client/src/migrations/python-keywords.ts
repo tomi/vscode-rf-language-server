@@ -1,4 +1,4 @@
-import { window, workspace, WorkspaceConfiguration } from "vscode";
+import { window, WorkspaceConfiguration } from "vscode";
 import { Config } from "../utils/config";
 
 const YES = "Yes";

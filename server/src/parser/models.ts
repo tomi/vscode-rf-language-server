@@ -10,9 +10,11 @@ export interface Node {
   location: SourceLocation;
 }
 
+// tslint:disable-next-line:no-empty-interface
 export interface Expression extends Node {
 }
 
+// tslint:disable-next-line:no-empty-interface
 export interface ValueExpression extends Expression {
 }
 
@@ -520,7 +522,7 @@ export class TestCase implements FunctionDeclaration {
 
   constructor(
     public id: Identifier,
-    private startPosition: Position
+    startPosition: Position
   ) {
     this.location = {
       start: startPosition,

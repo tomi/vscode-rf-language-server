@@ -6,6 +6,8 @@ import {
   CompletionItem,
   CompletionItemKind,
   InsertTextFormat,
+  MarkupKind,
+  MarkupContent,
 } from "vscode-languageserver";
 import {
   VariableDeclaration,
@@ -83,7 +85,7 @@ export function getKeywordCompletions(
         insertText,
         insertTextFormat,
         detail,
-        documentation
+        documentation,
       };
     });
   });
@@ -209,9 +211,12 @@ function _getKeywordArgs(keyword: UserKeyword): string {
   }
 }
 
-function _getKeywordDocumentation(keyword: UserKeyword): string {
+function _getKeywordDocumentation(keyword: UserKeyword): MarkupContent {
   if (keyword.documentation && keyword.documentation.value) {
-    return keyword.documentation.value.value;
+    return {
+      kind: MarkupKind.Markdown,
+      value: keyword.documentation.value.value
+    };
   } else {
     return undefined;
   }

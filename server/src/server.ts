@@ -28,6 +28,9 @@ import * as asyncFs from "./utils/async-fs";
 
 import { createRobotFile } from "./intellisense/workspace/robot-file";
 import { createPythonFile } from "./intellisense/workspace/python-file";
+import { createLibraryFile } from "./intellisense/workspace/library";
+
+const LIBRARY_PATH = path.resolve(__dirname, "./library-docs");
 
 const parsersByFile = new Map([
   [".robot", createRobotFile],
@@ -78,6 +81,8 @@ function onBuildFromFiles(message: BuildFromFilesParam) {
   message.files
     .filter(_shouldAcceptFile)
     .forEach(_readAndParseFile);
+
+  Config.getLibraries().forEach(_readAndParseLibrary);
 }
 
 /**
@@ -299,7 +304,21 @@ async function _readAndParseFile(filePath: string) {
 
     workspace.addFile(file);
   } catch (error) {
-    logger.error("Failed to parse", filePath, error);
+    logger.error("Failed to parse file", filePath, error);
+  }
+}
+
+async function _readAndParseLibrary(libraryName: string) {
+  try {
+    const filePath = path.join(LIBRARY_PATH, `${libraryName}.json`);
+    const fileContents = await asyncFs.readFileAsync(filePath, "utf-8");
+
+    logger.info("Parsing library", filePath);
+    const file = createLibraryFile(filePath, fileContents);
+
+    workspace.addLibrary(file);
+  } catch (error) {
+    logger.error("Failed to parse library", libraryName, error);
   }
 }
 
@@ -319,7 +338,7 @@ function _createWorkspaceFile(filePath: string, fileContents: string, createFn: 
     path.relative(workspaceRoot, filePath) :
     filePath;
 
-  logger.info("Parsing", filePath);
+  logger.info("Parsing file", filePath);
   return createFn(fileContents, filePath, relativePath);
 }
 

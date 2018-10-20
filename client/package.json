@@ -61,17 +61,73 @@
         "rfLanguageServer.includePaths": {
           "type": "array",
           "default": [],
-          "description": "An array of files/folders that should be included by the parser. Glob patterns are accepted (eg. test/*.robot)"
+          "description": "An array of files/folders that should be included by the parser. Glob patterns are accepted (eg. test/*.robot)",
+          "items": {
+            "type": "string"
+          }
         },
         "rfLanguageServer.excludePaths": {
           "type": "array",
           "default": [],
-          "description": "An array of files/folders that should be ignored by the parser. Glob patterns are accepted (eg. **/*bad.robot)"
+          "description": "An array of files/folders that should be ignored by the parser. Glob patterns are accepted (eg. **/*bad.robot)",
+          "items": {
+            "type": "string"
+          }
         },
         "rfLanguageServer.pythonKeywords": {
           "type": "boolean",
           "default": false,
           "description": "DEPRECATED. Use rfLanguageServer.includePaths instead"
+        },
+        "rfLanguageServer.libraries": {
+          "type": "array",
+          "default": [],
+          "description": "Libraries whose keywords are suggested with auto-complete",
+          "items": {
+            "type": "string",
+            "enum": [
+              "BuiltIn-2.7.7",
+              "BuiltIn-2.8.7",
+              "BuiltIn-2.9.2",
+              "BuiltIn-3.0.4",
+              "Collections-2.7.7",
+              "Collections-2.8.7",
+              "Collections-2.9.2",
+              "Collections-3.0.4",
+              "DateTime-2.8.7",
+              "DateTime-2.9.2",
+              "DateTime-3.0.4",
+              "Dialogs-2.7.7",
+              "Dialogs-2.8.7",
+              "Dialogs-2.9.2",
+              "Dialogs-3.0.4",
+              "OperatingSystem-2.7.7",
+              "OperatingSystem-2.8.7",
+              "OperatingSystem-2.9.2",
+              "OperatingSystem-3.0.4",
+              "Process-2.8.7",
+              "Process-2.9.2",
+              "Process-3.0.4",
+              "Screenshot-2.7.7",
+              "Screenshot-2.8.7",
+              "Screenshot-2.9.2",
+              "Screenshot-3.0.4",
+              "Selenium2Library-1.8.0",
+              "Selenium2Library-3.0.0",
+              "SeleniumLibrary-3.2.0",
+              "String-2.7.7",
+              "String-2.8.7",
+              "String-2.9.2",
+              "String-3.0.4",
+              "Telnet-2.7.7",
+              "Telnet-2.8.7",
+              "Telnet-2.9.2",
+              "Telnet-3.0.4",
+              "XML-2.8.7",
+              "XML-2.9.2",
+              "XML-3.0.4"
+            ]
+          }
         },
         "rfLanguageServer.logLevel": {
           "type": "string",

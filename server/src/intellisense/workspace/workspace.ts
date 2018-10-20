@@ -1,10 +1,8 @@
 import * as _ from "lodash";
 import WorkspaceFile from "./workspace-file";
-import {
-  GlobalKeywordContainer,
-  VariableContainer,
-} from "../search-tree";
+import { GlobalKeywordContainer, VariableContainer } from "../search-tree";
 import { UserKeyword } from "../../parser/models";
+import { Library } from "./library";
 
 /**
  * A class that represents a workspace (=folder) open in VSCode
@@ -38,6 +36,10 @@ export class Workspace {
     this.filesByNamespace.set(file.namespace, file);
   }
 
+  public addLibrary(library: Library) {
+    library.keywords.forEach(keyword => this.keywords.addKeyword(keyword));
+  }
+
   /**
    *
    * @param filePath
@@ -45,7 +47,9 @@ export class Workspace {
   public removeFileByPath(filePath: string) {
     const existingFile = this.filesByPath.get(filePath);
     if (existingFile) {
-      existingFile.keywords.forEach((key, keyword) => this.keywords.removeKeyword(keyword));
+      existingFile.keywords.forEach((key, keyword) =>
+        this.keywords.removeKeyword(keyword)
+      );
       const { ast } = existingFile;
       if (ast && ast.variablesTable) {
         ast.variablesTable.variables.forEach(variable => {
@@ -75,10 +79,10 @@ export class Workspace {
      * ]
      */
     return _(this.keywords.findByPrefix(textToSearch))
-    .flatten()
-    .groupBy((keyword: UserKeyword) => keyword.id.name)
-    .map((keywords: UserKeyword[]) => keywords)
-    .value();
+      .flatten()
+      .groupBy((keyword: UserKeyword) => keyword.id.name)
+      .map((keywords: UserKeyword[]) => keywords)
+      .value();
   }
 
   /**
@@ -87,8 +91,8 @@ export class Workspace {
   public clear() {
     this.filesByPath = new Map();
     this.filesByNamespace = new Map();
-    this.keywords    = new GlobalKeywordContainer();
-    this.variables   = new VariableContainer();
+    this.keywords = new GlobalKeywordContainer();
+    this.variables = new VariableContainer();
   }
 
   public getFile(filename) {

@@ -4,13 +4,14 @@ export interface Settings {
   includePaths?: string[];
   excludePaths?: string[];
   logLevel?: string;
+  libraries?: string[];
 }
 
 export enum LogLevel {
-    Off,
-    Errors,
-    Info,
-    Debug
+  Off,
+  Errors,
+  Info,
+  Debug
 }
 
 const defaultLogLevel = LogLevel.Off;
@@ -48,5 +49,13 @@ export class Config {
       case "debug":  return LogLevel.Debug;
       default:       return defaultLogLevel;
     }
+  }
+
+  public static getLibraries() {
+    if (!Config.settings) {
+      return [];
+    }
+
+    return Config.settings.libraries || [];
   }
 }

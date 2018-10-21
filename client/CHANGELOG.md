@@ -1,5 +1,30 @@
 # Change Log
 
+## Version 2.2.0
+* Release date: October 21, 2018
+
+### What's new in this version
+* Code completion support for standard and any 3rd party libraries.
+  * Need to be configured in `rfLanguageServer.libraries`.
+  * Standard libraries can be included by just configuring the library using its name and version. See a list of all available libraries [here](https://github.com/tomi/vscode-rf-language-server/tree/master/client#supported-standard-libraries).
+  * Other libraries can be configured by specifying their keywords inline. See details [here](https://github.com/tomi/vscode-rf-language-server/tree/master/client#defining-3rd-party-libraries).
+* As a consequence of this, code completion documentation now supports markdown. Meaning any markdown in keyword `[Documentation]` will be rendered properly in VS Code.
+* A fix for bug that caused keywords being shown multiple times in the code completion list.
+
+```json
+"rfLanguageServer.libraries": [
+  "BuiltIn-3.0.4",
+  "String-3.0.4",
+  {
+      "name": "My3rdPartyLibrary",
+      "version": "1.0.0",
+      "keywords": [
+          { "name": "Keyword 1", "args": ["arg"], "doc": "documentation" }
+      ]
+  }
+]
+```
+
 ## Version 2.1.1
 * Release date: October 14, 2018
 

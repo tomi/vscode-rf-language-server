@@ -17,6 +17,10 @@ abstract class SymbolContainer<T> {
     this.tree.set(normalizedKey, item);
   }
 
+  public get(key: string): T | undefined {
+    return this.tree.get(key);
+  }
+
   public remove(item: T) {
     const normalizedKey = this._getNormalizedKey(item);
 
@@ -62,13 +66,13 @@ abstract class SymbolContainer<T> {
 
   protected abstract getKey(item: T): string;
 
-  private _getNormalizedKey(item: T) {
+  protected _getNormalizedKey(item: T) {
     const key = this.getKey(item);
 
-    return key.toLowerCase();
+    return this._normalizeKey(key);
   }
 
-  private _normalizeKey(key: string) {
+  protected _normalizeKey(key: string) {
     return key.toLowerCase();
   }
 }
@@ -88,34 +92,39 @@ export class KeywordContainer extends SymbolContainer<UserKeyword> {
  */
 export class GlobalKeywordContainer extends SymbolContainer<UserKeyword[]> {
   public addKeyword(item: UserKeyword) {
-    this.add([item]);
+    const key = this._getKeywordNormalizedKey(item);
+    const existingKeywords = this.get(key) || [];
 
-    const key = item.id.name.toLowerCase();
-    const keywords = this.tree.get(key) as UserKeyword[];
-    if (keywords) {
-      keywords.push(item);
-    } else {
-      this.tree.set(key, [ item ]);
-    }
+    this.tree.set(key, [
+      ...existingKeywords,
+      item
+    ]);
   }
 
   public removeKeyword(item: UserKeyword) {
-    this.remove([item]);
+    const key = this._getKeywordNormalizedKey(item);
+    const existingKeywords = this.get(key);
 
-    const key = item.id.name.toLowerCase();
-    const keywords = this.tree.get(key) as UserKeyword[];
-    if (keywords) {
-      const update = keywords.filter(keyword => keyword.id.fullName !== item.id.fullName);
-      if (update.length > 0) {
-        this.tree.set(key, update);
-      } else {
-        this.tree.del(key);
-      }
+    if (!existingKeywords) {
+      return;
+    }
+
+    const keywordsWithoutRemoved = existingKeywords.filter(keyword =>
+        keyword.id.fullName !== item.id.fullName);
+
+    if (keywordsWithoutRemoved.length > 0) {
+      this.tree.set(key, keywordsWithoutRemoved);
+    } else {
+      this.tree.del(key);
     }
   }
 
   protected getKey(item: UserKeyword[]) {
-    return item[0].id.fullName;
+    return item[0].id.name;
+  }
+
+  private _getKeywordNormalizedKey(item: UserKeyword) {
+    return this._normalizeKey(item.id.name);
   }
 }
 

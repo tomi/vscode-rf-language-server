@@ -1,6 +1,7 @@
 {
+  "version": "2.2.0",
   "engines": {
-    "vscode": "^1.8.0"
+    "node": "8"
   },
   "scripts": {
     "install": "npm run install-client && npm run install-server",

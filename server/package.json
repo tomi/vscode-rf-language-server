@@ -8,7 +8,7 @@
     "email": "tomi.turtiainen@gmail.com"
   },
   "engines": {
-    "node": "*"
+    "node": "8"
   },
   "dependencies": {
     "lodash": "4.17.11",
@@ -32,10 +32,11 @@
   "scripts": {
     "build-tests": "tsc --outDir out",
     "clean": "rm -rf ../client/server",
-    "compile": "installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc -p .",
+    "compile": "npm run copy-libs && installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc -p .",
+    "copy-libs": "mkdir -p ../client/server && cp -r ../library-docs/library-docs ../client/server",
     "lint": "tslint --project .",
     "test": "mocha --require ts-node/register src/**/*.test.ts",
-    "watch": "npm run clean && installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc --watch -p ."
+    "watch": "npm run clean && npm run copy-libs && installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc --watch -p ."
   },
   "repository": {
     "type": "git",

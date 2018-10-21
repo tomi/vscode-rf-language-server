@@ -21,13 +21,16 @@ import { findReferences } from "./intellisense/reference-finder";
 import { findCompletionItems } from "./intellisense/completion-provider";
 import { getFileSymbols, getWorkspaceSymbols } from "./intellisense/symbol-provider";
 import { findFileHighlights } from "./intellisense/highlight-provider";
-import { Config } from "./utils/settings";
+import { Config, LibraryDefinition } from "./utils/settings";
 import { ConsoleLogger } from "./logger";
 
 import * as asyncFs from "./utils/async-fs";
 
 import { createRobotFile } from "./intellisense/workspace/robot-file";
 import { createPythonFile } from "./intellisense/workspace/python-file";
+import { createLibraryFile } from "./intellisense/workspace/library";
+
+const LIBRARY_PATH = path.resolve(__dirname, "./library-docs");
 
 const parsersByFile = new Map([
   [".robot", createRobotFile],
@@ -78,6 +81,8 @@ function onBuildFromFiles(message: BuildFromFilesParam) {
   message.files
     .filter(_shouldAcceptFile)
     .forEach(_readAndParseFile);
+
+  Config.getLibraries().forEach(_readAndParseLibrary);
 }
 
 /**
@@ -128,7 +133,15 @@ function onDidChangeConfiguration(change) {
   logger.info("onDidChangeConfiguration...");
 
   if (change.settings && change.settings.rfLanguageServer) {
+    const librariesBefore = Config.getLibraries();
     Config.setSettings(change.settings.rfLanguageServer);
+    const librariesAfter = Config.getLibraries();
+
+    if (!_.isEqual(librariesBefore, librariesAfter)) {
+      logger.info("Library configuration changed, reparsing...");
+      workspace.removeAllLibraries();
+      librariesAfter.forEach(_readAndParseLibrary);
+    }
   }
 }
 
@@ -299,7 +312,29 @@ async function _readAndParseFile(filePath: string) {
 
     workspace.addFile(file);
   } catch (error) {
-    logger.error("Failed to parse", filePath, error);
+    logger.error("Failed to parse file", filePath, error);
+  }
+}
+
+async function _readAndParseLibrary(libraryName: string | LibraryDefinition) {
+  try {
+    let libraryDefinition: LibraryDefinition;
+
+    if (typeof libraryName === "string") {
+      const filePath = path.join(LIBRARY_PATH, `${libraryName}.json`);
+      const fileContents = await asyncFs.readFileAsync(filePath, "utf-8");
+
+      logger.info("Parsing library", filePath);
+      libraryDefinition = JSON.parse(fileContents);
+    } else {
+      libraryDefinition = libraryName;
+    }
+
+    const file = createLibraryFile(libraryDefinition);
+
+    workspace.addLibrary(file);
+  } catch (error) {
+    logger.error("Failed to parse library", libraryName, error);
   }
 }
 
@@ -319,7 +354,7 @@ function _createWorkspaceFile(filePath: string, fileContents: string, createFn: 
     path.relative(workspaceRoot, filePath) :
     filePath;
 
-  logger.info("Parsing", filePath);
+  logger.info("Parsing file", filePath);
   return createFn(fileContents, filePath, relativePath);
 }
 

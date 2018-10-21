@@ -133,7 +133,15 @@ function onDidChangeConfiguration(change) {
   logger.info("onDidChangeConfiguration...");
 
   if (change.settings && change.settings.rfLanguageServer) {
+    const librariesBefore = Config.getLibraries();
     Config.setSettings(change.settings.rfLanguageServer);
+    const librariesAfter = Config.getLibraries();
+
+    if (!_.isEqual(librariesBefore, librariesAfter)) {
+      logger.info("Library configuration changed, reparsing...");
+      workspace.removeAllLibraries();
+      librariesAfter.forEach(_readAndParseLibrary);
+    }
   }
 }
 

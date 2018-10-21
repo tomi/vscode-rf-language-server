@@ -1,17 +1,27 @@
 "use strict";
 
+export interface LibraryDefinition {
+  name: string;
+  version: string;
+  keywords: Array<{
+    name: string;
+    args: string[] | string;
+    doc: string[];
+  }>;
+}
+
 export interface Settings {
   includePaths?: string[];
   excludePaths?: string[];
   logLevel?: string;
-  libraries?: string[];
+  libraries?: Array<string | LibraryDefinition>;
 }
 
 export enum LogLevel {
   Off,
   Errors,
   Info,
-  Debug
+  Debug,
 }
 
 const defaultLogLevel = LogLevel.Off;
@@ -27,7 +37,7 @@ export class Config {
     if (!Config.settings) {
       return {
         include: [],
-        exclude: []
+        exclude: [],
       };
     }
 
@@ -43,11 +53,16 @@ export class Config {
     }
 
     switch (Config.settings.logLevel) {
-      case "off":    return LogLevel.Off;
-      case "errors": return LogLevel.Errors;
-      case "info":   return LogLevel.Info;
-      case "debug":  return LogLevel.Debug;
-      default:       return defaultLogLevel;
+      case "off":
+        return LogLevel.Off;
+      case "errors":
+        return LogLevel.Errors;
+      case "info":
+        return LogLevel.Info;
+      case "debug":
+        return LogLevel.Debug;
+      default:
+        return defaultLogLevel;
     }
   }
 

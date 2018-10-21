@@ -8,6 +8,7 @@ import {
   Literal,
 } from "../../parser/models";
 import { location, position } from "../../parser/position-helper";
+import { LibraryDefinition } from "../../utils/settings";
 
 const DUMMY_POSITION = position(0, 0);
 const DUMMY_LOCATION = location(0, 0, 0, 0);
@@ -28,33 +29,44 @@ export class Library {
  * Parses a library file
  */
 export function createLibraryFile(
-  libraryName: string,
-  contents: string
+  libraryDefinition: LibraryDefinition
 ): Library {
-  const libraryData = JSON.parse(contents);
+  const {
+    name = "",
+    version = "",
+    keywords = []
+  } = libraryDefinition;
 
-  const keywords = libraryData.keywords.map(kw =>
-    _jsonKeywordToModel(libraryData.name, kw)
+  const parsedKeywords = keywords.filter(kw => kw && kw.name).map(kw =>
+    _jsonKeywordToModel(name, kw)
   );
 
-  return new Library(libraryData.name, libraryData.version, keywords);
+  return new Library(name, version, parsedKeywords);
 }
 
-function _jsonKeywordToModel(namespace, keywordJson): UserKeyword {
+function _jsonKeywordToModel(namespace: string, keywordDefinition): UserKeyword {
+  const {
+    name,
+    args = [],
+    doc = ""
+  } = keywordDefinition;
+
   const keyword = new UserKeyword(
-    new NamespacedIdentifier(namespace, keywordJson.name, DUMMY_LOCATION),
+    new NamespacedIdentifier(namespace, name, DUMMY_LOCATION),
     DUMMY_POSITION
   );
 
   keyword.documentation = new Documentation(
     new Identifier("Documentation", DUMMY_LOCATION),
-    new Literal(keywordJson.doc, DUMMY_LOCATION),
+    new Literal(doc, DUMMY_LOCATION),
     DUMMY_LOCATION
   );
 
+  const parsedArgs = Array.isArray(args) ? args : [args];
+
   keyword.arguments = new Arguments(
     new Identifier("Arguments", DUMMY_LOCATION),
-    keywordJson.args.map(
+    parsedArgs.map(
       arg =>
         new ScalarDeclaration(
           new Identifier(arg, DUMMY_LOCATION),

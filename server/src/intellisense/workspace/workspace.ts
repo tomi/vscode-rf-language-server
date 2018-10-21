@@ -20,6 +20,9 @@ export class Workspace {
   // Mapping from WorkspaceFile namespace: string -> file
   private filesByNamespace: Map<string, WorkspaceFile> = new Map();
 
+  // Mapping from library name --> Library
+  private librariesByName: Map<string, Library> = new Map();
+
   /**
    * Adds a file to the workspace
    *
@@ -36,8 +39,24 @@ export class Workspace {
     this.filesByNamespace.set(file.namespace, file);
   }
 
+  /**
+   * Adds given library and its keywords to the workspace
+   */
   public addLibrary(library: Library) {
     library.keywords.forEach(keyword => this.keywords.addKeyword(keyword));
+
+    this.librariesByName.set(library.name, library);
+  }
+
+  /**
+   * Removes all libraries and their keywords from the workspace
+   */
+  public removeAllLibraries() {
+    Array.from(this.librariesByName.values()).forEach(library => {
+      library.keywords.forEach(keyword => this.keywords.removeKeyword(keyword));
+
+      this.librariesByName.delete(library.name);
+    });
   }
 
   /**
@@ -91,6 +110,7 @@ export class Workspace {
   public clear() {
     this.filesByPath = new Map();
     this.filesByNamespace = new Map();
+    this.librariesByName = new Map();
     this.keywords = new GlobalKeywordContainer();
     this.variables = new VariableContainer();
   }

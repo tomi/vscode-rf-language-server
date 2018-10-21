@@ -21,7 +21,7 @@ import { findReferences } from "./intellisense/reference-finder";
 import { findCompletionItems } from "./intellisense/completion-provider";
 import { getFileSymbols, getWorkspaceSymbols } from "./intellisense/symbol-provider";
 import { findFileHighlights } from "./intellisense/highlight-provider";
-import { Config } from "./utils/settings";
+import { Config, LibraryDefinition } from "./utils/settings";
 import { ConsoleLogger } from "./logger";
 
 import * as asyncFs from "./utils/async-fs";
@@ -308,13 +308,21 @@ async function _readAndParseFile(filePath: string) {
   }
 }
 
-async function _readAndParseLibrary(libraryName: string) {
+async function _readAndParseLibrary(libraryName: string | LibraryDefinition) {
   try {
-    const filePath = path.join(LIBRARY_PATH, `${libraryName}.json`);
-    const fileContents = await asyncFs.readFileAsync(filePath, "utf-8");
+    let libraryDefinition: LibraryDefinition;
 
-    logger.info("Parsing library", filePath);
-    const file = createLibraryFile(filePath, fileContents);
+    if (typeof libraryName === "string") {
+      const filePath = path.join(LIBRARY_PATH, `${libraryName}.json`);
+      const fileContents = await asyncFs.readFileAsync(filePath, "utf-8");
+
+      logger.info("Parsing library", filePath);
+      libraryDefinition = JSON.parse(fileContents);
+    } else {
+      libraryDefinition = libraryName;
+    }
+
+    const file = createLibraryFile(libraryDefinition);
 
     workspace.addLibrary(file);
   } catch (error) {

@@ -117,10 +117,10 @@ function getParserFn(name: string): SettingParser {
  * @param id
  * @param values
  */
-function parseDocumentation(
+export function parseDocumentation(
   id: Identifier,
   values: DataCell[]
-): SettingDeclaration {
+): Documentation {
   if (_.isEmpty(values)) {
     return new Documentation(id, undefined, id.location);
   }

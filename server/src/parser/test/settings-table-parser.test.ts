@@ -15,6 +15,7 @@ import {
   VariableExpression,
   Identifier,
   CallExpression,
+  Documentation,
 } from "../models";
 
 import { createLocation } from "./test-helper";
@@ -250,6 +251,22 @@ Test Setup        testSetup
           createLocation(1, 18, 3, 22)
         ),
         createLocation(1, 0, 3, 22)
+      ),
+    });
+
+    parseAndAssert(data, expected);
+  });
+
+  it("should parse documentation", () => {
+    const data = `* Settings
+Documentation  Documentation string
+`;
+
+    const expected = settingsTable(createLocation(0, 0, 2, 0), {
+      documentation: new Documentation(
+        new Identifier("Documentation", createLocation(1, 0, 1, 13)),
+        new Literal("Documentation string", createLocation(1, 15, 1, 35)),
+        createLocation(1, 0, 1, 35)
       ),
     });
 

@@ -180,6 +180,8 @@ export class SettingsTable implements Node {
   public resourceImports: ResourceImport[] = [];
   public variableImports: VariableImport[] = [];
 
+  public documentation: Documentation;
+
   // TODO:
   // Metadata
   // Force tags

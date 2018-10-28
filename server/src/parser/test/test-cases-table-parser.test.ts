@@ -12,12 +12,10 @@ import {
   TestCasesTable,
   VariableExpression,
   TestCase,
-  Step
+  Step,
 } from "../models";
 
-import {
-  createLocation,
-} from "./test-helper";
+import { createLocation } from "./test-helper";
 
 const NAMESPACE = "";
 
@@ -46,10 +44,8 @@ function testCase(
 }
 
 describe("Parsing Test Cases table", () => {
-
   it("should skip invalid data", () => {
-    const data =
-`*** Test Cases ***
+    const data = `*** Test Cases ***
     not a test case    cell2
     !another invalid   data
 `;
@@ -60,8 +56,7 @@ describe("Parsing Test Cases table", () => {
   });
 
   it("should parse steps", () => {
-    const data =
-`*** Test Cases ***
+    const data = `*** Test Cases ***
 TestCas Name
     Step 1    arg1      arg2
     Step 2    \${VAR}    a longer arg2
@@ -99,15 +94,14 @@ TestCas Name
             createLocation(3, 4, 3, 37)
           ),
         ]
-      )
+      ),
     ]);
 
     parseAndAssert(data, expected);
   });
 
   it("should parse step from multiple lines", () => {
-    const data =
-`*** Test Cases ***
+    const data = `*** Test Cases ***
 TestCas Name
     Step 1    arg1
     ...       arg2
@@ -130,15 +124,14 @@ TestCas Name
             createLocation(2, 4, 3, 18)
           ),
         ]
-      )
+      ),
     ]);
 
     parseAndAssert(data, expected);
   });
 
   it("should parse steps with explicit keywords", () => {
-    const data =
-`*** Test Cases ***
+    const data = `*** Test Cases ***
 TestCas Name
     MyLibrary.Step 1    arg1      arg2
     Deep.Library.Step 1    \${VAR}    a longer arg2
@@ -151,7 +144,11 @@ TestCas Name
         [
           new Step(
             new CallExpression(
-              new NamespacedIdentifier("MyLibrary", "Step 1", createLocation(2, 4, 2, 20)),
+              new NamespacedIdentifier(
+                "MyLibrary",
+                "Step 1",
+                createLocation(2, 4, 2, 20)
+              ),
               [
                 new Literal("arg1", createLocation(2, 24, 2, 28)),
                 new Literal("arg2", createLocation(2, 34, 2, 38)),
@@ -162,7 +159,11 @@ TestCas Name
           ),
           new Step(
             new CallExpression(
-              new NamespacedIdentifier("Deep.Library", "Step 1", createLocation(3, 4, 3, 23)),
+              new NamespacedIdentifier(
+                "Deep.Library",
+                "Step 1",
+                createLocation(3, 4, 3, 23)
+              ),
               [
                 new VariableExpression(
                   new Identifier("VAR", createLocation(3, 29, 3, 32)),
@@ -176,7 +177,7 @@ TestCas Name
             createLocation(3, 4, 3, 50)
           ),
         ]
-      )
+      ),
     ]);
 
     parseAndAssert(data, expected);

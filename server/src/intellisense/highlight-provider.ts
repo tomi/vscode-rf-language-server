@@ -5,17 +5,13 @@ import { ConsoleLogger as logger } from "../logger";
 import { DocumentHighlight } from "vscode-languageserver";
 import { Location, nodeLocationToRange } from "../utils/position";
 import { filter } from "../utils/ast-util";
-import {
-  findLocalVariables,
-  findNodeInPos,
-  FileNode
-} from "./node-locator";
+import { findLocalVariables, findNodeInPos, FileNode } from "./node-locator";
 import {
   Node,
   VariableDeclaration,
   VariableExpression,
   FunctionDeclaration,
-  SettingDeclaration
+  SettingDeclaration,
 } from "../parser/models";
 
 /**
@@ -23,13 +19,10 @@ import {
  * @param location
  * @param workspace
  */
-export function findFileHighlights(
-  location: Location,
-  workspace: Workspace
-) {
+export function findFileHighlights(location: Location, workspace: Workspace) {
   const file = workspace.getFile(location.filePath);
   if (!file) {
-    logger.info(`Definition not found. File '${ location.filePath }' not parsed`);
+    logger.info(`Definition not found. File '${location.filePath}' not parsed`);
     return [];
   }
 
@@ -64,7 +57,7 @@ export function findFileHighlights(
  * otherwise highlights for the variables
  */
 function _tryFindVariableHighlights(nodeInPos: FileNode): DocumentHighlight[] {
-  const lastNode   = nodeInPos.node;
+  const lastNode = nodeInPos.node;
   const secondLast = _.last(nodeInPos.path);
 
   let variable: VariableDeclaration | VariableExpression;
@@ -95,16 +88,21 @@ function _tryFindVariableHighlights(nodeInPos: FileNode): DocumentHighlight[] {
   }
 
   return filter(searchScope, node => {
-    if (typeGuards.isVariableDeclaration(node) ||
-        typeGuards.isVariableExpression(node)) {
-      return node.kind === variable.kind &&
-        node.id.name.toLowerCase() === variable.id.name.toLowerCase();
+    if (
+      typeGuards.isVariableDeclaration(node) ||
+      typeGuards.isVariableExpression(node)
+    ) {
+      return (
+        node.kind === variable.kind &&
+        node.id.name.toLowerCase() === variable.id.name.toLowerCase()
+      );
     } else {
       return false;
     }
-  })
-  .map(node => {
-    const highlightFor = typeGuards.isVariableDeclaration(node) ? node.id : node;
+  }).map(node => {
+    const highlightFor = typeGuards.isVariableDeclaration(node)
+      ? node.id
+      : node;
     return _createSymbolHighlight(highlightFor);
   });
 }
@@ -118,7 +116,7 @@ function _tryFindVariableHighlights(nodeInPos: FileNode): DocumentHighlight[] {
  * otherwise highlights for the variables
  */
 function _tryFindKeywordHighlights(nodeInPos: FileNode): DocumentHighlight[] {
-  const lastNode   = nodeInPos.node;
+  const lastNode = nodeInPos.node;
   const secondLast = _.last(nodeInPos.path);
 
   let keywordName;
@@ -143,8 +141,7 @@ function _tryFindKeywordHighlights(nodeInPos: FileNode): DocumentHighlight[] {
     } else {
       return false;
     }
-  })
-  .map(node => {
+  }).map(node => {
     if (typeGuards.isCallExpression(node)) {
       return _createSymbolHighlight(node.callee);
     } else if (typeGuards.isUserKeyword(node)) {
@@ -154,30 +151,33 @@ function _tryFindKeywordHighlights(nodeInPos: FileNode): DocumentHighlight[] {
 }
 
 function _tryFindSettingHighlights(nodeInPos: FileNode): DocumentHighlight[] {
-  const lastNode   = nodeInPos.node;
+  const lastNode = nodeInPos.node;
   const secondLast = _.last(nodeInPos.path);
 
-  if (!typeGuards.isIdentifier(lastNode) ||
-    !typeGuards.isSettingDeclaration(secondLast)) {
+  if (
+    !typeGuards.isIdentifier(lastNode) ||
+    !typeGuards.isSettingDeclaration(secondLast)
+  ) {
     return null;
   }
 
-  const settings = filter(nodeInPos.file.ast, node =>
-    typeGuards.isSettingDeclaration(node) && node.kind === secondLast.kind
+  const settings = filter(
+    nodeInPos.file.ast,
+    node =>
+      typeGuards.isSettingDeclaration(node) && node.kind === secondLast.kind
   ) as SettingDeclaration[];
 
   return settings.map(node => _createSymbolHighlight(node.id));
 }
 
 function _tryFindFunctionDeclaration(nodeInPos: FileNode): FunctionDeclaration {
-  return [
-    nodeInPos.node,
-    ...nodeInPos.path
-  ].find(typeGuards.isFunctionDeclaration) as FunctionDeclaration;
+  return [nodeInPos.node, ...nodeInPos.path].find(
+    typeGuards.isFunctionDeclaration
+  ) as FunctionDeclaration;
 }
 
 function _createSymbolHighlight(node: Node): DocumentHighlight {
   return {
-    range: nodeLocationToRange(node)
+    range: nodeLocationToRange(node),
   };
 }

@@ -5,11 +5,7 @@ import { SymbolKind } from "vscode-languageserver";
 import { formatVariable } from "./formatters";
 import { isVariableDeclaration, isUserKeyword } from "./type-guards";
 
-import {
-  VariableDeclaration,
-  TestCase,
-  UserKeyword,
-} from "../parser/models";
+import { VariableDeclaration, TestCase, UserKeyword } from "../parser/models";
 
 /**
  * Returns all symbols for given file
@@ -23,12 +19,12 @@ export function getFileSymbols(
   query: string = ""
 ) {
   const idMatches = _createIdMatcherFn(query);
-  const createVariableSymbol =
-    node => _createVariableSymbol(node, file, useFileNameAsContainer);
-  const createKeywordSymbol =
-    node => _createKeywordSymbol(node, file, useFileNameAsContainer);
-  const createTestCaseSymbol =
-    node => _createTestCaseSymbol(node, file, useFileNameAsContainer);
+  const createVariableSymbol = node =>
+    _createVariableSymbol(node, file, useFileNameAsContainer);
+  const createKeywordSymbol = node =>
+    _createKeywordSymbol(node, file, useFileNameAsContainer);
+  const createTestCaseSymbol = node =>
+    _createTestCaseSymbol(node, file, useFileNameAsContainer);
 
   const variableSymbols = file.variables
     .filter(idMatches)
@@ -36,16 +32,12 @@ export function getFileSymbols(
   const keywordSymbols = file.keywords
     .filter(idMatches)
     .map(createKeywordSymbol);
-  const testCases = file.ast.testCasesTable ? file.ast.testCasesTable.testCases : [];
-  const testCaseSymbols = testCases
-    .filter(idMatches)
-    .map(createTestCaseSymbol);
+  const testCases = file.ast.testCasesTable
+    ? file.ast.testCasesTable.testCases
+    : [];
+  const testCaseSymbols = testCases.filter(idMatches).map(createTestCaseSymbol);
 
-  return [
-    ...variableSymbols,
-    ...keywordSymbols,
-    ...testCaseSymbols
-  ];
+  return [...variableSymbols, ...keywordSymbols, ...testCaseSymbols];
 }
 
 /**
@@ -53,10 +45,7 @@ export function getFileSymbols(
  *
  * @param workspace
  */
-export function getWorkspaceSymbols(
-  workspace: Workspace,
-  query: string
-) {
+export function getWorkspaceSymbols(workspace: Workspace, query: string) {
   return Array.from(workspace.getFiles())
     .map(files => getFileSymbols(files, true, query))
     .reduce((fileSymbols, allSymbols) => {
@@ -85,8 +74,9 @@ function _createIdMatcherFn(query: string) {
       }
     }
 
-    const toMatch = isVariableDeclaration(node) ?
-      formatVariable(node) : node.id.name;
+    const toMatch = isVariableDeclaration(node)
+      ? formatVariable(node)
+      : node.id.name;
 
     return toMatch.toLowerCase().includes(lowerQuery);
   };
@@ -102,9 +92,9 @@ function _createVariableSymbol(
     kind: SymbolKind.Variable,
     location: {
       uri: file.uri,
-      range: nodeLocationToRange(node)
+      range: nodeLocationToRange(node),
     },
-    containerName: useFileNameAsContainer ? file.relativePath : undefined
+    containerName: useFileNameAsContainer ? file.relativePath : undefined,
   };
 }
 
@@ -118,10 +108,10 @@ function _createTestCaseSymbol(
     kind: SymbolKind.Function,
     location: {
       uri: file.uri,
-      range: nodeLocationToRange(node)
+      range: nodeLocationToRange(node),
     },
-    containerName: useFileNameAsContainer ? file.relativePath : "<test case>"
- };
+    containerName: useFileNameAsContainer ? file.relativePath : "<test case>",
+  };
 }
 
 function _createKeywordSymbol(
@@ -134,8 +124,8 @@ function _createKeywordSymbol(
     kind: SymbolKind.Function,
     location: {
       uri: file.uri,
-      range: nodeLocationToRange(node)
+      range: nodeLocationToRange(node),
     },
-    containerName: useFileNameAsContainer ? file.relativePath : "<keyword>"
+    containerName: useFileNameAsContainer ? file.relativePath : "<keyword>",
   };
 }

@@ -6,7 +6,7 @@ import {
   VariableExpression,
   VariableDeclaration,
   UserKeyword,
-  TestSuite
+  TestSuite,
 } from "../parser/models";
 import { ConsoleLogger } from "../logger";
 import { traverse, VisitorOption } from "../traverse/traverse";
@@ -21,7 +21,7 @@ import {
   isVariableDeclaration,
   isFunctionDeclaration,
   isUserKeyword,
-  isNamespacedIdentifier
+  isNamespacedIdentifier,
 } from "./type-guards";
 
 import { Range } from "./models";
@@ -52,14 +52,17 @@ export function findDefinition(
 ): NodeDefinition {
   const file = workspaceTree.getFile(location.filePath);
   if (!file) {
-    logger.info(`Definition not found. File '${ location.filePath }' not parsed`);
+    logger.info(`Definition not found. File '${location.filePath}' not parsed`);
     return null;
   }
 
   const nodeInPos = findNodeInPos(location.position, file);
   if (!isIdentifier(nodeInPos.node)) {
-    const logMsg = "Definition not found. " +
-      `Node in position is not an identifier, but of type ${ nodeInPos.node.type }`;
+    const logMsg =
+      "Definition not found. " +
+      `Node in position is not an identifier, but of type ${
+        nodeInPos.node.type
+      }`;
     logger.info(logMsg);
     return null;
   }
@@ -67,13 +70,25 @@ export function findDefinition(
   const parentOfNode = _.last(nodeInPos.path);
   let foundDefinition = null;
   if (isVariableExpression(parentOfNode)) {
-    logger.info("Parent is a variable expression, finding a variable definition");
-    foundDefinition = findVariableDefinition(parentOfNode, nodeInPos, workspaceTree);
+    logger.info(
+      "Parent is a variable expression, finding a variable definition"
+    );
+    foundDefinition = findVariableDefinition(
+      parentOfNode,
+      nodeInPos,
+      workspaceTree
+    );
   } else if (isCallExpression(parentOfNode)) {
     logger.info("Parent is a call expression, finding a keyword definition");
-    foundDefinition = findKeywordDefinition(parentOfNode, nodeInPos, workspaceTree);
+    foundDefinition = findKeywordDefinition(
+      parentOfNode,
+      nodeInPos,
+      workspaceTree
+    );
   } else {
-    logger.info(`Parent is of type ${ parentOfNode.type }. No definition available`);
+    logger.info(
+      `Parent is of type ${parentOfNode.type}. No definition available`
+    );
   }
 
   return foundDefinition;
@@ -84,25 +99,30 @@ export function findVariableDefinition(
   variableLocation: FileNode,
   workspaceTree: Workspace
 ): VariableDefinition {
-  let foundVariableDefinition =
-    tryFindVarDefStartingFromNode(variable, variableLocation);
+  let foundVariableDefinition = tryFindVarDefStartingFromNode(
+    variable,
+    variableLocation
+  );
 
   if (foundVariableDefinition) {
     return {
-      node:  foundVariableDefinition,
-      uri:   variableLocation.file.uri,
-      range: nodeLocationToRange(foundVariableDefinition)
+      node: foundVariableDefinition,
+      uri: variableLocation.file.uri,
+      range: nodeLocationToRange(foundVariableDefinition),
     };
   }
 
   // TODO: iterate in import order
   for (const file of workspaceTree.getFiles()) {
-    foundVariableDefinition = findVariableDefinitionFromFile(variable, file.ast);
+    foundVariableDefinition = findVariableDefinitionFromFile(
+      variable,
+      file.ast
+    );
     if (foundVariableDefinition) {
       return {
-        node:  foundVariableDefinition,
-        uri:   file.uri,
-        range: nodeLocationToRange(foundVariableDefinition)
+        node: foundVariableDefinition,
+        uri: file.uri,
+        range: nodeLocationToRange(foundVariableDefinition),
       };
     }
   }
@@ -116,12 +136,15 @@ export function findKeywordDefinition(
   keywordLocation: FileNode,
   workspaceTree: Workspace
 ): KeywordDefinition {
-  let foundDefinition = findKeywordDefinitionFromFile(callExpression, keywordLocation.file.ast);
+  let foundDefinition = findKeywordDefinitionFromFile(
+    callExpression,
+    keywordLocation.file.ast
+  );
   if (foundDefinition) {
     return {
-      node:  foundDefinition,
-      uri:   keywordLocation.file.uri,
-      range: nodeLocationToRange(foundDefinition)
+      node: foundDefinition,
+      uri: keywordLocation.file.uri,
+      range: nodeLocationToRange(foundDefinition),
     };
   }
 
@@ -136,15 +159,17 @@ export function findKeywordDefinition(
         logger.info("Found matching keyword by namespace");
 
         return {
-          node:  foundDefinition,
-          uri:   file.uri,
-          range: nodeLocationToRange(foundDefinition)
+          node: foundDefinition,
+          uri: file.uri,
+          range: nodeLocationToRange(foundDefinition),
         };
       } else {
         logger.info(`No keyword found from file`);
       }
     } else {
-      logger.info(`No matching file found for namespace ${identifier.namespace}`);
+      logger.info(
+        `No matching file found for namespace ${identifier.namespace}`
+      );
     }
   }
 
@@ -157,9 +182,9 @@ export function findKeywordDefinition(
     foundDefinition = findKeywordDefinitionFromFile(callExpression, file.ast);
     if (foundDefinition) {
       return {
-        node:  foundDefinition,
-        uri:   file.uri,
-        range: nodeLocationToRange(foundDefinition)
+        node: foundDefinition,
+        uri: file.uri,
+        range: nodeLocationToRange(foundDefinition),
       };
     }
   }
@@ -169,7 +194,8 @@ export function findKeywordDefinition(
 }
 
 function tryFindVarDefStartingFromNode(
-  variable: VariableExpression, location: FileNode
+  variable: VariableExpression,
+  location: FileNode
 ): VariableDeclaration {
   let foundVariableDefinition = null;
 
@@ -179,18 +205,21 @@ function tryFindVarDefStartingFromNode(
     }
 
     // Try to find from steps
-    const foundInSteps = node.steps.find(nodeInStep => {
-      const { body } = nodeInStep;
+    const foundInSteps =
+      node.steps.find(nodeInStep => {
+        const { body } = nodeInStep;
 
-      if (isVariableDeclaration(body) &&
-        body.kind === variable.kind &&
-        body.id.name === variable.id.name) {
-        foundVariableDefinition = body;
-        return true;
-      } else {
-        return false;
-      }
-    }) !== undefined;
+        if (
+          isVariableDeclaration(body) &&
+          body.kind === variable.kind &&
+          body.id.name === variable.id.name
+        ) {
+          foundVariableDefinition = body;
+          return true;
+        } else {
+          return false;
+        }
+      }) !== undefined;
 
     if (foundInSteps) {
       return true;
@@ -201,15 +230,16 @@ function tryFindVarDefStartingFromNode(
     }
 
     // Try to find from keyword arguments
-    return node.arguments.values.find(arg => {
-      if (arg.kind === variable.kind &&
-          arg.id.name === variable.id.name) {
-        foundVariableDefinition = arg;
-        return true;
-      } else {
-        return false;
-      }
-    }) !== undefined;
+    return (
+      node.arguments.values.find(arg => {
+        if (arg.kind === variable.kind && arg.id.name === variable.id.name) {
+          foundVariableDefinition = arg;
+          return true;
+        } else {
+          return false;
+        }
+      }) !== undefined
+    );
   });
 
   if (foundVariableDefinition) {
@@ -218,8 +248,10 @@ function tryFindVarDefStartingFromNode(
 
   if (location.file.ast.variablesTable) {
     location.file.ast.variablesTable.variables.find(varTableVar => {
-      if (varTableVar.kind === variable.kind &&
-        varTableVar.id.name === variable.id.name) {
+      if (
+        varTableVar.kind === variable.kind &&
+        varTableVar.id.name === variable.id.name
+      ) {
         foundVariableDefinition = varTableVar;
         return true;
       } else {
@@ -231,10 +263,11 @@ function tryFindVarDefStartingFromNode(
   return foundVariableDefinition;
 }
 
-function findVariableDefinitionFromFile(variable: VariableExpression, file: TestSuite): VariableDeclaration {
-  const nodesToEnter = new Set([
-    "TestSuite", "VariablesTable"
-  ]);
+function findVariableDefinitionFromFile(
+  variable: VariableExpression,
+  file: TestSuite
+): VariableDeclaration {
+  const nodesToEnter = new Set(["TestSuite", "VariablesTable"]);
 
   let foundVariable = null;
   const isNodeSearchedVar = node =>
@@ -251,16 +284,17 @@ function findVariableDefinitionFromFile(variable: VariableExpression, file: Test
       } else if (!nodesToEnter.has(node.type)) {
         return VisitorOption.Skip;
       }
-    }
+    },
   });
 
   return foundVariable;
 }
 
-function findKeywordDefinitionFromFile(callExpression: CallExpression, file: TestSuite): UserKeyword {
-  const nodesToEnter = new Set([
-    "TestSuite", "KeywordsTable"
-  ]);
+function findKeywordDefinitionFromFile(
+  callExpression: CallExpression,
+  file: TestSuite
+): UserKeyword {
+  const nodesToEnter = new Set(["TestSuite", "KeywordsTable"]);
 
   let foundKeyword = null;
   const isNodeSearchedKeyword = node =>
@@ -276,7 +310,7 @@ function findKeywordDefinitionFromFile(callExpression: CallExpression, file: Tes
       } else if (!nodesToEnter.has(node.type)) {
         return VisitorOption.Skip;
       }
-    }
+    },
   });
 
   return foundKeyword;

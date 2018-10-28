@@ -4,7 +4,7 @@ import fetch from "node-fetch";
 import { load } from "cheerio";
 import * as TurndownService from "turndown";
 
-const LIBS_DIR = join(__dirname, "./library-docs");
+const LIBS_DIR = join(__dirname, "../library-docs");
 
 const turndownService = new TurndownService();
 turndownService.addRule("examplesTable", {

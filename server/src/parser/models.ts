@@ -1,9 +1,6 @@
 import * as _ from "lodash";
 
-import {
-  SourceLocation,
-  Position
-} from "./table-models";
+import { SourceLocation, Position } from "./table-models";
 
 export interface Node {
   type: string;
@@ -11,20 +8,15 @@ export interface Node {
 }
 
 // tslint:disable-next-line:no-empty-interface
-export interface Expression extends Node {
-}
+export interface Expression extends Node {}
 
 // tslint:disable-next-line:no-empty-interface
-export interface ValueExpression extends Expression {
-}
+export interface ValueExpression extends Expression {}
 
 export class Identifier implements Node {
   public type = "Identifier";
 
-  constructor(
-    public name: string,
-    public location: SourceLocation
-  ) { }
+  constructor(public name: string, public location: SourceLocation) {}
 }
 
 export class NamespacedIdentifier extends Identifier {
@@ -46,14 +38,14 @@ export class NamespacedIdentifier extends Identifier {
 export type VariableKind = "Scalar" | "List" | "Dictionary";
 
 export type SettingKind =
-  "Documentation" |
-  "Arguments" |
-  "Return" |
-  "Timeout" |
-  "Teardown" |
-  "Tags" |
-  "Setup" |
-  "Template";
+  | "Documentation"
+  | "Arguments"
+  | "Return"
+  | "Timeout"
+  | "Teardown"
+  | "Tags"
+  | "Setup"
+  | "Template";
 
 export class VariableExpression implements ValueExpression {
   public type = "VariableExpression";
@@ -62,16 +54,13 @@ export class VariableExpression implements ValueExpression {
     public id: Identifier,
     public kind: VariableKind,
     public location: SourceLocation
-  ) { }
+  ) {}
 }
 
 export class Literal implements ValueExpression {
   public type = "Literal";
 
-  constructor(
-    public value: string,
-    public location: SourceLocation
-  ) { }
+  constructor(public value: string, public location: SourceLocation) {}
 }
 
 export class KeyValueLiteral extends Literal {
@@ -80,11 +69,7 @@ export class KeyValueLiteral extends Literal {
   /**
    *
    */
-  constructor(
-    public name: string,
-    value: string,
-    location: SourceLocation
-  ) {
+  constructor(public name: string, value: string, location: SourceLocation) {
     super(value, location);
   }
 }
@@ -92,10 +77,7 @@ export class KeyValueLiteral extends Literal {
 export class TemplateElement implements Node {
   public type = "TemplateElement";
 
-  constructor(
-    public value: string,
-    public location: SourceLocation
-  ) { }
+  constructor(public value: string, public location: SourceLocation) {}
 }
 
 export class TemplateLiteral implements ValueExpression {
@@ -105,7 +87,7 @@ export class TemplateLiteral implements ValueExpression {
     public quasis: TemplateElement[],
     public expressions: VariableExpression[],
     public location: SourceLocation
-  ) { }
+  ) {}
 }
 
 export class CallExpression implements Expression {
@@ -114,8 +96,8 @@ export class CallExpression implements Expression {
   constructor(
     public callee: Identifier,
     public args: ValueExpression[],
-    public location: SourceLocation,
-  ) { }
+    public location: SourceLocation
+  ) {}
 }
 
 export class EmptyNode implements Node {
@@ -123,12 +105,10 @@ export class EmptyNode implements Node {
 
   public location: SourceLocation;
 
-  constructor(
-    position: Position,
-  ) {
+  constructor(position: Position) {
     this.location = {
       start: position,
-      end: position
+      end: position,
     };
   }
 }
@@ -147,7 +127,7 @@ export class LibraryImport implements Import {
     public target: ValueExpression,
     public args: ValueExpression[],
     public location: SourceLocation
-  ) { }
+  ) {}
 }
 
 export class ResourceImport implements Import {
@@ -159,7 +139,7 @@ export class ResourceImport implements Import {
   constructor(
     public target: ValueExpression,
     public location: SourceLocation
-  ) { }
+  ) {}
 }
 
 export class VariableImport implements Import {
@@ -171,7 +151,7 @@ export class VariableImport implements Import {
   constructor(
     public target: ValueExpression,
     public location: SourceLocation
-  ) { }
+  ) {}
 }
 
 export class SuiteSetting implements Node {
@@ -181,7 +161,7 @@ export class SuiteSetting implements Node {
     public name: Identifier,
     public value: CallExpression | EmptyNode,
     public location: SourceLocation
-  ) { }
+  ) {}
 }
 
 /**
@@ -190,10 +170,10 @@ export class SuiteSetting implements Node {
 export class SettingsTable implements Node {
   public type = "SettingsTable";
 
-  public suiteSetup:    SuiteSetting;
+  public suiteSetup: SuiteSetting;
   public suiteTeardown: SuiteSetting;
 
-  public testSetup:    SuiteSetting;
+  public testSetup: SuiteSetting;
   public testTeardown: SuiteSetting;
 
   public libraryImports: LibraryImport[] = [];
@@ -207,8 +187,7 @@ export class SettingsTable implements Node {
   // Test template
   // Test timeout
 
-  constructor(public location: SourceLocation) {
-  }
+  constructor(public location: SourceLocation) {}
 
   public addLibraryImport(importToAdd: LibraryImport) {
     this.libraryImports.push(importToAdd);
@@ -248,7 +227,7 @@ export class Documentation implements SettingDeclaration {
     public id: Identifier,
     public value: Literal,
     public location: SourceLocation
-  ) { }
+  ) {}
 }
 
 /**
@@ -265,7 +244,7 @@ export class Arguments implements SettingDeclaration {
     public id: Identifier,
     public values: VariableDeclaration[] = [],
     public location: SourceLocation
-  ) { }
+  ) {}
 }
 
 /**
@@ -282,7 +261,7 @@ export class Return implements SettingDeclaration {
     public id: Identifier,
     public values: ValueExpression[] = [],
     public location: SourceLocation
-  ) { }
+  ) {}
 }
 
 /**
@@ -300,7 +279,7 @@ export class Timeout implements SettingDeclaration {
     public value: Literal,
     public message: Literal,
     public location: SourceLocation
-  ) { }
+  ) {}
 }
 
 /**
@@ -317,7 +296,7 @@ export class Tags implements SettingDeclaration {
     public id: Identifier,
     public values: Literal[] = [],
     public location: SourceLocation
-  ) { }
+  ) {}
 }
 
 /**
@@ -334,7 +313,7 @@ export class Teardown implements SettingDeclaration {
     public id: Identifier,
     public keyword: CallExpression,
     public location: SourceLocation
-  ) { }
+  ) {}
 }
 
 /**
@@ -351,7 +330,7 @@ export class Setup implements SettingDeclaration {
     public id: Identifier,
     public keyword: CallExpression,
     public location: SourceLocation
-  ) { }
+  ) {}
 }
 
 /**
@@ -368,7 +347,7 @@ export class Template implements SettingDeclaration {
     public id: Identifier,
     public keyword: CallExpression,
     public location: SourceLocation
-  ) { }
+  ) {}
 }
 
 export interface VariableDeclaration extends Declaration {
@@ -397,7 +376,7 @@ export class ScalarDeclaration implements VariableDeclaration {
     public id: Identifier,
     public value: Expression,
     public location: SourceLocation
-  ) { }
+  ) {}
 }
 
 /**
@@ -414,7 +393,7 @@ export class ListDeclaration implements VariableDeclaration {
     public id: Identifier,
     public values: Expression[],
     public location: SourceLocation
-  ) { }
+  ) {}
 }
 
 export class DictionaryDeclaration implements VariableDeclaration {
@@ -428,7 +407,7 @@ export class DictionaryDeclaration implements VariableDeclaration {
     public id: Identifier,
     public values: Identifier[] | KeyValueLiteral[],
     public location: SourceLocation
-  ) { }
+  ) {}
 }
 
 /**
@@ -439,9 +418,7 @@ export class VariablesTable implements Node {
 
   public variables: VariableDeclaration[] = [];
 
-  constructor(
-    public location: SourceLocation
-  ) { }
+  constructor(public location: SourceLocation) {}
 
   public addVariable(variable: VariableDeclaration) {
     this.variables.push(variable);
@@ -457,7 +434,7 @@ export class Step implements Node {
   constructor(
     public body: VariableDeclaration | CallExpression,
     public location: SourceLocation
-  ) { }
+  ) {}
 }
 
 /**
@@ -474,13 +451,10 @@ export class UserKeyword implements FunctionDeclaration {
   public tags: Tags;
   public location: SourceLocation;
 
-  constructor(
-    public id: NamespacedIdentifier,
-    startPosition?: Position
-  ) {
+  constructor(public id: NamespacedIdentifier, startPosition?: Position) {
     this.location = {
       start: startPosition,
-      end: startPosition
+      end: startPosition,
     };
   }
 
@@ -497,9 +471,7 @@ export class KeywordsTable implements Node {
 
   public keywords: UserKeyword[] = [];
 
-  constructor(
-    public location: SourceLocation
-  ) { }
+  constructor(public location: SourceLocation) {}
 
   public addKeyword(keyword: UserKeyword) {
     this.keywords.push(keyword);
@@ -520,13 +492,10 @@ export class TestCase implements FunctionDeclaration {
   public location: SourceLocation;
   // TODO: Template
 
-  constructor(
-    public id: Identifier,
-    startPosition: Position
-  ) {
+  constructor(public id: Identifier, startPosition: Position) {
     this.location = {
       start: startPosition,
-      end: startPosition
+      end: startPosition,
     };
   }
 
@@ -542,9 +511,7 @@ export class TestCasesTable implements Node {
   public type = "TestCasesTable";
   public testCases: TestCase[] = [];
 
-  constructor(
-    public location: SourceLocation
-  ) { }
+  constructor(public location: SourceLocation) {}
 
   public addTestCase(testCase: TestCase) {
     this.testCases.push(testCase);
@@ -554,15 +521,13 @@ export class TestCasesTable implements Node {
 export class TestSuite implements Node {
   public type = "TestSuite";
 
-  public settingsTable:  SettingsTable;
+  public settingsTable: SettingsTable;
   public variablesTable: VariablesTable;
-  public keywordsTable:  KeywordsTable;
+  public keywordsTable: KeywordsTable;
   public testCasesTable: TestCasesTable;
 
   /**
    *
    */
-  constructor(
-    public location: SourceLocation
-  ) { }
+  constructor(public location: SourceLocation) {}
 }

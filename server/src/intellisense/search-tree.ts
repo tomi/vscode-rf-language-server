@@ -3,7 +3,7 @@ import * as Trie from "node-ternary-search-trie";
 import {
   UserKeyword,
   VariableKind,
-  VariableDeclaration
+  VariableDeclaration,
 } from "../parser/models";
 
 import { TestSuite } from "../parser/models";
@@ -17,7 +17,7 @@ abstract class SymbolContainer<T> {
     this.tree.set(normalizedKey, item);
   }
 
-  public get(key: string): T | undefined {
+  public get(key: string): T | undefined {
     return this.tree.get(key);
   }
 
@@ -95,10 +95,7 @@ export class GlobalKeywordContainer extends SymbolContainer<UserKeyword[]> {
     const key = this._getKeywordNormalizedKey(item);
     const existingKeywords = this.get(key) || [];
 
-    this.tree.set(key, [
-      ...existingKeywords,
-      item
-    ]);
+    this.tree.set(key, [...existingKeywords, item]);
   }
 
   public removeKeyword(item: UserKeyword) {
@@ -109,8 +106,9 @@ export class GlobalKeywordContainer extends SymbolContainer<UserKeyword[]> {
       return;
     }
 
-    const keywordsWithoutRemoved = existingKeywords.filter(keyword =>
-        keyword.id.fullName !== item.id.fullName);
+    const keywordsWithoutRemoved = existingKeywords.filter(
+      keyword => keyword.id.fullName !== item.id.fullName
+    );
 
     if (keywordsWithoutRemoved.length > 0) {
       this.tree.set(key, keywordsWithoutRemoved);
@@ -154,17 +152,21 @@ export class VariableContainer extends SymbolContainer<VariableDeclaration> {
     if (!typeIdentifier) {
       return node.id.name;
     } else {
-      return `${ typeIdentifier }{${ node.id.name }}`;
+      return `${typeIdentifier}{${node.id.name}}`;
     }
   }
 
   // TODO: Move to formatters
   private _variableKindToIdentifier(kind: VariableKind) {
     switch (kind) {
-      case "Scalar":     return "$";
-      case "List":       return "@";
-      case "Dictionary": return "&";
-      default:           return null;
+      case "Scalar":
+        return "$";
+      case "List":
+        return "@";
+      case "Dictionary":
+        return "&";
+      default:
+        return null;
     }
   }
 }
@@ -180,7 +182,7 @@ export interface Symbols {
  * @param ast
  */
 export function createFileSearchTrees(ast: TestSuite): Symbols {
-  const keywords  = new KeywordContainer();
+  const keywords = new KeywordContainer();
   const variables = new VariableContainer();
 
   if (ast && ast.keywordsTable) {
@@ -197,7 +199,7 @@ export function createFileSearchTrees(ast: TestSuite): Symbols {
 
   return {
     keywords,
-    variables
+    variables,
   };
 }
 

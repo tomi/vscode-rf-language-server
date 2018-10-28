@@ -4,7 +4,7 @@ import {
   Symbols,
   createFileSearchTrees,
   KeywordContainer,
-  VariableContainer
+  VariableContainer,
 } from "../search-tree";
 
 import Uri from "vscode-uri";
@@ -19,19 +19,16 @@ abstract class WorkspaceFile implements Symbols {
   constructor(
     // The namespace for this file is based on the filename.
     public namespace: string,
-
     // Absolute path of the file in the file system
     public filePath: string,
-
     // File's relative path to workspace root
     public relativePath: string,
-
     // AST of the file
     public ast: TestSuite
   ) {
     const { keywords, variables } = createFileSearchTrees(ast);
 
-    this.keywords  = keywords;
+    this.keywords = keywords;
     this.variables = variables;
   }
 
@@ -42,4 +39,8 @@ abstract class WorkspaceFile implements Symbols {
 
 export default WorkspaceFile;
 
-export type WorkspaceFileParserFn = (contents: string, absolutePath: string, relativePath: string) => WorkspaceFile;
+export type WorkspaceFileParserFn = (
+  contents: string,
+  absolutePath: string,
+  relativePath: string
+) => WorkspaceFile;

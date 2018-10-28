@@ -46,6 +46,21 @@
   },
   "rules": {
     "arrow-parens": [true, "ban-single-arg-parens"],
+    "ban-types": [
+      true,
+      [
+        "Object"
+      ],
+      [
+        "String"
+      ],
+      [
+        "Boolean"
+      ],
+      [
+        "Number"
+      ]
+    ],
     "class-name": true,
     "comment-format": [
       true,

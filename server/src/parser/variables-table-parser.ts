@@ -1,9 +1,6 @@
 import * as _ from "lodash";
 
-import {
-  DataTable,
-  DataRow
-} from "./table-models";
+import { DataTable, DataRow } from "./table-models";
 
 import { VariablesTable } from "./models";
 
@@ -12,7 +9,7 @@ import { parseValueExpression } from "./primitive-parsers";
 import {
   isVariable,
   parseTypeAndName,
-  parseVariableDeclaration
+  parseVariableDeclaration,
 } from "./variable-parsers";
 
 export function parseVariablesTable(dataTable: DataTable): VariablesTable {
@@ -35,6 +32,10 @@ function parseRow(variablesTable: VariablesTable, row: DataRow) {
 
   const typeAndName = parseTypeAndName(typeNameCell);
   const values = row.getCellsByRange(1).map(parseValueExpression);
-  const variableDeclaration = parseVariableDeclaration(typeAndName, values, row.location);
+  const variableDeclaration = parseVariableDeclaration(
+    typeAndName,
+    values,
+    row.location
+  );
   variablesTable.addVariable(variableDeclaration);
 }

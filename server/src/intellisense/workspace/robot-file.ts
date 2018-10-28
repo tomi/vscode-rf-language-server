@@ -7,24 +7,20 @@ import WorkspaceFile from "./workspace-file";
 const robotParser = new RobotParser();
 
 export class RobotFile extends WorkspaceFile {
-    constructor(
-        // The namespace for this file is based on the filename.
-        namespace: string,
-
-        // Absolute path of the file in the file system
-        filePath: string,
-
-        // File's relative path to workspace root
-        relativePath: string,
-
-        // AST of the file
-        fileAst: TestSuite,
-
-        // Tables read from the robot file
-        public tables: DataTable[]
-    ) {
-        super(namespace, filePath, relativePath, fileAst);
-    }
+  constructor(
+    // The namespace for this file is based on the filename.
+    namespace: string,
+    // Absolute path of the file in the file system
+    filePath: string,
+    // File's relative path to workspace root
+    relativePath: string,
+    // AST of the file
+    fileAst: TestSuite,
+    // Tables read from the robot file
+    public tables: DataTable[]
+  ) {
+    super(namespace, filePath, relativePath, fileAst);
+  }
 }
 
 /**
@@ -37,7 +33,7 @@ export class RobotFile extends WorkspaceFile {
 export function createRobotFile(
   contents: string,
   absolutePath: string,
-  relativePath: string,
+  relativePath: string
 ): RobotFile {
   const tables = robotParser.readTables(contents);
 

@@ -2,16 +2,9 @@ import * as _ from "lodash";
 import * as chai from "chai";
 
 import { parseVariablesTable } from "../variables-table-parser";
-import {
-  VariablesTable,
-} from "../models";
+import { VariablesTable } from "../models";
 
-import {
-  createLocation,
-  table,
-  row,
-  createCell
-} from "./test-helper";
+import { createLocation, table, row, createCell } from "./test-helper";
 
 function parseAndAssert(tableDefinition, expected) {
   const actual = parseVariablesTable(tableDefinition);
@@ -24,20 +17,19 @@ function variablesTable(location, variables) {
 }
 
 describe("Parsing Variables table", () => {
-
   it("should skip invalid data", () => {
     const tableDefinition = table("Variables", {
       header: row(createLocation(0, 0, 0, 10)),
       rows: [
         row(createLocation(1, 0, 1, 10), [
           createCell(createLocation(1, 0, 1, 10), "not a variable"),
-          createCell(createLocation(1, 0, 1, 10), "cell2")
+          createCell(createLocation(1, 0, 1, 10), "cell2"),
         ]),
         row(createLocation(2, 0, 2, 10), [
           createCell(createLocation(2, 0, 2, 10), "!another invalid"),
-          createCell(createLocation(2, 0, 2, 10), "data")
+          createCell(createLocation(2, 0, 2, 10), "data"),
         ]),
-      ]
+      ],
     });
 
     const expected = variablesTable(createLocation(0, 0, 2, 10), []);
@@ -79,5 +71,4 @@ describe("Parsing Variables table", () => {
   it("should parse environment variables", () => {
     // TODO
   });
-
 });

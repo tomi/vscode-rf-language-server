@@ -1,12 +1,8 @@
 import * as _ from "lodash";
 
-import {
-  DataCell
-} from "./table-models";
+import { DataCell } from "./table-models";
 
-import {
-  location
-} from "./position-helper";
+import { location } from "./position-helper";
 
 import {
   Identifier,
@@ -17,28 +13,31 @@ import {
   VariableExpression,
   VariableKind,
   TemplateLiteral,
-  TemplateElement
+  TemplateElement,
 } from "./models";
 
 const VARIABLE_KINDS = new Map([
   ["$", "Scalar"],
   ["@", "List"],
   ["&", "Dictionary"],
-  ["%", "Environment"]
+  ["%", "Environment"],
 ]);
 
 export type StringParseResultKind = "string" | "var";
 
 export interface StringParseResult {
-  name:  string;
-  type:  string;
+  name: string;
+  type: string;
   start: number;
-  end:   number;
-  kind:  string;
+  end: number;
+  kind: string;
   value: string;
 }
 
-function getTemplateElement(parseResult: StringParseResult, cell: DataCell): TemplateElement {
+function getTemplateElement(
+  parseResult: StringParseResult,
+  cell: DataCell
+): TemplateElement {
   const { value, start, end } = parseResult;
 
   const loc = location(
@@ -51,37 +50,52 @@ function getTemplateElement(parseResult: StringParseResult, cell: DataCell): Tem
   return new TemplateElement(value, loc);
 }
 
-function getVariableExpression(parseResult: StringParseResult, cell: DataCell): VariableExpression {
+function getVariableExpression(
+  parseResult: StringParseResult,
+  cell: DataCell
+): VariableExpression {
   const { type, name, start, end } = parseResult;
 
   return new VariableExpression(
-    new Identifier(name, location(
+    new Identifier(
+      name,
+      location(
         cell.location.start.line,
         cell.location.start.column + start + 2,
         cell.location.start.line,
         cell.location.start.column + end - 1
-    )),
+      )
+    ),
     VARIABLE_KINDS.get(type) as VariableKind,
     location(
-        cell.location.start.line,
-        cell.location.start.column + start,
-        cell.location.start.line,
-        cell.location.start.column + end
+      cell.location.start.line,
+      cell.location.start.column + start,
+      cell.location.start.line,
+      cell.location.start.column + end
     )
   );
 }
 
-function getTemplateLiteral(parseResult: StringParseResult[], cell: DataCell): TemplateLiteral {
-    const [quasisParts, expressionParts] =
-      _.partition(parseResult, r => r.kind === "string");
+function getTemplateLiteral(
+  parseResult: StringParseResult[],
+  cell: DataCell
+): TemplateLiteral {
+  const [quasisParts, expressionParts] = _.partition(
+    parseResult,
+    r => r.kind === "string"
+  );
 
-    const quasis = quasisParts.map(part => getTemplateElement(part, cell));
-    const expressions = expressionParts.map(part => getVariableExpression(part, cell));
+  const quasis = quasisParts.map(part => getTemplateElement(part, cell));
+  const expressions = expressionParts.map(part =>
+    getVariableExpression(part, cell)
+  );
 
-    return new TemplateLiteral(quasis, expressions, cell.location);
+  return new TemplateLiteral(quasis, expressions, cell.location);
 }
 
-export function parseVariableString(stringToParse: string): StringParseResult[] {
+export function parseVariableString(
+  stringToParse: string
+): StringParseResult[] {
   const typeAndNameRegex = /([$,@,%,&]){([^}]+)}/g;
   const parts = [];
 
@@ -90,11 +104,11 @@ export function parseVariableString(stringToParse: string): StringParseResult[] 
   while (match) {
     if (index < match.index) {
       parts.push({
-        name:  null,
-        type:  null,
+        name: null,
+        type: null,
         start: index,
-        end:   match.index,
-        kind:  "string",
+        end: match.index,
+        kind: "string",
         value: stringToParse.substring(index, match.index),
       });
     }
@@ -105,8 +119,8 @@ export function parseVariableString(stringToParse: string): StringParseResult[] 
       type,
       value: matchedStr,
       start: match.index,
-      end:   typeAndNameRegex.lastIndex,
-      kind:  "var",
+      end: typeAndNameRegex.lastIndex,
+      kind: "var",
     });
 
     index = typeAndNameRegex.lastIndex;
@@ -115,11 +129,11 @@ export function parseVariableString(stringToParse: string): StringParseResult[] 
 
   if (index < stringToParse.length) {
     parts.push({
-      name:  null,
-      type:  null,
+      name: null,
+      type: null,
       start: index,
-      end:   stringToParse.length,
-      kind:  "string",
+      end: stringToParse.length,
+      kind: "string",
       value: stringToParse.substring(index, stringToParse.length),
     });
   }
@@ -142,13 +156,17 @@ export function parseIdentifier(cell: DataCell): Identifier {
   return new Identifier(cell.content, cell.location);
 }
 
-export function parseNamespacedIdentifier(cell: DataCell): NamespacedIdentifier {
+export function parseNamespacedIdentifier(
+  cell: DataCell
+): NamespacedIdentifier {
   const [namespace, keyword] = getNamespaceAndName(cell.content);
 
   return new NamespacedIdentifier(namespace, keyword, cell.location);
 }
 
-export function parseNamespacedOrNormalIdentifier(cell: DataCell): Identifier | NamespacedIdentifier {
+export function parseNamespacedOrNormalIdentifier(
+  cell: DataCell
+): Identifier | NamespacedIdentifier {
   if (cell.content.includes(".")) {
     return parseNamespacedIdentifier(cell);
   } else {

@@ -1,28 +1,22 @@
 import * as _ from "lodash";
 
 import { TableRowIterator } from "./row-iterator";
-import {
-  DataTable,
-  DataRow,
-  DataCell
-} from "./table-models";
+import { DataTable, DataRow, DataCell } from "./table-models";
 
-import {
-  TestCasesTable,
-  TestCase,
-  SettingDeclaration
-} from "./models";
+import { TestCasesTable, TestCase, SettingDeclaration } from "./models";
 
 import * as SettingParser from "./setting-parser";
 
-import {
-  parseIdentifier,
-} from "./primitive-parsers";
+import { parseIdentifier } from "./primitive-parsers";
 
 import { parseStep } from "./function-parsers";
 
 const testCaseSettings = new Set([
-  "[Documentation]", "[Teardown]", "[Tags]", "[Timeout]", "[Setup]"
+  "[Documentation]",
+  "[Teardown]",
+  "[Tags]",
+  "[Timeout]",
+  "[Setup]",
   // TODO: Not implemented yet "[Template]"
 ]);
 
@@ -46,7 +40,9 @@ export function parseTestCasesTable(dataTable: DataTable): TestCasesTable {
       const firstRowDataCells = row.getCellsByRange(1);
       const continuedRows = iterator.takeRowWhile(rowContinues);
       const continuedCells = joinRows(continuedRows);
-      const [firstCell, ...restCells] = firstRowDataCells.concat(continuedCells);
+      const [firstCell, ...restCells] = firstRowDataCells.concat(
+        continuedCells
+      );
 
       if (testCaseSettings.has(firstCell.content)) {
         const setting = SettingParser.parseSetting(firstCell, restCells);
@@ -66,7 +62,7 @@ export function parseTestCasesTable(dataTable: DataTable): TestCasesTable {
 
 function rowContinues(row: DataRow) {
   return row.isRowContinuation({
-    requireFirstEmpty: true
+    requireFirstEmpty: true,
   });
 }
 

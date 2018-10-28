@@ -1,37 +1,42 @@
 import * as _ from "lodash";
 
-import {
-  SourceLocation,
-  DataTable,
-  DataRow,
-  DataCell
-} from "../table-models";
+import { SourceLocation, DataTable, DataRow, DataCell } from "../table-models";
 
 export function position(line, column) {
   return {
     line,
-    column
+    column,
   };
 }
 
-export function createLocation(startLine, startColumn, endLine?, endColumn?): SourceLocation {
+export function createLocation(
+  startLine,
+  startColumn,
+  endLine?,
+  endColumn?
+): SourceLocation {
   if (_.isObject(startLine) && _.isObject(startColumn)) {
     return {
       start: startLine,
-      end: startColumn
+      end: startColumn,
     };
   }
 
   return {
     start: { line: startLine, column: startColumn },
-    end:   { line: endLine, column:   endColumn },
+    end: { line: endLine, column: endColumn },
   };
 }
 
-export function table(name: string, content: { header: DataRow, rows?: DataRow[] }) {
+export function table(
+  name: string,
+  content: { header: DataRow; rows?: DataRow[] }
+) {
   const theTable = new DataTable(name, content.header);
 
-  return content.rows ? Object.assign(theTable, { rows: content.rows }) : theTable;
+  return content.rows
+    ? Object.assign(theTable, { rows: content.rows })
+    : theTable;
 }
 
 export function row(location: SourceLocation, cells?: DataCell[]): DataRow {

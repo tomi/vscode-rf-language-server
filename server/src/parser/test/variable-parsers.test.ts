@@ -4,9 +4,7 @@ import * as chai from "chai";
 import { isVariable, parseTypeAndName } from "../variable-parsers";
 import { DataCell } from "../table-models";
 
-import {
-  Identifier,
-} from "../models";
+import { Identifier } from "../models";
 
 import { createLocation } from "./test-helper";
 
@@ -23,7 +21,7 @@ function assertParseResult(cellData: string, expectedType, expectedName) {
   const cell = new DataCell(cellData, DUMMY_LOC);
   const expected = {
     type: expectedType,
-    name: new Identifier(expectedName, DUMMY_LOC)
+    name: new Identifier(expectedName, DUMMY_LOC),
   };
 
   const actual = parseTypeAndName(cell);

@@ -18,13 +18,9 @@ import {
   Teardown,
 } from "../models";
 
-import {
-  createLocation,
-} from "./test-helper";
+import { createLocation } from "./test-helper";
 
-import {
-  locationFromStartEnd
-} from "../position-helper";
+import { locationFromStartEnd } from "../position-helper";
 
 describe("Setting parser", () => {
   const dummyLoc = createLocation(0, 0, 0, 0);
@@ -107,7 +103,7 @@ describe("Setting parser", () => {
             new Identifier("arg2", createLocation(0, 30, 0, 37)),
             [],
             arg2Loc
-          )
+          ),
         ],
         createLocation(
           FIRST_CELL_LOC.start.line,
@@ -144,7 +140,7 @@ describe("Setting parser", () => {
             new Identifier("arg2", createLocation(0, 30, 0, 37)),
             [],
             arg2Loc
-          )
+          ),
         ],
         createLocation(
           FIRST_CELL_LOC.start.line,
@@ -214,7 +210,7 @@ describe("Setting parser", () => {
             new Identifier("VARIABLE", createLocation(0, 22, 0, 30)),
             "Scalar",
             varLoc
-          )
+          ),
         ],
         createLocation(
           FIRST_CELL_LOC.start.line,
@@ -244,11 +240,7 @@ describe("Setting parser", () => {
 
       const expected = new Teardown(
         new Identifier("[Teardown]", FIRST_CELL_LOC),
-        new CallExpression(
-          new Identifier(varValue, varLoc),
-          [],
-          varLoc
-        ),
+        new CallExpression(new Identifier(varValue, varLoc), [], varLoc),
         createLocation(
           FIRST_CELL_LOC.start.line,
           FIRST_CELL_LOC.start.column,
@@ -276,9 +268,7 @@ describe("Setting parser", () => {
         new Identifier("[Teardown]", FIRST_CELL_LOC),
         new CallExpression(
           new Identifier(varValue, varLoc),
-          [
-            new Literal(argValue, argLoc)
-          ],
+          [new Literal(argValue, argLoc)],
           locationFromStartEnd(dataCell.location, argCell.location)
         ),
         locationFromStartEnd(FIRST_CELL_LOC, argCell.location)
@@ -297,5 +287,4 @@ describe("Setting parser", () => {
   describe("[Timeout]", () => {
     // TODO
   });
-
 });

@@ -24,6 +24,7 @@
     "@types/node": "8.9.5",
     "chai": "^4.2.0",
     "mocha": "^5.2.0",
+    "prettier": "1.14.3",
     "ts-node": "~7.0.1",
     "tslint": "~5.11.0",
     "typescript": "3.1.3"
@@ -34,8 +35,10 @@
     "clean": "rm -rf ../client/server",
     "compile": "npm run copy-libs && installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc -p .",
     "copy-libs": "mkdir -p ../client/server && cp -r ../library-docs/library-docs ../client/server",
-    "lint": "tslint --project .",
+    "lint": "npm run tslint && npm run prettier",
+    "prettier": "prettier -l 'src/**'",
     "test": "mocha --require ts-node/register src/**/*.test.ts",
+    "tslint": "tslint --project . --config ../tslint.json",
     "watch": "npm run clean && npm run copy-libs && installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc --watch -p ."
   },
   "repository": {

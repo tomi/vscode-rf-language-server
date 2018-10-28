@@ -11,7 +11,7 @@ import {
   Arguments,
   ScalarDeclaration,
   Literal,
-  NamespacedIdentifier
+  NamespacedIdentifier,
 } from "../../parser/models";
 
 const parser = new PythonParser();
@@ -21,13 +21,13 @@ function createLocation(startLine, startColumn, endLine?, endColumn?) {
   if (_.isObject(startLine) && _.isObject(startColumn)) {
     return {
       start: startLine,
-      end: startColumn
+      end: startColumn,
     };
   }
 
   return {
     start: { line: startLine, column: startColumn },
-    end:   { line: endLine, column:   endColumn },
+    end: { line: endLine, column: endColumn },
   };
 }
 
@@ -40,23 +40,31 @@ function parseAndAssert(data: string, expected: any) {
 function createSuite(location, keywords) {
   return Object.assign(new TestSuite(location), {
     keywordsTable: Object.assign(new KeywordsTable(location), {
-      keywords
-    })
+      keywords,
+    }),
   });
 }
 
-function createKeyword(keywordName: string, location, args?: Array<[string, string]>) {
-  const keyword = new UserKeyword(new NamespacedIdentifier(NAMESPACE, keywordName, location));
+function createKeyword(
+  keywordName: string,
+  location,
+  args?: Array<[string, string]>
+) {
+  const keyword = new UserKeyword(
+    new NamespacedIdentifier(NAMESPACE, keywordName, location)
+  );
   keyword.location = location;
 
   if (args) {
     keyword.arguments = new Arguments(
       new Identifier("", location),
-      args.map(([argName, value]) => new ScalarDeclaration(
-          new Identifier(argName, location),
-          new Literal(value, location),
-          location
-        )
+      args.map(
+        ([argName, value]) =>
+          new ScalarDeclaration(
+            new Identifier(argName, location),
+            new Literal(value, location),
+            location
+          )
       ),
       location
     );
@@ -70,7 +78,7 @@ describe("PythonParser", () => {
     const data = "def name():\n  print('hello')";
 
     const expected = createSuite(createLocation(0, 0, 1, 16), [
-      createKeyword("name", createLocation(0, 0, 0, 11))
+      createKeyword("name", createLocation(0, 0, 0, 11)),
     ]);
 
     parseAndAssert(data, expected);
@@ -80,7 +88,7 @@ describe("PythonParser", () => {
     const data = "def name(arg1):\n  print('hello')";
 
     const expected = createSuite(createLocation(0, 0, 1, 16), [
-      createKeyword("name", createLocation(0, 0, 0, 15), [["arg1", undefined]])
+      createKeyword("name", createLocation(0, 0, 0, 15), [["arg1", undefined]]),
     ]);
 
     parseAndAssert(data, expected);
@@ -90,7 +98,7 @@ describe("PythonParser", () => {
     const data = "def name(arg1=200):\n  print('hello')";
 
     const expected = createSuite(createLocation(0, 0, 1, 16), [
-      createKeyword("name", createLocation(0, 0, 0, 19), [["arg1", "200"]])
+      createKeyword("name", createLocation(0, 0, 0, 19), [["arg1", "200"]]),
     ]);
 
     parseAndAssert(data, expected);
@@ -100,7 +108,7 @@ describe("PythonParser", () => {
     const data = "def name(self):\n  print('hello')";
 
     const expected = createSuite(createLocation(0, 0, 1, 16), [
-      createKeyword("name", createLocation(0, 0, 0, 15))
+      createKeyword("name", createLocation(0, 0, 0, 15)),
     ]);
 
     parseAndAssert(data, expected);
@@ -124,7 +132,7 @@ describe("PythonParser", () => {
     const data = "   def name(arg1):\n  print('hello')";
 
     const expected = createSuite(createLocation(0, 0, 1, 16), [
-      createKeyword("name", createLocation(0, 3, 0, 18), [["arg1", undefined]])
+      createKeyword("name", createLocation(0, 3, 0, 18), [["arg1", undefined]]),
     ]);
 
     parseAndAssert(data, expected);

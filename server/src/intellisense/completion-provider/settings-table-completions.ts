@@ -1,18 +1,14 @@
 import * as _ from "lodash";
 import * as typeGuards from "../type-guards";
 import Workspace from "../workspace/workspace";
-import {
-  Node,
-  TestSuite,
-  SuiteSetting
-} from "../../parser/models";
+import { Node, TestSuite, SuiteSetting } from "../../parser/models";
 import { CompletionItem } from "vscode-languageserver";
 import { traverse, VisitorOption } from "../../traverse/traverse";
 import { Location, isOnLine } from "../../utils/position";
 import {
   getSyntaxCompletions,
   getKeywordCompletions,
-  getVariableCompletions
+  getVariableCompletions,
 } from "./completion-helper";
 
 const KEYWORDS = [
@@ -27,7 +23,7 @@ const KEYWORDS = [
   "Test Setup",
   "Test Teardown",
   "Test Template",
-  "Test Timeout"
+  "Test Timeout",
 ];
 
 export function getCompletions(
@@ -53,7 +49,12 @@ export function getCompletions(
     return [];
   }
   if (typeGuards.isSuiteSetting(nodeOnLine)) {
-    return _getSuiteSettingCompletions(textBefore, nodeOnLine, cellIndex, workspace);
+    return _getSuiteSettingCompletions(
+      textBefore,
+      nodeOnLine,
+      cellIndex,
+      workspace
+    );
   }
 
   return getVariableCompletions(textBefore, workspace.variables);
@@ -99,7 +100,7 @@ function _findNodeOnLine(line: number, ast: TestSuite) {
 
         return VisitorOption.Break;
       }
-    }
+    },
   });
 
   return foundNode;

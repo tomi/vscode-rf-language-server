@@ -1,5 +1,13 @@
 # Change Log
 
+## Version 2.2.1
+* Release date: October 28, 2018
+
+### What's new in this version
+* Fix keywords being namespaced too eagerly in code completion suggestions
+  * Now the namespace (i.e. the file name of a resource file, or library name for libraries) is shown only if there are multiple keywords with the same name
+  * Suggest also resource file and library names in code completion
+
 ## Version 2.2.0
 * Release date: October 21, 2018
 

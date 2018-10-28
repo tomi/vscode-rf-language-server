@@ -256,7 +256,7 @@ function onInitialize(params: InitializeParams): InitializeResult {
       referencesProvider: true,
       documentHighlightProvider: true,
       completionProvider: {
-        triggerCharacters: ["[", "{", "*"],
+        triggerCharacters: ["[", "{", "*", "."],
       },
     },
   };

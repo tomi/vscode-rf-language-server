@@ -1,5 +1,3 @@
-"use strict";
-
 import * as _ from "lodash";
 import * as minimatch from "minimatch";
 import Uri from "vscode-uri";

@@ -1,5 +1,3 @@
-"use strict";
-
 import { workspace } from "vscode";
 
 export const CONFIG_BLOCK_NAME = "rfLanguageServer";

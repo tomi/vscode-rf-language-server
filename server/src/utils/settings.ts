@@ -1,5 +1,3 @@
-"use strict";
-
 export interface LibraryDefinition {
   name: string;
   version: string;

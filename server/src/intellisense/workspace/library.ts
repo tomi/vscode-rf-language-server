@@ -9,6 +9,7 @@ import {
 } from "../../parser/models";
 import { location, position } from "../../parser/position-helper";
 import { LibraryDefinition } from "../../utils/settings";
+import { Symbols, VariableContainer, KeywordContainer } from "../search-tree";
 
 const DUMMY_POSITION = position(0, 0);
 const DUMMY_LOCATION = location(0, 0, 0, 0);
@@ -17,12 +18,18 @@ const DUMMY_LOCATION = location(0, 0, 0, 0);
  * A standard or 3rd party library. Contains only keyword definitions
  * of that library.
  */
-export class Library {
+export class Library implements Symbols {
+  public readonly variables = VariableContainer.Empty;
+  public readonly keywords = new KeywordContainer();
+
   constructor(
-    public name: string,
-    public version: string,
-    public keywords: UserKeyword[]
-  ) {}
+    public readonly namespace: string,
+    public readonly version: string,
+    public readonly documentation: string,
+    keywords: UserKeyword[]
+  ) {
+    keywords.forEach(kw => this.keywords.add(kw));
+  }
 }
 
 /**
@@ -37,7 +44,7 @@ export function createLibraryFile(
     .filter(kw => kw && kw.name)
     .map(kw => _jsonKeywordToModel(name, kw));
 
-  return new Library(name, version, parsedKeywords);
+  return new Library(name, version, "", parsedKeywords);
 }
 
 function _jsonKeywordToModel(

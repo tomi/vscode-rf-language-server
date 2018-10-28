@@ -16,6 +16,8 @@ abstract class WorkspaceFile implements Symbols {
   // All the keywords in the file
   public keywords: KeywordContainer;
 
+  public documentation: string;
+
   constructor(
     // The namespace for this file is based on the filename.
     public namespace: string,
@@ -26,8 +28,9 @@ abstract class WorkspaceFile implements Symbols {
     // AST of the file
     public ast: TestSuite
   ) {
-    const { keywords, variables } = createFileSearchTrees(ast);
+    const { documentation, keywords, variables } = createFileSearchTrees(ast);
 
+    this.documentation = documentation;
     this.keywords = keywords;
     this.variables = variables;
   }

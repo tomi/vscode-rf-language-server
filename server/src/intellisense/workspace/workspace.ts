@@ -1,6 +1,10 @@
 import * as _ from "lodash";
 import WorkspaceFile from "./workspace-file";
-import { GlobalKeywordContainer, VariableContainer } from "../search-tree";
+import {
+  GlobalKeywordContainer,
+  VariableContainer,
+  Symbols,
+} from "../search-tree";
 import { UserKeyword } from "../../parser/models";
 import { Library } from "./library";
 
@@ -43,9 +47,12 @@ export class Workspace {
    * Adds given library and its keywords to the workspace
    */
   public addLibrary(library: Library) {
-    library.keywords.forEach(keyword => this.keywords.addKeyword(keyword));
+    library.keywords.forEach((key, keyword) =>
+      this.keywords.addKeyword(keyword)
+    );
+    this.variables.copyFrom(library.variables);
 
-    this.librariesByName.set(library.name, library);
+    this.librariesByName.set(library.namespace, library);
   }
 
   /**
@@ -53,9 +60,11 @@ export class Workspace {
    */
   public removeAllLibraries() {
     Array.from(this.librariesByName.values()).forEach(library => {
-      library.keywords.forEach(keyword => this.keywords.removeKeyword(keyword));
+      library.keywords.forEach((key, keyword) =>
+        this.keywords.removeKeyword(keyword)
+      );
 
-      this.librariesByName.delete(library.name);
+      this.librariesByName.delete(library.namespace);
     });
   }
 
@@ -105,6 +114,32 @@ export class Workspace {
   }
 
   /**
+   * Finds modules (resource files and libraries) by their namespace
+   */
+  public findModulesByNamespace(textToSearch: string): Symbols[] {
+    const modules: Symbols[] = [];
+    const normalizedSearchText = textToSearch.toLowerCase();
+
+    for (const file of this.filesByNamespace.values()) {
+      if (file.namespace.toLowerCase().startsWith(normalizedSearchText)) {
+        modules.push(file);
+      }
+    }
+
+    for (const libraryNamespace of this.librariesByName.values()) {
+      if (
+        libraryNamespace.namespace
+          .toLowerCase()
+          .startsWith(normalizedSearchText)
+      ) {
+        modules.push(libraryNamespace);
+      }
+    }
+
+    return modules;
+  }
+
+  /**
    * Removes all files
    */
   public clear() {
@@ -115,12 +150,20 @@ export class Workspace {
     this.variables = new VariableContainer();
   }
 
-  public getFile(filename) {
+  public getFile(filename: string) {
     return this.filesByPath.get(filename);
   }
 
-  public getFileByNamespace(namespace) {
+  public getFileByNamespace(namespace: string) {
     return this.filesByNamespace.get(namespace);
+  }
+
+  public getSymbolsByNamespace(namespace: string): Symbols {
+    // Assume there's only one resource file / library per namespace
+    return (
+      this.filesByNamespace.get(namespace) ||
+      this.librariesByName.get(namespace)
+    );
   }
 
   public getFiles() {

@@ -1,5 +1,3 @@
-"use strict";
-
 import * as _ from "lodash";
 import * as minimatch from "minimatch";
 import Uri from "vscode-uri";
@@ -258,7 +256,7 @@ function onInitialize(params: InitializeParams): InitializeResult {
       referencesProvider: true,
       documentHighlightProvider: true,
       completionProvider: {
-        triggerCharacters: ["[", "{", "*"],
+        triggerCharacters: ["[", "{", "*", "."],
       },
     },
   };

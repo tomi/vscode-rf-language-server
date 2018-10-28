@@ -44,6 +44,7 @@ const NodeSettings = {
       "libraryImports",
       "resourceImports",
       "variableImports",
+      "documentation",
     ],
   },
   SuiteSetting: {

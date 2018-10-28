@@ -21,15 +21,23 @@ abstract class SymbolContainer<T> {
     return this.tree.get(key);
   }
 
+  public getAll(): T[] {
+    const all: T[] = [];
+
+    this.forEach((key, item) => all.push(item));
+
+    return all;
+  }
+
   public remove(item: T) {
     const normalizedKey = this._getNormalizedKey(item);
 
     this.tree.del(normalizedKey);
   }
 
-  public forEach(cb) {
-    this.tree.traverse((...args) => {
-      cb(...args);
+  public forEach(cb: (key: string, item: T) => void) {
+    this.tree.traverse((key, item) => {
+      cb(key, item);
     });
   }
 
@@ -48,6 +56,10 @@ abstract class SymbolContainer<T> {
   public findByPrefix(prefix: string): T[] {
     const found: T[] = [];
     const normalizedPrefix = this._normalizeKey(prefix);
+
+    if (prefix.length === 0) {
+      return this.getAll();
+    }
 
     this.tree.searchWithPrefix(normalizedPrefix, (key, keyword: T) => {
       found.push(keyword);
@@ -172,6 +184,8 @@ export class VariableContainer extends SymbolContainer<VariableDeclaration> {
 }
 
 export interface Symbols {
+  namespace: string;
+  documentation: string;
   keywords: KeywordContainer;
   variables: VariableContainer;
 }
@@ -181,23 +195,38 @@ export interface Symbols {
  *
  * @param ast
  */
-export function createFileSearchTrees(ast: TestSuite): Symbols {
+export function createFileSearchTrees(ast: TestSuite) {
   const keywords = new KeywordContainer();
   const variables = new VariableContainer();
 
-  if (ast && ast.keywordsTable) {
+  if (!ast) {
+    return {
+      documentation: "",
+      keywords,
+      variables,
+    };
+  }
+
+  if (ast.keywordsTable) {
     ast.keywordsTable.keywords.forEach(keyword => {
       keywords.add(keyword);
     });
   }
 
-  if (ast && ast.variablesTable) {
+  if (ast.variablesTable) {
     ast.variablesTable.variables.forEach(variable => {
       variables.add(variable);
     });
   }
 
+  const documentation =
+    ast.settingsTable &&
+    ast.settingsTable.documentation &&
+    ast.settingsTable.documentation.value &&
+    ast.settingsTable.documentation.value.value;
+
   return {
+    documentation,
     keywords,
     variables,
   };

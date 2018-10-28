@@ -18,8 +18,10 @@ import {
   parseValueExpression,
   parseCallExpression,
 } from "./primitive-parsers";
+import * as settingsParser from "./setting-parser";
 
 const settingParserMap = new Map([
+  ["Documentation", parseDocumentation],
   ["Library", parseLibraryImport],
   ["Resource", parseResourceImport],
   ["Variables", parseVariableImport],
@@ -75,6 +77,17 @@ function getParserFn(cell: DataCell) {
   const parser = settingParserMap.get(name);
 
   return parser || _.noop;
+}
+
+function parseDocumentation(
+  settingsTable: SettingsTable,
+  firstCell: DataCell,
+  restCells: DataCell[]
+) {
+  const id = parseIdentifier(firstCell);
+  const documentation = settingsParser.parseDocumentation(id, restCells);
+
+  settingsTable.documentation = documentation;
 }
 
 function parseLibraryImport(

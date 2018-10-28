@@ -55,39 +55,44 @@ export function getKeywordCompletions(
 
   logger.debug(`Searching keywords with ${textToSearch}`);
 
-  const keywordGroups = workspace.findKeywords(textToSearch);
-  const keywords = keywordGroups.map(keywordGroup => {
-    // A keyword is ambiguous when there are multiples in the global workspace with the same name.
-    const ambiguousKeyword = keywordGroup.length > 1;
-    return keywordGroup.map(keyword => {
-      const shouldSuggestNamespace =
-        ambiguousKeyword ||
-        // Assuming namespaces 'Page1' and 'Page2'...
-        textToSearch.startsWith(keyword.id.namespace) || // User typed 'Page1.Someth'
-        keyword.id.namespace.startsWith(textToSearch); // User typed 'Page'
+  const [namespace, identifier] = _tryParseNamespacedIdentifier(textToSearch);
+  logger.debug(
+    `Searching from namespace '${namespace}' with text '${identifier}'`
+  );
 
+  if (namespace) {
+    // Search within single namespace
+    const symbols = workspace.getSymbolsByNamespace(namespace);
+    if (!symbols) {
+      logger.info(`No corresponding file found with namespace ${namespace}`);
+      // Unknown namespace
+      return [];
+    }
+
+    const keywords = symbols.keywords.findByPrefix(identifier);
+    const suggestions = keywords.map(keyword => {
       // tslint:disable-next-line:prefer-const
       let [insertText, insertTextFormat] = _createKeywordSnippet(
         keyword,
-        shouldSuggestNamespace
+        false
       );
       const detail = _getKeywordArgs(keyword);
       const documentation = _getKeywordDocumentation(keyword);
 
-      if (textToSearch.includes(" ")) {
+      if (identifier.includes(" ")) {
         // VSCode completion handles only complete words and not spaces,
         // so everything before the last space needs to be trimmed
         // from the insert text for it to work correctly
-        const textBeforeLastSpace = textToSearch.substr(
+        const textBeforeLastSpace = identifier.substr(
           0,
-          textToSearch.lastIndexOf(" ") + 1
+          identifier.lastIndexOf(" ") + 1
         );
 
         insertText = _removeFromBeginning(insertText, textBeforeLastSpace);
       }
 
       return {
-        label: shouldSuggestNamespace ? keyword.id.fullName : keyword.id.name,
+        label: keyword.id.name,
         kind: CompletionItemKind.Function,
         insertText,
         insertTextFormat,
@@ -95,9 +100,60 @@ export function getKeywordCompletions(
         documentation,
       };
     });
-  });
 
-  return _.flatten(keywords);
+    return suggestions;
+  } else {
+    const keywordGroups = workspace.findKeywords(textToSearch);
+
+    const keywords = keywordGroups.map<CompletionItem[]>(keywordGroup => {
+      // A keyword is ambiguous when there are multiples in the
+      // global workspace with the same name.
+      const shouldSuggestNamespace = keywordGroup.length > 1;
+      return keywordGroup.map<CompletionItem>(keyword => {
+        // tslint:disable-next-line:prefer-const
+        let [insertText, insertTextFormat] = _createKeywordSnippet(
+          keyword,
+          shouldSuggestNamespace
+        );
+        const detail = _getKeywordArgs(keyword);
+        const documentation = _getKeywordDocumentation(keyword);
+
+        if (textToSearch.includes(" ")) {
+          // VSCode completion handles only complete words and not spaces,
+          // so everything before the last space needs to be trimmed
+          // from the insert text for it to work correctly
+          const textBeforeLastSpace = textToSearch.substr(
+            0,
+            textToSearch.lastIndexOf(" ") + 1
+          );
+
+          insertText = _removeFromBeginning(insertText, textBeforeLastSpace);
+        }
+
+        return {
+          label: shouldSuggestNamespace ? keyword.id.fullName : keyword.id.name,
+          kind: CompletionItemKind.Function,
+          insertText,
+          insertTextFormat,
+          detail,
+          documentation,
+        };
+      });
+    });
+
+    const namespaces = workspace
+      .findModulesByNamespace(textToSearch)
+      .map<CompletionItem>(foundModule => ({
+        label: foundModule.namespace,
+        kind: CompletionItemKind.Module,
+        insertText: foundModule.namespace,
+        insertTextFormat: InsertTextFormat.PlainText,
+        detail: "",
+        documentation: foundModule.documentation,
+      }));
+
+    return _.flatten(keywords).concat(namespaces);
+  }
 }
 
 /**
@@ -225,3 +281,25 @@ function _getKeywordDocumentation(keyword: UserKeyword): MarkupContent {
     return undefined;
   }
 }
+
+/**
+ * Tries to parse a namespace and keyword identifier from given string
+ *
+ * @example
+ * _tryParseNamespacedIdentifier("Keyword")
+ * // --> ["", "Keyword"]
+ *
+ * _tryParseNamespacedIdentifier("Lib.K")
+ * // --> ["Lib", "K"]
+ */
+const _tryParseNamespacedIdentifier = (text: string): [string, string] => {
+  const dotIndex = text.indexOf(".");
+  if (dotIndex === -1) {
+    return ["", text];
+  } else {
+    const namespace = text.substring(0, dotIndex);
+    const identifier = text.substring(dotIndex + 1);
+
+    return [namespace, identifier];
+  }
+};

@@ -15,7 +15,7 @@ const variableMapping = new Map([
   ["$", parseScalar],
   ["@", parseList],
   ["&", parseDictionary],
-  ["%", parseEnvironment]
+  ["%", parseEnvironment],
 ]);
 
 function getRegex() {
@@ -40,7 +40,7 @@ export function parseTypeAndName(cell: DataCell) {
   const result = typeAndName.match(typeAndNameRegex);
   return {
     type: result[1],
-    name: new Identifier(result[2], cell.location)
+    name: new Identifier(result[2], cell.location),
   };
 }
 
@@ -53,7 +53,7 @@ export function parseVariableDeclaration(
 
   const variableParserFn = getVariableParserFn(type);
   if (!variableParserFn) {
-    throw new Error(`Invalid variable type ${ type }`);
+    throw new Error(`Invalid variable type ${type}`);
   }
 
   return variableParserFn(name, values, location);
@@ -65,22 +65,38 @@ function getVariableParserFn(type: string): Function {
   return parser;
 }
 
-function parseScalar(name: Identifier, values: Expression[], location): VariableDeclaration {
+function parseScalar(
+  name: Identifier,
+  values: Expression[],
+  location
+): VariableDeclaration {
   const value = _.first(values);
 
   return new ScalarDeclaration(name, value, location);
 }
 
-function parseList(name: Identifier, values: Expression[], location): VariableDeclaration {
+function parseList(
+  name: Identifier,
+  values: Expression[],
+  location
+): VariableDeclaration {
   return new ListDeclaration(name, values, location);
 }
 
-function parseDictionary(name: Identifier, values: Expression[], location): VariableDeclaration {
+function parseDictionary(
+  name: Identifier,
+  values: Expression[],
+  location
+): VariableDeclaration {
   // TODO
   return new DictionaryDeclaration(name, null, location);
 }
 
-function parseEnvironment(name: Identifier, values: Expression[], location): VariableDeclaration {
+function parseEnvironment(
+  name: Identifier,
+  values: Expression[],
+  location
+): VariableDeclaration {
   // TODO
   return;
 }

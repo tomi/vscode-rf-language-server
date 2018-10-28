@@ -21,21 +21,21 @@ export interface Range {
 export function createPosition(line: number, column: number) {
   return {
     line,
-    column
+    column,
   };
 }
 
 export function createLocation(filePath: string, position: Position) {
   return {
     filePath,
-    position
+    position,
   };
 }
 
 export function createRange(start: Position, end: Position) {
   return {
     start,
-    end
+    end,
   };
 }
 
@@ -48,12 +48,12 @@ export function nodeLocationToRange(node: Node) {
   return {
     start: {
       line: node.location.start.line,
-      character: node.location.start.column
+      character: node.location.start.column,
     },
     end: {
       line: node.location.end.line,
-      character: node.location.end.column
-    }
+      character: node.location.end.column,
+    },
   };
 }
 
@@ -68,8 +68,7 @@ export function isOnLine(line: number, node: Node) {
     return false;
   }
 
-  return node.location.start.line <= line &&
-    line <= node.location.end.line;
+  return node.location.start.line <= line && line <= node.location.end.line;
 }
 
 /**
@@ -85,8 +84,12 @@ export function isInRange(position: Position, range: Node) {
 
   const location = range.location;
 
-  return (location.start.line < position.line ||
-    (location.start.line === position.line && location.start.column <= position.column)) &&
+  return (
+    (location.start.line < position.line ||
+      (location.start.line === position.line &&
+        location.start.column <= position.column)) &&
     (position.line < location.end.line ||
-    (position.line === location.end.line && position.column <= location.end.column));
+      (position.line === location.end.line &&
+        position.column <= location.end.column))
+  );
 }

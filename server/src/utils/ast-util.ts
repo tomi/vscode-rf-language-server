@@ -1,6 +1,4 @@
-import {
-  Node
-} from "../parser/models";
+import { Node } from "../parser/models";
 import { traverse } from "../traverse/traverse";
 
 /**
@@ -18,7 +16,7 @@ export function filter(ast: Node, matchFn: ((node: Node) => boolean)) {
       if (matchFn(node)) {
         nodes.push(node);
       }
-    }
+    },
   });
 
   return nodes;

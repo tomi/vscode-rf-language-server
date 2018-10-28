@@ -11,7 +11,7 @@ const SETTINGS = [
   "Arguments",
   "Return",
   "Teardown",
-  "Timeout"
+  "Timeout",
 ];
 
 export function getCompletions(

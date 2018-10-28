@@ -10,21 +10,24 @@ let rfLanguageServerClient: RFServerClient;
 let commandHandler: CommandHandler;
 
 export function activate(context: ExtensionContext) {
-
   rfLanguageServerClient = new RFServerClient(context);
   commandHandler = new CommandHandler(rfLanguageServerClient);
 
   runMigrations();
 
   context.subscriptions.push(
-    commands.registerCommand("rfIntellisense.reportBug", commandHandler.reportBug));
+    commands.registerCommand(
+      "rfIntellisense.reportBug",
+      commandHandler.reportBug
+    )
+  );
   context.subscriptions.push(
     commands.registerCommand("rfIntellisense.rebuildSources", () =>
       commandHandler.parseAll()
-  ));
+    )
+  );
 
-  rfLanguageServerClient.start()
-    .then(() => commandHandler.parseAll());
+  rfLanguageServerClient.start().then(() => commandHandler.parseAll());
 
   let currentIncludePattern = Config.getInclude();
   const disposable = workspace.onDidChangeConfiguration(() => {
@@ -35,8 +38,7 @@ export function activate(context: ExtensionContext) {
 
     currentIncludePattern = newIncludePattern;
     console.log("Configuration has changed. Restarting language server..");
-    rfLanguageServerClient.restart()
-      .then(() => commandHandler.parseAll());
+    rfLanguageServerClient.restart().then(() => commandHandler.parseAll());
   });
 
   // Push the disposable to the context's subscriptions so that the

@@ -14,12 +14,10 @@ import {
   TemplateElement,
   VariableExpression,
   Identifier,
-  CallExpression
+  CallExpression,
 } from "../models";
 
-import {
-  createLocation,
-} from "./test-helper";
+import { createLocation } from "./test-helper";
 
 const NAMESPACE = "";
 
@@ -34,29 +32,20 @@ function settingsTable(location, content) {
 }
 
 describe("Parsing Settings table", () => {
-
   it("should parse empty resource import", () => {
-    const data =
-      `* Settings
+    const data = `* Settings
 Resource
 `;
 
     const expected = settingsTable(createLocation(0, 0, 2, 0), {
-      resourceImports: [
-        new ResourceImport(
-          null,
-          createLocation(1, 0, 1, 8)
-        ),
-      ]
+      resourceImports: [new ResourceImport(null, createLocation(1, 0, 1, 8))],
     });
 
     parseAndAssert(data, expected);
-
   });
 
   it("should parse resource imports", () => {
-    const data =
-      `* Settings
+    const data = `* Settings
 Resource    resources/\${ENVIRONMENT}.robot
 Resource    resources/smoke_resources.robot
 `;
@@ -74,7 +63,7 @@ Resource    resources/smoke_resources.robot
                 new Identifier("ENVIRONMENT", createLocation(1, 24, 1, 35)),
                 "Scalar",
                 createLocation(1, 22, 1, 36)
-              )
+              ),
             ],
             createLocation(1, 12, 1, 42)
           ),
@@ -87,35 +76,26 @@ Resource    resources/smoke_resources.robot
           ),
           createLocation(2, 0, 2, 43)
         ),
-      ]
+      ],
     });
 
     parseAndAssert(data, expected);
   });
 
   it("should parse empty library import", () => {
-    const data =
-      `* Settings
+    const data = `* Settings
 Library
 `;
 
     const expected = settingsTable(createLocation(0, 0, 2, 0), {
-      libraryImports: [
-        new LibraryImport(
-          null,
-          [],
-          createLocation(1, 0, 1, 7)
-        ),
-      ]
+      libraryImports: [new LibraryImport(null, [], createLocation(1, 0, 1, 7))],
     });
 
     parseAndAssert(data, expected);
-
   });
 
   it("should parse library imports", () => {
-    const data =
-      `* Settings
+    const data = `* Settings
 Library    libs/\${ENVIRONMENT}.robot
 Library    lib  arg1  arg2
 `;
@@ -133,7 +113,7 @@ Library    lib  arg1  arg2
                 new Identifier("ENVIRONMENT", createLocation(1, 18, 1, 29)),
                 "Scalar",
                 createLocation(1, 16, 1, 30)
-              )
+              ),
             ],
             createLocation(1, 11, 1, 36)
           ),
@@ -141,17 +121,14 @@ Library    lib  arg1  arg2
           createLocation(1, 0, 1, 36)
         ),
         new LibraryImport(
-          new Literal(
-            "lib",
-            createLocation(2, 11, 2, 14)
-          ),
+          new Literal("lib", createLocation(2, 11, 2, 14)),
           [
             new Literal("arg1", createLocation(2, 16, 2, 20)),
             new Literal("arg2", createLocation(2, 22, 2, 26)),
           ],
           createLocation(2, 0, 2, 26)
         ),
-      ]
+      ],
     });
 
     parseAndAssert(data, expected);
@@ -183,112 +160,99 @@ Library    lib  arg1  arg2
   //   });
 
   it("should parse suite setup and teardown", () => {
-    const data =
-      `* Settings
+    const data = `* Settings
 Suite Setup       suiteSetup       arg1    arg2
 Suite Teardown    suiteTeardown    arg1    arg2
 `;
 
-    const expected = settingsTable(
-      createLocation(0, 0, 3, 0),
-      {
-        suiteSetup: new SuiteSetting(
-          new Identifier("Suite Setup", createLocation(1, 0, 1, 11)),
-          new CallExpression(
-            new Identifier("suiteSetup", createLocation(1, 18, 1, 28)),
-            [
-              new Literal("arg1", createLocation(1, 35, 1, 39)),
-              new Literal("arg2", createLocation(1, 43, 1, 47)),
-            ],
-            createLocation(1, 18, 1, 47)
-          ),
-          createLocation(1, 0, 1, 47)
+    const expected = settingsTable(createLocation(0, 0, 3, 0), {
+      suiteSetup: new SuiteSetting(
+        new Identifier("Suite Setup", createLocation(1, 0, 1, 11)),
+        new CallExpression(
+          new Identifier("suiteSetup", createLocation(1, 18, 1, 28)),
+          [
+            new Literal("arg1", createLocation(1, 35, 1, 39)),
+            new Literal("arg2", createLocation(1, 43, 1, 47)),
+          ],
+          createLocation(1, 18, 1, 47)
         ),
-        suiteTeardown: new SuiteSetting(
-          new Identifier("Suite Teardown", createLocation(2, 0, 2, 14)),
-          new CallExpression(
-            new Identifier("suiteTeardown", createLocation(2, 18, 2, 31)),
-            [
-              new Literal("arg1", createLocation(2, 35, 2, 39)),
-              new Literal("arg2", createLocation(2, 43, 2, 47)),
-            ],
-            createLocation(2, 18, 2, 47)
-          ),
-          createLocation(2, 0, 2, 47)
+        createLocation(1, 0, 1, 47)
+      ),
+      suiteTeardown: new SuiteSetting(
+        new Identifier("Suite Teardown", createLocation(2, 0, 2, 14)),
+        new CallExpression(
+          new Identifier("suiteTeardown", createLocation(2, 18, 2, 31)),
+          [
+            new Literal("arg1", createLocation(2, 35, 2, 39)),
+            new Literal("arg2", createLocation(2, 43, 2, 47)),
+          ],
+          createLocation(2, 18, 2, 47)
         ),
-      }
-    );
+        createLocation(2, 0, 2, 47)
+      ),
+    });
 
     parseAndAssert(data, expected);
   });
 
   it("should parse test setup and teardown", () => {
-    const data =
-      `* Settings
+    const data = `* Settings
 Test Setup        testSetup        arg1    arg2
 Test Teardown     testTeardown     arg1    arg2
 `;
 
-    const expected = settingsTable(
-      createLocation(0, 0, 3, 0),
-      {
-        testSetup: new SuiteSetting(
-          new Identifier("Test Setup", createLocation(1, 0, 1, 10)),
-          new CallExpression(
-            new Identifier("testSetup", createLocation(1, 18, 1, 27)),
-            [
-              new Literal("arg1", createLocation(1, 35, 1, 39)),
-              new Literal("arg2", createLocation(1, 43, 1, 47)),
-            ],
-            createLocation(1, 18, 1, 47)
-          ),
-          createLocation(1, 0, 1, 47)
+    const expected = settingsTable(createLocation(0, 0, 3, 0), {
+      testSetup: new SuiteSetting(
+        new Identifier("Test Setup", createLocation(1, 0, 1, 10)),
+        new CallExpression(
+          new Identifier("testSetup", createLocation(1, 18, 1, 27)),
+          [
+            new Literal("arg1", createLocation(1, 35, 1, 39)),
+            new Literal("arg2", createLocation(1, 43, 1, 47)),
+          ],
+          createLocation(1, 18, 1, 47)
         ),
-        testTeardown: new SuiteSetting(
-          new Identifier("Test Teardown", createLocation(2, 0, 2, 13)),
-          new CallExpression(
-            new Identifier("testTeardown", createLocation(2, 18, 2, 30)),
-            [
-              new Literal("arg1", createLocation(2, 35, 2, 39)),
-              new Literal("arg2", createLocation(2, 43, 2, 47)),
-            ],
-            createLocation(2, 18, 2, 47)
-          ),
-          createLocation(2, 0, 2, 47)
+        createLocation(1, 0, 1, 47)
+      ),
+      testTeardown: new SuiteSetting(
+        new Identifier("Test Teardown", createLocation(2, 0, 2, 13)),
+        new CallExpression(
+          new Identifier("testTeardown", createLocation(2, 18, 2, 30)),
+          [
+            new Literal("arg1", createLocation(2, 35, 2, 39)),
+            new Literal("arg2", createLocation(2, 43, 2, 47)),
+          ],
+          createLocation(2, 18, 2, 47)
         ),
-      }
-    );
+        createLocation(2, 0, 2, 47)
+      ),
+    });
 
     parseAndAssert(data, expected);
   });
 
   it("should parse test setup split on multiple lines", () => {
-    const data =
-      `* Settings
+    const data = `* Settings
 Test Setup        testSetup
 ...               arg1
 ...               arg2
 `;
 
-    const expected = settingsTable(
-      createLocation(0, 0, 4, 0),
-      {
-        testSetup: new SuiteSetting(
-          new Identifier("Test Setup", createLocation(1, 0, 1, 10)),
-          new CallExpression(
-            new Identifier("testSetup", createLocation(1, 18, 1, 27)),
-            [
-              new Literal("arg1", createLocation(2, 18, 2, 22)),
-              new Literal("arg2", createLocation(3, 18, 3, 22)),
-            ],
-            createLocation(1, 18, 3, 22)
-          ),
-          createLocation(1, 0, 3, 22)
+    const expected = settingsTable(createLocation(0, 0, 4, 0), {
+      testSetup: new SuiteSetting(
+        new Identifier("Test Setup", createLocation(1, 0, 1, 10)),
+        new CallExpression(
+          new Identifier("testSetup", createLocation(1, 18, 1, 27)),
+          [
+            new Literal("arg1", createLocation(2, 18, 2, 22)),
+            new Literal("arg2", createLocation(3, 18, 3, 22)),
+          ],
+          createLocation(1, 18, 3, 22)
         ),
-      }
-    );
+        createLocation(1, 0, 3, 22)
+      ),
+    });
 
     parseAndAssert(data, expected);
   });
-
 });

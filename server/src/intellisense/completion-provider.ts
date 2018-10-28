@@ -10,25 +10,26 @@ import {
   getSettingsTableCompletions,
   getVariableTableCompletions,
   getKeywordTableCompletions,
-  getTestCaseTableCompletions
+  getTestCaseTableCompletions,
 } from "./completion-provider/completion-providers";
 
-export function findCompletionItems(
-  location: Location,
-  workspace: Workspace
-) {
+export function findCompletionItems(location: Location, workspace: Workspace) {
   const position = location.position;
 
   const file = workspace.getFile(location.filePath) as RobotFile;
   if (!file) {
-    logger.info(`Definition not found. File '${ location.filePath }' not parsed`);
+    logger.info(`Definition not found. File '${location.filePath}' not parsed`);
     return [];
   }
   const ast = file.ast;
 
   const locationInfo = findLocationInfo(location, file.tables);
   if (!locationInfo) {
-    logger.info(`Location info not available. Location '${ location.position }' not available`);
+    logger.info(
+      `Location info not available. Location '${
+        location.position
+      }' not available`
+    );
     return [];
   }
 

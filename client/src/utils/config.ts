@@ -23,9 +23,9 @@ export class Config {
   public static getInclude() {
     Config.reloadConfig();
 
-    const includePatterns = Config.settings ?
-      Config.settings.get<string[]>("includePaths") :
-      [];
+    const includePatterns = Config.settings
+      ? Config.settings.get<string[]>("includePaths")
+      : [];
 
     return _createGlob(
       includePatterns.length > 0 ? includePatterns : ["**/*.robot"]
@@ -35,9 +35,9 @@ export class Config {
   public static getExclude() {
     Config.reloadConfig();
 
-    const exlcudePatterns = Config.settings ?
-      Config.settings.get<string[]>("excludePaths") :
-      [];
+    const exlcudePatterns = Config.settings
+      ? Config.settings.get<string[]>("excludePaths")
+      : [];
 
     return _createGlob(exlcudePatterns);
   }

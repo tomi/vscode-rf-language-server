@@ -1,10 +1,6 @@
 import * as _ from "lodash";
 
-import {
-  DataTable,
-  DataRow,
-  DataCell
-} from "./table-models";
+import { DataTable, DataRow, DataCell } from "./table-models";
 
 /**
  * Parses a string of text into data tables
@@ -37,11 +33,17 @@ export class TableReader {
   }
 
   private startsTable(row: DataRow) {
-    return row.first().content.trim().startsWith("*");
+    return row
+      .first()
+      .content.trim()
+      .startsWith("*");
   }
 
   private readTableName(row: DataRow) {
-    return row.first().content.replace(/\*/g, "").trim();
+    return row
+      .first()
+      .content.replace(/\*/g, "")
+      .trim();
   }
 }
 
@@ -55,18 +57,18 @@ class LineReader {
 
   public readLine(lineNumber: number, line: string) {
     this.lineNumber = lineNumber;
-    this.line       = this.trimComments(line);
-    this.position   = 0;
+    this.line = this.trimComments(line);
+    this.position = 0;
 
     const row = new DataRow({
       start: {
         line: lineNumber,
-        column: 0
+        column: 0,
       },
       end: {
         line: lineNumber,
-        column: this.line.length
-      }
+        column: this.line.length,
+      },
     });
 
     do {
@@ -127,12 +129,12 @@ class LineReader {
     const cell = new DataCell(cellContent, {
       start: {
         line: this.lineNumber,
-        column: this.position
+        column: this.position,
       },
       end: {
         line: this.lineNumber,
-        column: endOfCellIdx
-      }
+        column: endOfCellIdx,
+      },
     });
 
     this.position = endOfCellIdx;

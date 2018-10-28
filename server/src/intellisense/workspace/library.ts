@@ -31,25 +31,20 @@ export class Library {
 export function createLibraryFile(
   libraryDefinition: LibraryDefinition
 ): Library {
-  const {
-    name = "",
-    version = "",
-    keywords = []
-  } = libraryDefinition;
+  const { name = "", version = "", keywords = [] } = libraryDefinition;
 
-  const parsedKeywords = keywords.filter(kw => kw && kw.name).map(kw =>
-    _jsonKeywordToModel(name, kw)
-  );
+  const parsedKeywords = keywords
+    .filter(kw => kw && kw.name)
+    .map(kw => _jsonKeywordToModel(name, kw));
 
   return new Library(name, version, parsedKeywords);
 }
 
-function _jsonKeywordToModel(namespace: string, keywordDefinition): UserKeyword {
-  const {
-    name,
-    args = [],
-    doc = ""
-  } = keywordDefinition;
+function _jsonKeywordToModel(
+  namespace: string,
+  keywordDefinition
+): UserKeyword {
+  const { name, args = [], doc = "" } = keywordDefinition;
 
   const keyword = new UserKeyword(
     new NamespacedIdentifier(namespace, name, DUMMY_LOCATION),

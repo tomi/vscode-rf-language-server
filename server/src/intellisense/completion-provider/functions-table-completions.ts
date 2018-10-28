@@ -1,21 +1,15 @@
 import * as _ from "lodash";
 import Workspace from "../workspace/workspace";
-import {
-  Node,
-  TestSuite,
-  FunctionDeclaration
-} from "../../parser/models";
+import { Node, TestSuite, FunctionDeclaration } from "../../parser/models";
 import * as typeGuards from "../type-guards";
-import {
-  findLocalVariables
-} from "../node-locator";
+import { findLocalVariables } from "../node-locator";
 import { CompletionItem } from "vscode-languageserver";
 import { traverse, VisitorOption } from "../../traverse/traverse";
 import { Location, isOnLine } from "../../utils/position";
 import {
   getSyntaxCompletions,
   getKeywordCompletions,
-  getVariableCompletions
+  getVariableCompletions,
 } from "./completion-helper";
 
 const VARIABLE_CHARS = new Set(["$", "@", "&", "%"]);
@@ -44,12 +38,12 @@ export function getCompletions(
     }
     // else: It's a call expression
 
-    const functionNode   = _findFunction(line, fileAst);
+    const functionNode = _findFunction(line, fileAst);
     const localVariables = findLocalVariables(functionNode, line);
     return getKeywordCompletions(textBefore, workspace, localVariables);
   } else {
     const functionNode = _findFunction(line, fileAst);
-    const nodeOnLine   = _findNodeOnLine(line, functionNode);
+    const nodeOnLine = _findNodeOnLine(line, functionNode);
     if (!nodeOnLine) {
       return [];
     }
@@ -72,8 +66,10 @@ export function getCompletions(
     ];
     if (cellIndex === 2 && _.some(keywordCompletions, f => f(nodeOnLine))) {
       return getKeywordCompletions(textBefore, workspace, localVariables);
-    } else if (typeGuards.isStep(nodeOnLine) &&
-      typeGuards.isVariableDeclaration(nodeOnLine.body)) {
+    } else if (
+      typeGuards.isStep(nodeOnLine) &&
+      typeGuards.isVariableDeclaration(nodeOnLine.body)
+    ) {
       return getKeywordCompletions(textBefore, workspace, localVariables);
     }
 
@@ -123,7 +119,7 @@ function _findNodeOnLine(line: number, functionNode: FunctionDeclaration) {
         foundNode = node;
         return VisitorOption.Break;
       }
-    }
+    },
   });
 
   return foundNode;

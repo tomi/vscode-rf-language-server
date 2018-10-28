@@ -7,7 +7,7 @@ import { exec } from "child_process";
 function getIncludeExcludePattern() {
   return {
     include: Config.getInclude(),
-    exclude: Config.getExclude()
+    exclude: Config.getExclude(),
   };
 }
 
@@ -30,17 +30,21 @@ export default class CommandHandler {
 
       this.langClient.sendBuildFilesRequest([activeEditor.document.uri.fsPath]);
     } else {
-      workspace.findFiles(includeExclude.include, includeExclude.exclude).then(files => {
-        const filePaths = files.map(fileUri => fileUri.fsPath);
+      workspace
+        .findFiles(includeExclude.include, includeExclude.exclude)
+        .then(files => {
+          const filePaths = files.map(fileUri => fileUri.fsPath);
 
-        // Send the array of paths to the language server
-        this.langClient.sendBuildFilesRequest(filePaths);
-      });
+          // Send the array of paths to the language server
+          this.langClient.sendBuildFilesRequest(filePaths);
+        });
     }
   }
 
   public reportBug() {
-    _openLinkInBrowser("https://github.com/tomi/vscode-rf-language-server/issues");
+    _openLinkInBrowser(
+      "https://github.com/tomi/vscode-rf-language-server/issues"
+    );
   }
 }
 

@@ -1,8 +1,5 @@
 import * as _ from "lodash";
-import {
-  Node,
-  UserKeyword,
-} from "../parser/models";
+import { Node, UserKeyword } from "../parser/models";
 import { traverse, VisitorOption } from "../traverse/traverse";
 import { findKeywordDefinition } from "./definition-finder";
 import Workspace from "./workspace/workspace";
@@ -12,13 +9,9 @@ import { findNodeInPos } from "./node-locator";
 import { nodeLocationToRange } from "../utils/position";
 import {
   identifierMatchesKeyword,
-  identifierMatchesIdentifier
+  identifierMatchesIdentifier,
 } from "./keyword-matcher";
-import {
-  isIdentifier,
-  isCallExpression,
-  isUserKeyword
-} from "./type-guards";
+import { isIdentifier, isCallExpression, isUserKeyword } from "./type-guards";
 
 interface VscodePosition {
   line: number;
@@ -41,7 +34,10 @@ interface VscodeLocation {
  * @param location
  * @param workspace
  */
-export function findReferences(location: Location, workspace: Workspace): VscodeLocation[] {
+export function findReferences(
+  location: Location,
+  workspace: Workspace
+): VscodeLocation[] {
   const file = workspace.getFile(location.filePath);
   if (!file) {
     return [];
@@ -57,29 +53,41 @@ export function findReferences(location: Location, workspace: Workspace): Vscode
     const searchedKeyword = parentOfNode;
     const isSearchedKeyword = createNodeKeywordMatcherFn(searchedKeyword);
 
-    return findWorkspaceKeywordReferences(isSearchedKeyword, workspace)
-      .concat([{
-        uri:   nodeInPos.file.uri,
-        range: nodeLocationToRange(searchedKeyword)
-      }]);
+    return findWorkspaceKeywordReferences(isSearchedKeyword, workspace).concat([
+      {
+        uri: nodeInPos.file.uri,
+        range: nodeLocationToRange(searchedKeyword),
+      },
+    ]);
   } else if (isCallExpression(parentOfNode)) {
-    const keywordDefinition = findKeywordDefinition(parentOfNode, nodeInPos, workspace);
+    const keywordDefinition = findKeywordDefinition(
+      parentOfNode,
+      nodeInPos,
+      workspace
+    );
     if (keywordDefinition) {
-      const isSearchedKeyword = createNodeKeywordMatcherFn(keywordDefinition.node);
+      const isSearchedKeyword = createNodeKeywordMatcherFn(
+        keywordDefinition.node
+      );
 
-      return findWorkspaceKeywordReferences(isSearchedKeyword, workspace)
-        .concat([{
-          uri:   keywordDefinition.uri,
-          range: keywordDefinition.range
-        }]);
+      return findWorkspaceKeywordReferences(
+        isSearchedKeyword,
+        workspace
+      ).concat([
+        {
+          uri: keywordDefinition.uri,
+          range: keywordDefinition.range,
+        },
+      ]);
     } else {
       const isSearchedKeyword = node =>
-        (isCallExpression(node) && identifierMatchesIdentifier(node.callee, parentOfNode.callee)) ||
-        (isUserKeyword(node) && identifierMatchesIdentifier(node.id, parentOfNode.callee));
+        (isCallExpression(node) &&
+          identifierMatchesIdentifier(node.callee, parentOfNode.callee)) ||
+        (isUserKeyword(node) &&
+          identifierMatchesIdentifier(node.id, parentOfNode.callee));
 
       return findWorkspaceKeywordReferences(isSearchedKeyword, workspace);
     }
-
   }
 
   return [];
@@ -118,9 +126,19 @@ function findFileKeywordReferences(
 ) {
   // Optimize traversal by limiting which nodes to enter
   const nodesToEnter = new Set([
-    "TestSuite", "TestCasesTable", "TestCase", "Step", "Teardown", "Setup",
-    "KeywordsTable", "UserKeyword", "ScalarDeclaration", "ListDeclaration",
-    "DictionaryDeclaration", "SettingsTable", "SuiteSetting"
+    "TestSuite",
+    "TestCasesTable",
+    "TestCase",
+    "Step",
+    "Teardown",
+    "Setup",
+    "KeywordsTable",
+    "UserKeyword",
+    "ScalarDeclaration",
+    "ListDeclaration",
+    "DictionaryDeclaration",
+    "SettingsTable",
+    "SuiteSetting",
   ]);
 
   const references: VscodeLocation[] = [];
@@ -130,14 +148,14 @@ function findFileKeywordReferences(
       if (isSearchedKeywordFn(node)) {
         references.push({
           uri: file.uri,
-          range: nodeLocationToRange(node)
+          range: nodeLocationToRange(node),
         });
 
         return VisitorOption.Skip;
       } else if (!nodesToEnter.has(node.type)) {
         return VisitorOption.Skip;
       }
-    }
+    },
   });
 
   return references;

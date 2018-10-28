@@ -9,9 +9,9 @@ import { parseKeywordsTable } from "./keywords-table-parser";
 import { parseVariablesTable } from "./variables-table-parser";
 import { parseTestCasesTable } from "./test-cases-table-parser";
 
-const SETTINGS_TABLES   = new Set(["setting", "settings"]);
-const VARIABLES_TABLES  = new Set(["variable", "variables"]);
-const KEYWORDS_TABLES   = new Set(["keyword", "keywords"]);
+const SETTINGS_TABLES = new Set(["setting", "settings"]);
+const VARIABLES_TABLES = new Set(["variable", "variables"]);
+const KEYWORDS_TABLES = new Set(["keyword", "keywords"]);
 const TEST_CASES_TABLES = new Set(["test case", "test cases"]);
 
 export class FileParser {
@@ -32,7 +32,7 @@ export class FileParser {
     if (_.isEmpty(fileTables)) {
       return new TestSuite({
         start: { line: 0, column: 0 },
-        end: { line: 0, column: 0 }
+        end: { line: 0, column: 0 },
       });
     }
 
@@ -41,7 +41,7 @@ export class FileParser {
 
     const testDataFile = new TestSuite({
       start: firstTable.location.start,
-      end: lastTable.location.end
+      end: lastTable.location.end,
     });
 
     fileTables.forEach(dataTable => {

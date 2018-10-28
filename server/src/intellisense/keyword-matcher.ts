@@ -1,8 +1,5 @@
 import * as _ from "lodash";
-import {
-  UserKeyword,
-  Identifier,
-} from "../parser/models";
+import { UserKeyword, Identifier } from "../parser/models";
 
 import { parseVariableString } from "../parser/primitive-parsers";
 import { isNamespacedIdentifier } from "./type-guards";
@@ -19,10 +16,12 @@ function createKeywordRegex(keywordName: string) {
   const parseResult = parseVariableString(sanitizedName);
 
   const regexParts = parseResult.map(result => {
-    return result.kind === "var" ? ARGUMENT_REGEX : _.escapeRegExp(result.value);
+    return result.kind === "var"
+      ? ARGUMENT_REGEX
+      : _.escapeRegExp(result.value);
   });
 
-  const regexString = `^${ regexParts.join("") }\$`;
+  const regexString = `^${regexParts.join("")}\$`;
 
   // As per RF documentation, keywords are matched case-insensitive
   return new RegExp(regexString, "i");
@@ -34,7 +33,10 @@ export function identifierMatchesKeyword(
 ) {
   if (isNamespacedIdentifier(identifier)) {
     // When the identifier is explicit, the namespace must match the keyword case-insensitively.
-    if (identifier.namespace && identifier.namespace.toLowerCase() !== keyword.id.namespace.toLowerCase()) {
+    if (
+      identifier.namespace &&
+      identifier.namespace.toLowerCase() !== keyword.id.namespace.toLowerCase()
+    ) {
       return false;
     }
   }
@@ -52,11 +54,8 @@ export function identifierMatchesKeyword(
  * @param identifier1
  * @param identifier2
  */
-export function identifierMatchesIdentifier(
-  x: Identifier,
-  y: Identifier
-) {
-  const regex = new RegExp(`^${ _.escapeRegExp(x.name) }\$`, "i");
+export function identifierMatchesIdentifier(x: Identifier, y: Identifier) {
+  const regex = new RegExp(`^${_.escapeRegExp(x.name)}\$`, "i");
 
   return regex.test(y.name);
 }

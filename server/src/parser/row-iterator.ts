@@ -1,14 +1,11 @@
 import * as _ from "lodash";
 
-import {
-  DataTable,
-  DataRow,
-} from "./table-models";
+import { DataTable, DataRow } from "./table-models";
 
 export class TableRowIterator {
   private rowIdx: number = 0;
 
-  constructor(private table: DataTable) { }
+  constructor(private table: DataTable) {}
 
   public isDone(): boolean {
     return this.rowIdx >= this.table.rows.length;

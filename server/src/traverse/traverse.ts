@@ -3,124 +3,144 @@ import * as _ from "lodash";
 import { Node } from "../parser/models";
 
 export const VisitorOption = {
-  Skip:  {},
-  Break: {}
+  Skip: {},
+  Break: {},
 };
 
 const NodeSettings = {
   TestSuite: {
     orderEnsured: false,
-    children: ["settingsTable", "variablesTable", "keywordsTable", "testCasesTable"]
+    children: [
+      "settingsTable",
+      "variablesTable",
+      "keywordsTable",
+      "testCasesTable",
+    ],
   },
   KeywordsTable: {
     orderEnsured: true,
-    children: ["keywords"]
+    children: ["keywords"],
   },
   UserKeyword: {
     orderEnsured: false,
     children: [
-      "id", "steps", "arguments", "return",
-      "documentation", "timeout", "teardown", "tags"
+      "id",
+      "steps",
+      "arguments",
+      "return",
+      "documentation",
+      "timeout",
+      "teardown",
+      "tags",
     ],
   },
   SettingsTable: {
     orderEnsured: false,
     children: [
-      "suiteSetup", "suiteTeardown",
-      "testSetup", "testTeardown",
-      "libraryImports", "resourceImports", "variableImports"
-    ]
+      "suiteSetup",
+      "suiteTeardown",
+      "testSetup",
+      "testTeardown",
+      "libraryImports",
+      "resourceImports",
+      "variableImports",
+    ],
   },
   SuiteSetting: {
     orderEnsured: true,
-    children: ["name", "value"]
+    children: ["name", "value"],
   },
   LibraryImport: {
     orderEnsured: true,
-    children: ["target", "args"]
+    children: ["target", "args"],
   },
   ResourceImport: {
     orderEnsured: true,
-    children: ["target"]
+    children: ["target"],
   },
   VariableImport: {
     orderEnsured: true,
-    children: ["target"]
+    children: ["target"],
   },
   VariablesTable: {
     orderEnsured: true,
-    children: ["variables"]
+    children: ["variables"],
   },
   ScalarDeclaration: {
     orderEnsured: true,
-    children: ["id", "value"]
+    children: ["id", "value"],
   },
   ListDeclaration: {
     orderEnsured: true,
-    children: ["id", "values"]
+    children: ["id", "values"],
   },
   DictionaryDeclaration: {
     orderEnsured: true,
-    children: ["id", "values"]
+    children: ["id", "values"],
   },
   TestCasesTable: {
     orderEnsured: true,
-    children: ["testCases"]
+    children: ["testCases"],
   },
   TestCase: {
     orderEnsured: false,
     children: [
-      "id", "steps", "documentation", "timeout",
-      "setup", "teardown", "tags"
+      "id",
+      "steps",
+      "documentation",
+      "timeout",
+      "setup",
+      "teardown",
+      "tags",
     ],
   },
   Step: {
     orderEnsured: true,
-    children: ["body"]
+    children: ["body"],
   },
   CallExpression: {
     orderEnsured: true,
-    children: ["callee", "args"]
+    children: ["callee", "args"],
   },
   VariableExpression: {
     orderEnsured: true,
-    children: ["id"]
+    children: ["id"],
   },
   Literal: {
     orderEnsured: true,
-    children: []
+    children: [],
   },
   TemplateLiteral: {
     orderEnsured: false,
-    children: ["quasis", "expressions"]
+    children: ["quasis", "expressions"],
   },
   Documentation: {
     orderEnsured: true,
-    children: ["id", "value"]
+    children: ["id", "value"],
   },
   Arguments: {
     orderEnsured: true,
-    children: ["id", "values"]
+    children: ["id", "values"],
   },
   Return: {
     orderEnsured: true,
-    children: ["id", "values"]
+    children: ["id", "values"],
   },
   Timeout: {
     orderEnsured: true,
-    children: ["id", "value", "message"]
+    children: ["id", "value", "message"],
   },
   Tags: {
     orderEnsured: true,
-    children: ["id", "values"]
+    children: ["id", "values"],
   },
   Setup: {
     orderEnsured: true,
-    children: ["id", "keyword"]
+    children: ["id", "keyword"],
   },
   Teardown: {
     orderEnsured: true,
-    children: ["id", "keyword"]
+    children: ["id", "keyword"],
   },
 };
 

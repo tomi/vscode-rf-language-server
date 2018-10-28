@@ -3,21 +3,15 @@ import * as chai from "chai";
 
 import { TableReader } from "../table-reader";
 
-import {
-  DataCell,
-} from "../table-models";
+import { DataCell } from "../table-models";
 
-import {
-  createLocation,
-  table,
-  row,
-} from "./test-helper";
+import { createLocation, table, row } from "./test-helper";
 
 const reader = new TableReader();
 
 function header(text) {
   return row(createLocation(0, 0, 0, text.length), [
-    new DataCell(text, createLocation(0, 0, 0, text.length))
+    new DataCell(text, createLocation(0, 0, 0, text.length)),
   ]);
 }
 
@@ -31,12 +25,12 @@ describe("TableReader", () => {
       chai.assert.equal(actual.name, name);
     };
 
-    shouldReadName(`***${ name }***`);
-    shouldReadName(`*** ${ name } ***`);
-    shouldReadName(`***${ name }`);
-    shouldReadName(`*** ${ name }`);
-    shouldReadName(`*${ name }`);
-    shouldReadName(`* ${ name }`);
+    shouldReadName(`***${name}***`);
+    shouldReadName(`*** ${name} ***`);
+    shouldReadName(`***${name}`);
+    shouldReadName(`*** ${name}`);
+    shouldReadName(`*${name}`);
+    shouldReadName(`* ${name}`);
   });
 
   it("should read empty table", () => {
@@ -45,8 +39,8 @@ describe("TableReader", () => {
     const actual = reader.read(data);
     const expected = [
       table("Table", {
-        header: header(`*** Table`)
-      })
+        header: header(`*** Table`),
+      }),
     ];
 
     chai.assert.deepEqual(actual, expected);
@@ -63,10 +57,10 @@ describe("TableReader", () => {
         rows: [
           row(createLocation(1, 0, 1, 9), [
             new DataCell("", createLocation(1, 0, 1, 0)),
-            new DataCell("cell1", createLocation(1, 4, 1, 9))
-          ])
-        ]
-      })
+            new DataCell("cell1", createLocation(1, 4, 1, 9)),
+          ]),
+        ],
+      }),
     ];
 
     chai.assert.deepEqual(actual, expected);
@@ -83,10 +77,10 @@ describe("TableReader", () => {
         rows: [
           row(createLocation(1, 0, 1, 14), [
             new DataCell("cell1", createLocation(1, 0, 1, 5)),
-            new DataCell("cell2", createLocation(1, 9, 1, 14))
-          ])
-        ]
-      })
+            new DataCell("cell2", createLocation(1, 9, 1, 14)),
+          ]),
+        ],
+      }),
     ];
 
     chai.assert.deepEqual(actual, expected);
@@ -103,9 +97,9 @@ describe("TableReader", () => {
         rows: [
           row(createLocation(1, 0, 1, 9), [
             new DataCell("cell1", createLocation(1, 0, 1, 5)),
-          ])
-        ]
-      })
+          ]),
+        ],
+      }),
     ];
 
     chai.assert.deepEqual(actual, expected);
@@ -121,14 +115,14 @@ describe("TableReader", () => {
         header: header("*** Table "),
         rows: [
           row(createLocation(1, 0, 1, 0), [
-            new DataCell("", createLocation(1, 0, 1, 0))
+            new DataCell("", createLocation(1, 0, 1, 0)),
           ]),
           row(createLocation(2, 0, 2, 14), [
             new DataCell("cell1", createLocation(2, 0, 2, 5)),
-            new DataCell("cell2", createLocation(2, 9, 2, 14))
+            new DataCell("cell2", createLocation(2, 9, 2, 14)),
           ]),
-        ]
-      })
+        ],
+      }),
     ];
 
     chai.assert.deepEqual(actual, expected);

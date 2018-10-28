@@ -1,33 +1,34 @@
 import * as _ from "lodash";
 
 import { TableRowIterator } from "./row-iterator";
-import {
-  DataTable,
-  DataRow,
-  DataCell
-} from "./table-models";
+import { DataTable, DataRow, DataCell } from "./table-models";
 
 import {
   KeywordsTable,
   UserKeyword,
   SettingDeclaration,
-  NamespacedIdentifier
+  NamespacedIdentifier,
 } from "./models";
 
 import * as SettingParser from "./setting-parser";
 
-import {
-  parseIdentifier,
-} from "./primitive-parsers";
+import { parseIdentifier } from "./primitive-parsers";
 
 import { parseStep } from "./function-parsers";
 
 const keywordSettings = new Set([
-  "[Documentation]", "[Arguments]", "[Return]",
-  "[Teardown]", "[Tags]", "[Timeout]"
+  "[Documentation]",
+  "[Arguments]",
+  "[Return]",
+  "[Teardown]",
+  "[Tags]",
+  "[Timeout]",
 ]);
 
-export function parseKeywordsTable(dataTable: DataTable, namespace: string): KeywordsTable {
+export function parseKeywordsTable(
+  dataTable: DataTable,
+  namespace: string
+): KeywordsTable {
   const keywordsTable = new KeywordsTable(dataTable.location);
   let currentKeyword: UserKeyword;
 
@@ -46,13 +47,18 @@ export function parseKeywordsTable(dataTable: DataTable, namespace: string): Key
         identifier.location
       );
 
-      currentKeyword = new UserKeyword(namespacedIdentifier, row.location.start);
+      currentKeyword = new UserKeyword(
+        namespacedIdentifier,
+        row.location.start
+      );
       keywordsTable.addKeyword(currentKeyword);
     } else if (currentKeyword) {
       const firstRowDataCells = row.getCellsByRange(1);
       const continuedRows = iterator.takeRowWhile(rowContinues);
       const continuedCells = joinRows(continuedRows);
-      const [firstCell, ...restCells] = firstRowDataCells.concat(continuedCells);
+      const [firstCell, ...restCells] = firstRowDataCells.concat(
+        continuedCells
+      );
 
       if (keywordSettings.has(firstCell.content)) {
         const setting = SettingParser.parseSetting(firstCell, restCells);
@@ -76,7 +82,7 @@ function startsKeyword(row: DataRow) {
 
 function rowContinues(row: DataRow) {
   return row.isRowContinuation({
-    requireFirstEmpty: true
+    requireFirstEmpty: true,
   });
 }
 

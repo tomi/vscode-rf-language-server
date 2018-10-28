@@ -25,7 +25,7 @@ import {
   Teardown,
   Setup,
   Template,
-  SettingDeclaration
+  SettingDeclaration,
 } from "../parser/models";
 
 function isOfType(node: Node, typeName: string) {
@@ -36,7 +36,9 @@ export function isIdentifier(node: Node): node is Identifier {
   return isNamespacedIdentifier(node) || isOfType(node, "Identifier");
 }
 
-export function isNamespacedIdentifier(node: Node): node is NamespacedIdentifier {
+export function isNamespacedIdentifier(
+  node: Node
+): node is NamespacedIdentifier {
   return isOfType(node, "NamespacedIdentifier");
 }
 
@@ -56,14 +58,18 @@ export function isListDeclaration(node: Node): node is ListDeclaration {
   return isOfType(node, "ListDeclaration");
 }
 
-export function isDictionaryDeclaration(node: Node): node is DictionaryDeclaration {
+export function isDictionaryDeclaration(
+  node: Node
+): node is DictionaryDeclaration {
   return isOfType(node, "DictionaryDeclaration");
 }
 
 export function isVariableDeclaration(node: Node): node is VariableDeclaration {
-    return isScalarDeclaration(node) ||
-      isListDeclaration(node) ||
-      isDictionaryDeclaration(node);
+  return (
+    isScalarDeclaration(node) ||
+    isListDeclaration(node) ||
+    isDictionaryDeclaration(node)
+  );
 }
 
 export function isStep(node: Node): node is Step {
@@ -135,12 +141,14 @@ export function isTemplate(node: Node): node is Template {
 }
 
 export function isSettingDeclaration(node: Node): node is SettingDeclaration {
-  return isDocumentation(node) ||
+  return (
+    isDocumentation(node) ||
     isArguments(node) ||
     isReturn(node) ||
     isTimeout(node) ||
     isTags(node) ||
     isTeardown(node) ||
     isSetup(node) ||
-    isTemplate(node);
+    isTemplate(node)
+  );
 }

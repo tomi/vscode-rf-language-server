@@ -3,21 +3,17 @@ import * as chai from "chai";
 
 import { parseValueExpression } from "../primitive-parsers";
 
-import {
-  DataCell,
-} from "../table-models";
+import { DataCell } from "../table-models";
 
 import {
   Literal,
   Identifier,
   VariableExpression,
   TemplateElement,
-  TemplateLiteral
+  TemplateLiteral,
 } from "../models";
 
-import {
-  createLocation
-} from "./test-helper";
+import { createLocation } from "./test-helper";
 
 describe("parseValueExpression", () => {
   describe("should parse single literals", () => {
@@ -45,7 +41,9 @@ describe("parseValueExpression", () => {
         createLocation(0, 0, 0, 6)
       );
 
-      const actual = parseValueExpression(new DataCell("${VAR}", createLocation(0, 0, 0, 6)));
+      const actual = parseValueExpression(
+        new DataCell("${VAR}", createLocation(0, 0, 0, 6))
+      );
 
       chai.assert.deepEqual(actual, expected);
     });
@@ -57,7 +55,9 @@ describe("parseValueExpression", () => {
         createLocation(0, 0, 0, 6)
       );
 
-      const actual = parseValueExpression(new DataCell("@{VAR}", createLocation(0, 0, 0, 6)));
+      const actual = parseValueExpression(
+        new DataCell("@{VAR}", createLocation(0, 0, 0, 6))
+      );
 
       chai.assert.deepEqual(actual, expected);
     });
@@ -94,6 +94,5 @@ describe("parseValueExpression", () => {
 
       chai.assert.deepEqual(actual, expected);
     });
-
   });
 });

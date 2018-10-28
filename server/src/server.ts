@@ -6,12 +6,24 @@ import Uri from "vscode-uri";
 import * as path from "path";
 
 import {
-  IPCMessageReader, IPCMessageWriter,
-  createConnection, IConnection, TextDocumentSyncKind,
-  InitializeParams, InitializeResult, TextDocumentPositionParams,
-  RequestType, Location, DocumentSymbolParams, WorkspaceSymbolParams,
-  SymbolInformation, FileChangeType, ReferenceParams, CompletionItem, DocumentHighlight,
-  DidChangeTextDocumentParams
+  IPCMessageReader,
+  IPCMessageWriter,
+  createConnection,
+  IConnection,
+  TextDocumentSyncKind,
+  InitializeParams,
+  InitializeResult,
+  TextDocumentPositionParams,
+  RequestType,
+  Location,
+  DocumentSymbolParams,
+  WorkspaceSymbolParams,
+  SymbolInformation,
+  FileChangeType,
+  ReferenceParams,
+  CompletionItem,
+  DocumentHighlight,
+  DidChangeTextDocumentParams,
 } from "vscode-languageserver";
 
 import Workspace from "./intellisense/workspace/workspace";
@@ -19,7 +31,10 @@ import { WorkspaceFileParserFn } from "./intellisense/workspace/workspace-file";
 import { findDefinition } from "./intellisense/definition-finder";
 import { findReferences } from "./intellisense/reference-finder";
 import { findCompletionItems } from "./intellisense/completion-provider";
-import { getFileSymbols, getWorkspaceSymbols } from "./intellisense/symbol-provider";
+import {
+  getFileSymbols,
+  getWorkspaceSymbols,
+} from "./intellisense/symbol-provider";
 import { findFileHighlights } from "./intellisense/highlight-provider";
 import { Config, LibraryDefinition } from "./utils/settings";
 import { ConsoleLogger } from "./logger";
@@ -34,14 +49,16 @@ const LIBRARY_PATH = path.resolve(__dirname, "./library-docs");
 
 const parsersByFile = new Map([
   [".robot", createRobotFile],
-  [".txt",   createRobotFile],
-  [".py",    createPythonFile]
+  [".txt", createRobotFile],
+  [".py", createPythonFile],
 ]);
 const workspace = new Workspace();
 
 // Create a connection for the server. The connection uses Node's IPC as a transport
 const connection: IConnection = createConnection(
-  new IPCMessageReader(process), new IPCMessageWriter(process));
+  new IPCMessageReader(process),
+  new IPCMessageWriter(process)
+);
 
 const logger = ConsoleLogger;
 
@@ -49,8 +66,12 @@ export interface BuildFromFilesParam {
   files: string[];
 }
 
-export const BuildFromFilesRequest =
-  new RequestType<BuildFromFilesParam, void, void, void>("buildFromFiles");
+export const BuildFromFilesRequest = new RequestType<
+  BuildFromFilesParam,
+  void,
+  void,
+  void
+>("buildFromFiles");
 
 // After the server has started the client sends an initilize request. The server receives
 // in the passed params the rootPath of the workspace plus the client capabilites.
@@ -78,9 +99,7 @@ function onBuildFromFiles(message: BuildFromFilesParam) {
 
   workspace.clear();
 
-  message.files
-    .filter(_shouldAcceptFile)
-    .forEach(_readAndParseFile);
+  message.files.filter(_shouldAcceptFile).forEach(_readAndParseFile);
 
   Config.getLibraries().forEach(_readAndParseLibrary);
 }
@@ -88,7 +107,9 @@ function onBuildFromFiles(message: BuildFromFilesParam) {
 /**
  * Provides completion items for given text position
  */
-function onCompletion(textDocumentPosition: TextDocumentPositionParams): CompletionItem[] {
+function onCompletion(
+  textDocumentPosition: TextDocumentPositionParams
+): CompletionItem[] {
   logger.info("onCompletion...");
 
   const location = _textPositionToLocation(textDocumentPosition);
@@ -108,13 +129,16 @@ function onDefinition(textDocumentPosition: TextDocumentPositionParams) {
 
   const filePath = _filePathFromUri(textDocumentPosition.textDocument.uri);
 
-  const found = findDefinition({
-    filePath,
-    position: {
-      line: textDocumentPosition.position.line,
-      column: textDocumentPosition.position.character,
-    }
-  }, workspace);
+  const found = findDefinition(
+    {
+      filePath,
+      position: {
+        line: textDocumentPosition.position.line,
+        column: textDocumentPosition.position.character,
+      },
+    },
+    workspace
+  );
 
   if (!found) {
     return null;
@@ -122,7 +146,7 @@ function onDefinition(textDocumentPosition: TextDocumentPositionParams) {
 
   return {
     uri: found.uri,
-    range: found.range
+    range: found.range,
   };
 }
 
@@ -163,7 +187,10 @@ function onDidChangeTextDocument(params: DidChangeTextDocumentParams) {
 }
 
 function onDidChangeWatchedFiles(params) {
-  logger.info("onDidChangeWatchedFiles", params.changes.map(f => f.uri).join(","));
+  logger.info(
+    "onDidChangeWatchedFiles",
+    params.changes.map(f => f.uri).join(",")
+  );
 
   // Remove deleted files
   params.changes
@@ -197,7 +224,9 @@ function onDocumentHighlight(
 /**
  * Provides document symbols
  */
-function onDocumentSymbol(documentSymbol: DocumentSymbolParams): SymbolInformation[] {
+function onDocumentSymbol(
+  documentSymbol: DocumentSymbolParams
+): SymbolInformation[] {
   logger.info("onDocumentSymbol...");
 
   const filePath = _filePathFromUri(documentSymbol.textDocument.uri);
@@ -229,10 +258,8 @@ function onInitialize(params: InitializeParams): InitializeResult {
       referencesProvider: true,
       documentHighlightProvider: true,
       completionProvider: {
-        triggerCharacters: [
-          "[", "{", "*"
-        ]
-      }
+        triggerCharacters: ["[", "{", "*"],
+      },
     },
   };
 }
@@ -245,13 +272,16 @@ function onReferences(referenceParams: ReferenceParams): Location[] {
 
   const filePath = _filePathFromUri(referenceParams.textDocument.uri);
 
-  const foundReferences = findReferences({
-    filePath,
-    position: {
-      line: referenceParams.position.line,
-      column: referenceParams.position.character
-    }
-  }, workspace);
+  const foundReferences = findReferences(
+    {
+      filePath,
+      position: {
+        line: referenceParams.position.line,
+        column: referenceParams.position.character,
+      },
+    },
+    workspace
+  );
 
   return foundReferences;
 }
@@ -259,7 +289,9 @@ function onReferences(referenceParams: ReferenceParams): Location[] {
 /**
  * Provides workspace symbols
  */
-function onWorkspaceSymbol(workspaceSymbol: WorkspaceSymbolParams): SymbolInformation[] {
+function onWorkspaceSymbol(
+  workspaceSymbol: WorkspaceSymbolParams
+): SymbolInformation[] {
   logger.info("onWorkspaceSymbol...");
 
   const query = workspaceSymbol.query;
@@ -270,7 +302,9 @@ function onWorkspaceSymbol(workspaceSymbol: WorkspaceSymbolParams): SymbolInform
 function _shouldAcceptFile(filePath: string) {
   const fileExt = path.extname(filePath);
   if (!parsersByFile.has(fileExt)) {
-    logger.debug(`Not accepting file ${ filePath }. Extension ${ fileExt } is not supported.`);
+    logger.debug(
+      `Not accepting file ${filePath}. Extension ${fileExt} is not supported.`
+    );
     return false;
   }
 
@@ -279,15 +313,21 @@ function _shouldAcceptFile(filePath: string) {
   const hasIncludePatterns = include.length > 0;
   const hasExcludePatterns = exclude.length > 0;
 
-  const shouldInclude = !hasIncludePatterns ||
+  const shouldInclude =
+    !hasIncludePatterns ||
     _.some(include, pattern => minimatch(filePath, pattern));
-  const shouldExclude = hasExcludePatterns &&
+  const shouldExclude =
+    hasExcludePatterns &&
     _.some(exclude, pattern => minimatch(filePath, pattern));
 
   if (!shouldInclude) {
-    logger.debug(`Not accepting file ${ filePath }. It doesn't match any include pattern.`);
+    logger.debug(
+      `Not accepting file ${filePath}. It doesn't match any include pattern.`
+    );
   } else if (shouldExclude) {
-    logger.debug(`Not accepting file ${ filePath }. It matches an exclude pattern.`);
+    logger.debug(
+      `Not accepting file ${filePath}. It matches an exclude pattern.`
+    );
   }
 
   return shouldInclude && !shouldExclude;
@@ -343,16 +383,20 @@ function _getParserFn(filePath: string) {
 
   const parserFn = parsersByFile.get(fileExt);
   if (!parserFn) {
-    throw new Error(`Unsupported file extension ${ fileExt }`);
+    throw new Error(`Unsupported file extension ${fileExt}`);
   }
 
   return parserFn;
 }
 
-function _createWorkspaceFile(filePath: string, fileContents: string, createFn: WorkspaceFileParserFn) {
-  const relativePath = workspaceRoot ?
-    path.relative(workspaceRoot, filePath) :
-    filePath;
+function _createWorkspaceFile(
+  filePath: string,
+  fileContents: string,
+  createFn: WorkspaceFileParserFn
+) {
+  const relativePath = workspaceRoot
+    ? path.relative(workspaceRoot, filePath)
+    : filePath;
 
   logger.info("Parsing file", filePath);
   return createFn(fileContents, filePath, relativePath);
@@ -370,7 +414,7 @@ function _textPositionToLocation(position: TextDocumentPositionParams) {
     position: {
       line: position.position.line,
       column: position.position.character,
-    }
+    },
   };
 }
 

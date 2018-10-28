@@ -1,9 +1,6 @@
 import * as _ from "lodash";
 import WorkspaceFile from "./workspace/workspace-file";
-import {
-  Node,
-  FunctionDeclaration,
-} from "../parser/models";
+import { Node, FunctionDeclaration } from "../parser/models";
 import * as typeGuards from "./type-guards";
 import { DataTable, DataRow, DataCell } from "../parser/table-models";
 import { traverse, VisitorOption } from "../traverse/traverse";
@@ -17,10 +14,10 @@ export interface FileNode {
 }
 
 export interface LocationInfo {
-  row:        DataRow;
-  cell:       DataCell;
+  row: DataRow;
+  cell: DataCell;
   textBefore: string;
-  textAfter:  string;
+  textAfter: string;
 }
 
 /**
@@ -29,7 +26,10 @@ export interface LocationInfo {
  * @param pos
  * @param fileToSearch
  */
-export function findNodeInPos(pos: Position, fileToSearch: WorkspaceFile): FileNode {
+export function findNodeInPos(
+  pos: Position,
+  fileToSearch: WorkspaceFile
+): FileNode {
   const pathToNode = [];
   let leafNode = null;
 
@@ -44,13 +44,13 @@ export function findNodeInPos(pos: Position, fileToSearch: WorkspaceFile): FileN
 
         leafNode = node;
       }
-    }
+    },
   });
 
   return {
     file: fileToSearch,
     path: pathToNode,
-    node: leafNode
+    node: leafNode,
   };
 }
 
@@ -59,7 +59,10 @@ export function findNodeInPos(pos: Position, fileToSearch: WorkspaceFile): FileN
  * @param location
  * @param tables
  */
-export function findLocationInfo(location: Location, tables: DataTable[]): LocationInfo {
+export function findLocationInfo(
+  location: Location,
+  tables: DataTable[]
+): LocationInfo {
   const isOnLine = loc =>
     loc.start.line <= location.position.line &&
     location.position.line <= loc.end.line;
@@ -88,7 +91,7 @@ export function findLocationInfo(location: Location, tables: DataTable[]): Locat
     row,
     cell,
     textBefore,
-    textAfter
+    textAfter,
   };
 }
 

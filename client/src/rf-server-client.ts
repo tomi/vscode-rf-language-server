@@ -1,9 +1,11 @@
 import * as path from "path";
 import { workspace, Disposable, ExtensionContext } from "vscode";
 import {
-  LanguageClient, LanguageClientOptions,
+  LanguageClient,
+  LanguageClientOptions,
   ServerOptions,
-  TransportKind, RequestType
+  TransportKind,
+  RequestType,
 } from "vscode-languageclient";
 import { Config, CONFIG_BLOCK_NAME } from "./utils/config";
 
@@ -13,8 +15,12 @@ export interface BuildFromFilesParam {
   files: string[];
 }
 
-const BuildFromFilesRequestType =
-  new RequestType<BuildFromFilesParam, void, void, void>("buildFromFiles");
+const BuildFromFilesRequestType = new RequestType<
+  BuildFromFilesParam,
+  void,
+  void,
+  void
+>("buildFromFiles");
 
 /**
  * Client to connect to the language server
@@ -43,8 +49,7 @@ export default class RFServerClient implements Disposable {
   }
 
   public restart() {
-    return this.stop()
-      .then(() => this.start());
+    return this.stop().then(() => this.start());
   }
 
   public stop() {
@@ -61,7 +66,7 @@ export default class RFServerClient implements Disposable {
   public sendBuildFilesRequest(files) {
     this._client.onReady().then(() => {
       this._client.sendRequest(BuildFromFilesRequestType, {
-        files
+        files,
       });
     });
   }
@@ -77,8 +82,12 @@ export default class RFServerClient implements Disposable {
     // If the extension is launched in debug mode then the debug server options are used
     // Otherwise the run options are used
     const serverOptions: ServerOptions = {
-      run:   { module: serverModule, transport: TransportKind.ipc },
-      debug: { module: serverModule, transport: TransportKind.ipc, options: debugOptions }
+      run: { module: serverModule, transport: TransportKind.ipc },
+      debug: {
+        module: serverModule,
+        transport: TransportKind.ipc,
+        options: debugOptions,
+      },
     };
 
     // Options to control the language client
@@ -88,8 +97,8 @@ export default class RFServerClient implements Disposable {
       synchronize: {
         // Synchronize the setting section to the server
         configurationSection: CONFIG_BLOCK_NAME,
-        fileEvents: workspace.createFileSystemWatcher(include)
-      }
+        fileEvents: workspace.createFileSystemWatcher(include),
+      },
     };
 
     return new LanguageClient(

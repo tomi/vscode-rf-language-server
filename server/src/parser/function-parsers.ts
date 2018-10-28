@@ -8,10 +8,13 @@ import { parseCallExpression } from "./primitive-parsers";
 import {
   isVariable,
   parseTypeAndName,
-  parseVariableDeclaration
+  parseVariableDeclaration,
 } from "./variable-parsers";
 
-export function parseStep(firstDataCell: DataCell, restDataCells: DataCell[]): Step {
+export function parseStep(
+  firstDataCell: DataCell,
+  restDataCells: DataCell[]
+): Step {
   let stepContent;
 
   const lastCell = _.last(restDataCells) || firstDataCell;
@@ -25,7 +28,10 @@ export function parseStep(firstDataCell: DataCell, restDataCells: DataCell[]): S
     const callExpression = parseCallExpression(restDataCells);
 
     stepContent = parseVariableDeclaration(
-      typeAndName, [callExpression], stepLocation);
+      typeAndName,
+      [callExpression],
+      stepLocation
+    );
   } else {
     stepContent = parseCallExpression([firstDataCell, ...restDataCells]);
   }

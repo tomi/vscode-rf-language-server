@@ -2,11 +2,7 @@ import * as _ from "lodash";
 
 import * as positionHelper from "./position-helper";
 import { TableRowIterator } from "./row-iterator";
-import {
-  DataCell,
-  DataTable,
-  DataRow
-} from "./table-models";
+import { DataCell, DataTable, DataRow } from "./table-models";
 
 import {
   EmptyNode,
@@ -14,7 +10,7 @@ import {
   LibraryImport,
   ResourceImport,
   VariableImport,
-  SuiteSetting
+  SuiteSetting,
 } from "./models";
 
 import {
@@ -24,13 +20,13 @@ import {
 } from "./primitive-parsers";
 
 const settingParserMap = new Map([
-  ["Library",        parseLibraryImport],
-  ["Resource",       parseResourceImport],
-  ["Variables",      parseVariableImport],
-  ["Suite Setup",    createParseSettingFn("suiteSetup")],
+  ["Library", parseLibraryImport],
+  ["Resource", parseResourceImport],
+  ["Variables", parseVariableImport],
+  ["Suite Setup", createParseSettingFn("suiteSetup")],
   ["Suite Teardown", createParseSettingFn("suiteTeardown")],
-  ["Test Setup",     createParseSettingFn("testSetup")],
-  ["Test Teardown",  createParseSettingFn("testTeardown")],
+  ["Test Setup", createParseSettingFn("testSetup")],
+  ["Test Teardown", createParseSettingFn("testTeardown")],
 ]);
 
 /**
@@ -59,7 +55,7 @@ export function parseSettingsTable(dataTable: DataTable): SettingsTable {
 
 function rowContinues(row: DataRow) {
   return row.isRowContinuation({
-    requireFirstEmpty: false
+    requireFirstEmpty: false,
   });
 }
 
@@ -81,51 +77,79 @@ function getParserFn(cell: DataCell) {
   return parser || _.noop;
 }
 
-function parseLibraryImport(settingsTable: SettingsTable, firstCell: DataCell, restCells: DataCell[]) {
+function parseLibraryImport(
+  settingsTable: SettingsTable,
+  firstCell: DataCell,
+  restCells: DataCell[]
+) {
   const [firstDataCell, ...restDataCells] = restCells;
   const target = parseValueExpression(firstDataCell);
-  const args   = restDataCells.map(parseValueExpression);
+  const args = restDataCells.map(parseValueExpression);
 
   // TODO: WITH NAME keyword
   const lastCell = _.last(restCells) || firstCell;
-  const location = positionHelper.locationFromStartEnd(firstCell.location, lastCell.location);
+  const location = positionHelper.locationFromStartEnd(
+    firstCell.location,
+    lastCell.location
+  );
 
   const libImport = new LibraryImport(target, args, location);
   settingsTable.addLibraryImport(libImport);
 }
 
-function parseResourceImport(settingsTable: SettingsTable, firstCell: DataCell, restCells: DataCell[]) {
+function parseResourceImport(
+  settingsTable: SettingsTable,
+  firstCell: DataCell,
+  restCells: DataCell[]
+) {
   const [firstDataCell] = restCells;
   const target = parseValueExpression(firstDataCell);
 
   const lastCell = _.last(restCells) || firstCell;
-  const location = positionHelper.locationFromStartEnd(firstCell.location, lastCell.location);
+  const location = positionHelper.locationFromStartEnd(
+    firstCell.location,
+    lastCell.location
+  );
 
   const resourceImport = new ResourceImport(target, location);
   settingsTable.addResourceImport(resourceImport);
 }
 
-function parseVariableImport(settingsTable: SettingsTable, firstCell: DataCell, restCells: DataCell[]) {
+function parseVariableImport(
+  settingsTable: SettingsTable,
+  firstCell: DataCell,
+  restCells: DataCell[]
+) {
   const [firstDataCell] = restCells;
   const target = parseValueExpression(firstDataCell);
 
   const lastCell = _.last(restCells) || firstCell;
-  const location = positionHelper.locationFromStartEnd(firstCell.location, lastCell.location);
+  const location = positionHelper.locationFromStartEnd(
+    firstCell.location,
+    lastCell.location
+  );
 
   const variableImport = new VariableImport(target, location);
   settingsTable.addVariableImport(variableImport);
 }
 
 function createParseSettingFn(propertyName) {
-  return (settingsTable: SettingsTable, nameCell: DataCell, valueCells: DataCell[]) => {
+  return (
+    settingsTable: SettingsTable,
+    nameCell: DataCell,
+    valueCells: DataCell[]
+  ) => {
     const name = parseIdentifier(nameCell);
 
-    const value = _.isEmpty(valueCells) ?
-      new EmptyNode(nameCell.location.end) :
-      parseCallExpression(valueCells);
+    const value = _.isEmpty(valueCells)
+      ? new EmptyNode(nameCell.location.end)
+      : parseCallExpression(valueCells);
 
     const lastCell = _.last(valueCells) || nameCell;
-    const location = positionHelper.locationFromStartEnd(nameCell.location, lastCell.location);
+    const location = positionHelper.locationFromStartEnd(
+      nameCell.location,
+      lastCell.location
+    );
     const setting = new SuiteSetting(name, value, location);
     settingsTable[propertyName] = setting;
   };

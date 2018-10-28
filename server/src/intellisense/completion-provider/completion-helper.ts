@@ -9,10 +9,7 @@ import {
   MarkupKind,
   MarkupContent,
 } from "vscode-languageserver";
-import {
-  VariableDeclaration,
-  UserKeyword,
-} from "../../parser/models";
+import { VariableDeclaration, UserKeyword } from "../../parser/models";
 import { Workspace } from "../workspace/workspace";
 
 const VARIABLE_PREFIXES = new Set(["$", "@", "%", "&"]);
@@ -33,7 +30,7 @@ export function getSyntaxCompletions(
     .filter(keyword => keyword.toLowerCase().startsWith(lowerText))
     .map(keyword => ({
       label: keyword,
-      kind: CompletionItemKind.Keyword
+      kind: CompletionItemKind.Keyword,
     }));
 }
 
@@ -49,23 +46,31 @@ export function getKeywordCompletions(
   localVariables?: VariableContainer
 ): CompletionItem[] {
   if (_isInVariable(textToSearch)) {
-    return getVariableCompletions(textToSearch, workspace.variables, localVariables);
+    return getVariableCompletions(
+      textToSearch,
+      workspace.variables,
+      localVariables
+    );
   }
 
-  logger.debug(`Searching keywords with ${ textToSearch }`);
+  logger.debug(`Searching keywords with ${textToSearch}`);
 
   const keywordGroups = workspace.findKeywords(textToSearch);
   const keywords = keywordGroups.map(keywordGroup => {
     // A keyword is ambiguous when there are multiples in the global workspace with the same name.
     const ambiguousKeyword = keywordGroup.length > 1;
     return keywordGroup.map(keyword => {
-      const shouldSuggestNamespace = ambiguousKeyword ||
+      const shouldSuggestNamespace =
+        ambiguousKeyword ||
         // Assuming namespaces 'Page1' and 'Page2'...
         textToSearch.startsWith(keyword.id.namespace) || // User typed 'Page1.Someth'
-        keyword.id.namespace.startsWith(textToSearch);   // User typed 'Page'
+        keyword.id.namespace.startsWith(textToSearch); // User typed 'Page'
 
       // tslint:disable-next-line:prefer-const
-      let [insertText, insertTextFormat] = _createKeywordSnippet(keyword, shouldSuggestNamespace);
+      let [insertText, insertTextFormat] = _createKeywordSnippet(
+        keyword,
+        shouldSuggestNamespace
+      );
       const detail = _getKeywordArgs(keyword);
       const documentation = _getKeywordDocumentation(keyword);
 
@@ -73,8 +78,10 @@ export function getKeywordCompletions(
         // VSCode completion handles only complete words and not spaces,
         // so everything before the last space needs to be trimmed
         // from the insert text for it to work correctly
-        const textBeforeLastSpace =
-          textToSearch.substr(0, textToSearch.lastIndexOf(" ") + 1);
+        const textBeforeLastSpace = textToSearch.substr(
+          0,
+          textToSearch.lastIndexOf(" ") + 1
+        );
 
         insertText = _removeFromBeginning(insertText, textBeforeLastSpace);
       }
@@ -110,7 +117,7 @@ export function getVariableCompletions(
   }
 
   const searchText = _getVariableSearchText(textToSearch);
-  logger.debug(`Searching variables with ${ searchText }`);
+  logger.debug(`Searching variables with ${searchText}`);
 
   const localCompletions = localVariables
     .findByPrefix(searchText)
@@ -122,23 +129,22 @@ export function getVariableCompletions(
     .findByPrefix(searchText)
     .map(_globalVarToCompletionItem);
 
-  return [
-    ...localCompletions,
-    ...suiteCompletions,
-    ...globalCompletions
-  ];
+  return [...localCompletions, ...suiteCompletions, ...globalCompletions];
 }
 
 const _localVarToCompletionItem = variable =>
-  _variableToCompletionItem(`0-${ variable.id.name }`, variable);
+  _variableToCompletionItem(`0-${variable.id.name}`, variable);
 
 const _suiteVarToCompletionItem = variable =>
-  _variableToCompletionItem(`1-${ variable.id.name }`, variable);
+  _variableToCompletionItem(`1-${variable.id.name}`, variable);
 
 const _globalVarToCompletionItem = variable =>
-  _variableToCompletionItem(`2-${ variable.id.name }`, variable);
+  _variableToCompletionItem(`2-${variable.id.name}`, variable);
 
-function _variableToCompletionItem(sortText: string, variable: VariableDeclaration): CompletionItem {
+function _variableToCompletionItem(
+  sortText: string,
+  variable: VariableDeclaration
+): CompletionItem {
   const variableLabel = formatVariable(variable);
   const variableName = variable.id.name;
 
@@ -146,7 +152,7 @@ function _variableToCompletionItem(sortText: string, variable: VariableDeclarati
     label: variableLabel,
     insertText: variableName,
     kind: CompletionItemKind.Variable,
-    sortText
+    sortText,
   };
 }
 
@@ -203,9 +209,7 @@ function _removeFromBeginning(toCheck: string, partToRemove: string) {
 
 function _getKeywordArgs(keyword: UserKeyword): string {
   if (keyword.arguments) {
-    return keyword.arguments.values
-      .map(arg => formatVariable(arg))
-      .join("  ");
+    return keyword.arguments.values.map(arg => formatVariable(arg)).join("  ");
   } else {
     return undefined;
   }
@@ -215,7 +219,7 @@ function _getKeywordDocumentation(keyword: UserKeyword): MarkupContent {
   if (keyword.documentation && keyword.documentation.value) {
     return {
       kind: MarkupKind.Markdown,
-      value: keyword.documentation.value.value
+      value: keyword.documentation.value.value,
     };
   } else {
     return undefined;

@@ -15,29 +15,26 @@ import {
   Timeout,
 } from "./models";
 
-import {
-  parseValueExpression,
-  parseCallExpression
-} from "./primitive-parsers";
+import { parseValueExpression, parseCallExpression } from "./primitive-parsers";
 
 import {
   isVariable,
   parseTypeAndName,
-  parseVariableDeclaration
+  parseVariableDeclaration,
 } from "./variable-parsers";
 
-import {
-  locationFromStartEnd
-} from "./position-helper";
+import { locationFromStartEnd } from "./position-helper";
+
+type SettingParser = (id: Identifier, values: DataCell[]) => SettingDeclaration;
 
 const settingMapping = new Map([
   ["[Documentation]", parseDocumentation],
-  ["[Arguments]",     parseArguments    ],
-  ["[Return]",        parseReturn       ],
-  ["[Setup]"   ,      parseSetup        ],
-  ["[Teardown]",      parseTeardown     ],
-  ["[Tags]",          parseTags         ],
-  ["[Timeout]",       parseTimeout      ]
+  ["[Arguments]", parseArguments],
+  ["[Return]", parseReturn],
+  ["[Setup]", parseSetup],
+  ["[Teardown]", parseTeardown],
+  ["[Tags]", parseTags],
+  ["[Timeout]", parseTimeout],
 ]);
 
 /**
@@ -55,7 +52,10 @@ export function isSetting(cell: DataCell) {
  * @param nameCell
  * @param restCells
  */
-export function parseSetting(nameCell: DataCell, restCells: DataCell[]): SettingDeclaration {
+export function parseSetting(
+  nameCell: DataCell,
+  restCells: DataCell[]
+): SettingDeclaration {
   const settingParseFn = getParserFn(nameCell.content);
 
   const id = new Identifier(nameCell.content, nameCell.location);
@@ -63,7 +63,9 @@ export function parseSetting(nameCell: DataCell, restCells: DataCell[]): Setting
   return settingParseFn(id, restCells);
 }
 
-export function isDocumentation(node: SettingDeclaration): node is Documentation {
+export function isDocumentation(
+  node: SettingDeclaration
+): node is Documentation {
   return isOfType(node, "Documentation");
 }
 
@@ -100,7 +102,7 @@ function isOfType(node: SettingDeclaration, typeName: string) {
  *
  * @param name
  */
-function getParserFn(name: string): Function {
+function getParserFn(name: string): SettingParser {
   const settingParseFn = settingMapping.get(name);
   if (!settingParseFn) {
     throw new Error("Invalid setting " + name);
@@ -115,7 +117,10 @@ function getParserFn(name: string): Function {
  * @param id
  * @param values
  */
-function parseDocumentation(id: Identifier, values: DataCell[]): SettingDeclaration {
+function parseDocumentation(
+  id: Identifier,
+  values: DataCell[]
+): SettingDeclaration {
   if (_.isEmpty(values)) {
     return new Documentation(id, undefined, id.location);
   }
@@ -129,7 +134,9 @@ function parseDocumentation(id: Identifier, values: DataCell[]): SettingDeclarat
     locationFromStartEnd(firstCell.location, lastCell.location)
   );
 
-  return new Documentation(id, literal,
+  return new Documentation(
+    id,
+    literal,
     locationFromStartEnd(id.location, literal.location)
   );
 }
@@ -140,19 +147,21 @@ function parseDocumentation(id: Identifier, values: DataCell[]): SettingDeclarat
  * @param id
  * @param values
  */
-function parseArguments(id: Identifier, values: DataCell[]): SettingDeclaration {
-  const parsedValues = values.filter(isVariable)
-    .map(cell => {
-      const typeAndName = parseTypeAndName(cell);
+function parseArguments(
+  id: Identifier,
+  values: DataCell[]
+): SettingDeclaration {
+  const parsedValues = values.filter(isVariable).map(cell => {
+    const typeAndName = parseTypeAndName(cell);
 
-      // We might want to parse the default value as value at some point.
-      // Now just ignore any values
-      return parseVariableDeclaration(typeAndName, [], cell.location);
-    });
+    // We might want to parse the default value as value at some point.
+    // Now just ignore any values
+    return parseVariableDeclaration(typeAndName, [], cell.location);
+  });
 
-  const loc = _.isEmpty(parsedValues) ?
-    id.location :
-    locationFromStartEnd(id.location, _.last(parsedValues).location);
+  const loc = _.isEmpty(parsedValues)
+    ? id.location
+    : locationFromStartEnd(id.location, _.last(parsedValues).location);
 
   return new Arguments(id, parsedValues, loc);
 }
@@ -165,9 +174,9 @@ function parseArguments(id: Identifier, values: DataCell[]): SettingDeclaration 
 function parseReturn(id: Identifier, values: DataCell[]): SettingDeclaration {
   const parsedValues = values.map(parseValueExpression);
 
-  const loc = _.isEmpty(parsedValues) ?
-    id.location :
-    locationFromStartEnd(id.location, _.last(parsedValues).location);
+  const loc = _.isEmpty(parsedValues)
+    ? id.location
+    : locationFromStartEnd(id.location, _.last(parsedValues).location);
 
   return new Return(id, parsedValues, loc);
 }
@@ -211,9 +220,9 @@ function parseTags(id: Identifier, values: DataCell[]): SettingDeclaration {
     return new Literal(cell.content, cell.location);
   });
 
-  const loc = _.isEmpty(tags) ?
-    id.location :
-    locationFromStartEnd(id.location, _.last(tags).location);
+  const loc = _.isEmpty(tags)
+    ? id.location
+    : locationFromStartEnd(id.location, _.last(tags).location);
 
   return new Tags(id, tags, loc);
 }
@@ -221,8 +230,12 @@ function parseTags(id: Identifier, values: DataCell[]): SettingDeclaration {
 function parseTimeout(id: Identifier, values: DataCell[]): SettingDeclaration {
   const [valueCell, messageCell] = values;
 
-  const value = valueCell ? new Literal(valueCell.content, valueCell.location) : undefined;
-  const message = messageCell ? new Literal(messageCell.content, messageCell.location) : undefined;
+  const value = valueCell
+    ? new Literal(valueCell.content, valueCell.location)
+    : undefined;
+  const message = messageCell
+    ? new Literal(messageCell.content, messageCell.location)
+    : undefined;
 
   const loc = locationFromStartEnd(
     id.location,

@@ -5,14 +5,13 @@ import { identifierMatchesKeyword } from "../keyword-matcher";
 import {
   Identifier,
   NamespacedIdentifier,
-  UserKeyword
+  UserKeyword,
 } from "../../parser/models";
 
 const dummyPos = { line: 0, column: 0 };
 const dummyLoc = { start: dummyPos, end: dummyPos };
 
 describe("Keyword matcher", () => {
-
   describe("identifierMatchesKeyword", () => {
     function shouldMatch(id: Identifier, kw: UserKeyword) {
       const result = identifierMatchesKeyword(id, kw);
@@ -27,27 +26,26 @@ describe("Keyword matcher", () => {
     }
 
     const identifier = name => new Identifier(name, dummyLoc);
-    const keyword    = name => new UserKeyword(nsIdentifier("", name), dummyPos);
-    const nsIdentifier = (namespace, name) => new NamespacedIdentifier(namespace, name, dummyLoc);
-    const nsKeyword    = (namespace, name) => new UserKeyword(nsIdentifier(namespace, name), dummyPos);
+    const keyword = name => new UserKeyword(nsIdentifier("", name), dummyPos);
+    const nsIdentifier = (namespace, name) =>
+      new NamespacedIdentifier(namespace, name, dummyLoc);
+    const nsKeyword = (namespace, name) =>
+      new UserKeyword(nsIdentifier(namespace, name), dummyPos);
 
     it("should match identifier to user keyword with same name", () => {
-      shouldMatch(
-        identifier("Keyword Name"),
-        keyword("Keyword Name")
-      );
+      shouldMatch(identifier("Keyword Name"), keyword("Keyword Name"));
     });
 
     it("should match case-insensitively", () => {
-      shouldMatch(
-        identifier("Keyword Name"),
-        keyword("keyword name")
-      );
+      shouldMatch(identifier("Keyword Name"), keyword("keyword name"));
     });
 
     it("should ignore spaces when matching", () => {
       shouldMatch(identifier("I shall call you"), keyword("iShallCallYou"));
-      shouldMatch(identifier("I shall call you"), keyword("i  ShallCall    You"));
+      shouldMatch(
+        identifier("I shall call you"),
+        keyword("i  ShallCall    You")
+      );
     });
 
     it("should ignore underscores when matching", () => {
@@ -120,19 +118,25 @@ describe("Keyword matcher", () => {
         shouldMatch(
           nsIdentifier("mylibrary", "Keyword"),
           nsKeyword("MyLibrary", "Keyword")
-          );
+        );
       });
 
       describe("should not match if namespace includes the special character", () => {
         it("<space>", () =>
-          shouldNotMatch(nsIdentifier("My Library", "Keyword"), nsKeyword("MyLibrary", "Keyword"))
-        );
+          shouldNotMatch(
+            nsIdentifier("My Library", "Keyword"),
+            nsKeyword("MyLibrary", "Keyword")
+          ));
         it("'.'", () =>
-          shouldNotMatch(nsIdentifier("My.Library", "Keyword"), nsKeyword("MyLibrary", "Keyword"))
-        );
+          shouldNotMatch(
+            nsIdentifier("My.Library", "Keyword"),
+            nsKeyword("MyLibrary", "Keyword")
+          ));
         it("'_'", () =>
-          shouldNotMatch(nsIdentifier("My_Library", "Keyword"), nsKeyword("MyLibrary", "Keyword"))
-        );
+          shouldNotMatch(
+            nsIdentifier("My_Library", "Keyword"),
+            nsKeyword("MyLibrary", "Keyword")
+          ));
       });
 
       it("should match any explicit keyword when not fully specified", () => {

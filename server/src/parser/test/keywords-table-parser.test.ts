@@ -16,12 +16,10 @@ import {
   ScalarDeclaration,
   ListDeclaration,
   Documentation,
-  Arguments
+  Arguments,
 } from "../models";
 
-import {
-  createLocation,
-} from "./test-helper";
+import { createLocation } from "./test-helper";
 
 const NAMESPACE = "";
 
@@ -42,7 +40,10 @@ function keyword(
   settings: any = {}
 ) {
   return Object.assign(
-    new UserKeyword(new NamespacedIdentifier(NAMESPACE, name.name, name.location), location.start),
+    new UserKeyword(
+      new NamespacedIdentifier(NAMESPACE, name.name, name.location),
+      location.start
+    ),
     { location },
     { steps },
     settings
@@ -50,10 +51,8 @@ function keyword(
 }
 
 describe("Parsing Keywords table", () => {
-
   it("should skip invalid data", () => {
-    const data =
-`*** Keywords ***
+    const data = `*** Keywords ***
     not a keyword   cell2
       !another invalid    data
 `;
@@ -63,8 +62,7 @@ describe("Parsing Keywords table", () => {
   });
 
   it("should parse steps", () => {
-    const data =
-`*** Keywords ***
+    const data = `*** Keywords ***
 Keyword Name
     Step 1    arg1      arg2
     Step 2    \${VAR}    a longer arg2
@@ -102,15 +100,14 @@ Keyword Name
             createLocation(3, 4, 3, 37)
           ),
         ]
-      )
+      ),
     ]);
 
     parseAndAssert(data, expected);
   });
 
   it("should parse step from multiple lines", () => {
-    const data =
-`*** Keywords ***
+    const data = `*** Keywords ***
 Keyword Name
     Step 1    arg1
     ...       arg2
@@ -133,15 +130,14 @@ Keyword Name
             createLocation(2, 4, 3, 18)
           ),
         ]
-      )
+      ),
     ]);
 
     parseAndAssert(data, expected);
   });
 
   it("should parse steps with explicit keywords", () => {
-    const data =
-`*** Keywords ***
+    const data = `*** Keywords ***
 Keyword Name
     MyLibrary.Step 1    arg1      arg2
     Deep.Library.Step 1    \${VAR}    a longer arg2
@@ -154,7 +150,11 @@ Keyword Name
         [
           new Step(
             new CallExpression(
-              new NamespacedIdentifier("MyLibrary", "Step 1", createLocation(2, 4, 2, 20)),
+              new NamespacedIdentifier(
+                "MyLibrary",
+                "Step 1",
+                createLocation(2, 4, 2, 20)
+              ),
               [
                 new Literal("arg1", createLocation(2, 24, 2, 28)),
                 new Literal("arg2", createLocation(2, 34, 2, 38)),
@@ -165,7 +165,11 @@ Keyword Name
           ),
           new Step(
             new CallExpression(
-              new NamespacedIdentifier("Deep.Library", "Step 1", createLocation(3, 4, 3, 23)),
+              new NamespacedIdentifier(
+                "Deep.Library",
+                "Step 1",
+                createLocation(3, 4, 3, 23)
+              ),
               [
                 new VariableExpression(
                   new Identifier("VAR", createLocation(3, 29, 3, 32)),
@@ -179,15 +183,14 @@ Keyword Name
             createLocation(3, 4, 3, 50)
           ),
         ]
-      )
+      ),
     ]);
 
     parseAndAssert(data, expected);
   });
 
   it("should parse documentation", () => {
-    const data =
-`*** Keywords ***
+    const data = `*** Keywords ***
 Keyword Name
     [Documentation]   Here stands documentation
 `;
@@ -200,19 +203,21 @@ Keyword Name
         {
           documentation: new Documentation(
             new Identifier("[Documentation]", createLocation(2, 4, 2, 19)),
-            new Literal("Here stands documentation", createLocation(2, 22, 2, 47)),
+            new Literal(
+              "Here stands documentation",
+              createLocation(2, 22, 2, 47)
+            ),
             createLocation(2, 4, 2, 47)
-          )
+          ),
         }
-      )
+      ),
     ]);
 
     parseAndAssert(data, expected);
   });
 
   it("should parse arguments", () => {
-    const data =
-`*** Keywords ***
+    const data = `*** Keywords ***
 Keyword Name
     [Arguments]   \${arg1}    @{arg2}
 `;
@@ -238,12 +243,11 @@ Keyword Name
               ),
             ],
             createLocation(2, 4, 2, 36)
-          )
+          ),
         }
-      )
+      ),
     ]);
 
     parseAndAssert(data, expected);
   });
-
 });

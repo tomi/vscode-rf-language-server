@@ -25,10 +25,7 @@ export class DataTable {
   /**
    *
    */
-  constructor(
-    public name: string,
-    public header: DataRow
-  ) { }
+  constructor(public name: string, public header: DataRow) {}
 
   public get location(): SourceLocation {
     if (_.isEmpty(this.rows)) {
@@ -39,7 +36,7 @@ export class DataTable {
 
     return {
       start: this.header.location.start,
-      end: lastRow.location.end
+      end: lastRow.location.end,
     };
   }
 
@@ -54,9 +51,7 @@ export class DataTable {
 export class DataRow {
   public cells: DataCell[] = [];
 
-  constructor(
-    public location: SourceLocation
-  ) { }
+  constructor(public location: SourceLocation) {}
 
   /**
    * Returns the first cell
@@ -138,10 +133,7 @@ export class DataCell {
   /**
    *
    */
-  constructor(
-    public content: string,
-    public location: SourceLocation
-  ) { }
+  constructor(public content: string, public location: SourceLocation) {}
 
   /**
    * Is the cell empty. Cell is empty if it's only whitespace or

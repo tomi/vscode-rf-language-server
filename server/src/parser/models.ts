@@ -95,7 +95,7 @@ export class CallExpression implements Expression {
 
   constructor(
     public callee: Identifier,
-    public args: ValueExpression[],
+    public args: Expression[],
     public location: SourceLocation
   ) {}
 }

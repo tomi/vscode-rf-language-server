@@ -11,6 +11,7 @@ import {
   getKeywordCompletions,
   getVariableCompletions,
 } from "./completion-helper";
+import { VariableContainer } from "../search-tree";
 
 const VARIABLE_CHARS = new Set(["$", "@", "&", "%"]);
 
@@ -39,7 +40,9 @@ export function getCompletions(
     // else: It's a call expression
 
     const functionNode = _findFunction(line, fileAst);
-    const localVariables = findLocalVariables(functionNode, line);
+    const localVariables = functionNode
+      ? findLocalVariables(functionNode, line)
+      : VariableContainer.Empty;
     return getKeywordCompletions(textBefore, workspace, localVariables);
   } else {
     const functionNode = _findFunction(line, fileAst);

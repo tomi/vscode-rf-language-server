@@ -14,6 +14,7 @@ import {
   VariableKind,
   TemplateLiteral,
   TemplateElement,
+  Expression,
 } from "./models";
 
 const VARIABLE_KINDS = new Map([
@@ -33,6 +34,30 @@ export interface StringParseResult {
   kind: string;
   value: string;
 }
+
+const KWS_WITH_KW_AS_FIRST_ARG = new Set([
+  "run keyword",
+  "run keyword and continue on failure",
+  "run keyword and ignore error",
+  "run keyword and return",
+  "run keyword and return status",
+  "run keyword if all critical tests passed",
+  "run keyword if all tests passed",
+  "run keyword if any critical tests failed",
+  "run keyword if any tests failed",
+  "run keyword if test failed",
+  "run keyword if test passed",
+  "run keyword if timeout occurred",
+]);
+
+const KWS_WITH_KW_AS_SECOND_ARG = new Set([
+  "run keyword and expect error",
+  "run keyword and return if",
+  "run keyword if",
+  "run keyword unless",
+]);
+
+const RUN_MULTIPLE_KWS_KW = "run keywords";
 
 function getTemplateElement(
   parseResult: StringParseResult,
@@ -197,19 +222,88 @@ export function parseValueExpression(cell: DataCell): ValueExpression {
   }
 }
 
+/**
+ * Parses a call expression, such as:
+ *
+ * Keyword To Call  param1  param2
+ */
 export function parseCallExpression(cells: DataCell[]): CallExpression {
   if (cells.length === 0) {
     return null;
   }
 
-  const firstCell = _.first(cells);
-  const lastCell = _.last(cells);
+  const [firstCell, ...argCells] = cells;
+  const lastCell = cells[cells.length - 1];
 
   const callee = parseNamespacedOrNormalIdentifier(firstCell);
-  const args = _.drop(cells, 1).map(parseValueExpression);
+  const args = _parseCallExpressionArgs(callee.name, argCells);
 
   return new CallExpression(callee, args, {
     start: firstCell.location.start,
     end: lastCell.location.end,
   });
+}
+
+function _parseCallExpressionArgs(
+  calleeName: string,
+  argCells: DataCell[]
+): Expression[] {
+  if (argCells.length === 0) {
+    return [];
+  }
+
+  const calleeNameInLower = calleeName.toLowerCase();
+
+  if (KWS_WITH_KW_AS_FIRST_ARG.has(calleeNameInLower)) {
+    return [parseCallExpression(argCells)];
+  }
+
+  if (KWS_WITH_KW_AS_SECOND_ARG.has(calleeNameInLower)) {
+    const [firstArg, ...restArgs] = argCells;
+    const parsedFirstArgs = parseValueExpression(firstArg);
+
+    return restArgs.length === 0
+      ? [parsedFirstArgs]
+      : [parsedFirstArgs, parseCallExpression(restArgs)];
+  }
+
+  if (calleeNameInLower === RUN_MULTIPLE_KWS_KW) {
+    return _parseMultiKeywordCall(argCells);
+  }
+
+  return argCells.map(parseValueExpression);
+}
+
+function _parseMultiKeywordCall(argCells: DataCell[]): Expression[] {
+  if (argCells.every(cell => !_isKeywordSeparator(cell))) {
+    // Not a single AND => All args are keywords (=call expressions)
+    return argCells.map(argCell => parseCallExpression([argCell]));
+  }
+
+  // There's at least one AND => Parse keywords separated by them
+  const args: Expression[] = [];
+  let gatheredCells: DataCell[] = [];
+
+  for (const cell of argCells) {
+    if (_isKeywordSeparator(cell)) {
+      if (gatheredCells.length > 0) {
+        args.push(parseCallExpression(gatheredCells));
+      }
+
+      args.push(new Literal(cell.content, cell.location));
+      gatheredCells = [];
+    } else {
+      gatheredCells.push(cell);
+    }
+  }
+
+  if (gatheredCells.length > 0) {
+    args.push(parseCallExpression(gatheredCells));
+  }
+
+  return args;
+}
+
+function _isKeywordSeparator(cell: DataCell) {
+  return cell.content.toUpperCase() === "AND";
 }

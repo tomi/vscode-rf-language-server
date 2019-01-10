@@ -1,29 +1,29 @@
 {
-  "version": "2.2.1",
-  "engines": {
-    "node": "8"
-  },
-  "scripts": {
-    "install": "npm run install-client && npm run install-server",
-    "install-client": "cd client && npm i",
-    "install-server": "cd server && npm i",
-    "lint": "npm run lint-client && npm run lint-server",
-    "lint-client": "cd client && npm run lint",
-    "lint-server": "cd server && npm run lint",
-    "test": "npm run test-client && npm run test-server",
-    "test-client": "cd client && npm run test",
-    "test-server": "cd server && npm run test"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/tomi/vscode-rf-language-server.git"
-  },
-  "author": "Tomi Turtiainen <tomi.turtiainen@gmail.com>",
-  "bugs": {
-    "url": "https://github.com/tomi/vscode-rf-language-server/issues"
-  },
-  "homepage": "https://github.com/tomi/vscode-rf-language-server#readme",
-  "contributors": [
-    "Tomi Turtiainen <tomi.turtiainen@gmail.com>"
-  ]
+    "version": "2.3.0",
+    "engines": {
+        "node": "8"
+    },
+    "scripts": {
+        "install": "npm run install-client && npm run install-server",
+        "install-client": "cd client && npm i",
+        "install-server": "cd server && npm i",
+        "lint": "npm run lint-client && npm run lint-server",
+        "lint-client": "cd client && npm run lint",
+        "lint-server": "cd server && npm run lint",
+        "test": "npm run test-client && npm run test-server",
+        "test-client": "cd client && npm run test",
+        "test-server": "cd server && npm run test"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+ssh://git@github.com/tomi/vscode-rf-language-server.git"
+    },
+    "author": "Tomi Turtiainen <tomi.turtiainen@gmail.com>",
+    "bugs": {
+        "url": "https://github.com/tomi/vscode-rf-language-server/issues"
+    },
+    "homepage": "https://github.com/tomi/vscode-rf-language-server#readme",
+    "contributors": [
+        "Tomi Turtiainen <tomi.turtiainen@gmail.com>"
+    ]
 }

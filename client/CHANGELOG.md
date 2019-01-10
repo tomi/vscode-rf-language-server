@@ -1,5 +1,12 @@
 # Change Log
 
+## Version 2.3.0
+* Release date: January 10, 2019
+
+### What's new in this version
+* Fix error when keyword call has been split into multiple rows with '...'.
+* Add support for Goto definition for keywords that are parameters to one of Run Keyword keywords from the BuiltIn library.
+
 ## Version 2.2.1
 * Release date: October 28, 2018
 

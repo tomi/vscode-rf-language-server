@@ -61,8 +61,8 @@ export function findReferences(
     ]);
   } else if (isCallExpression(parentOfNode)) {
     const keywordDefinition = findKeywordDefinition(
-      parentOfNode,
-      nodeInPos,
+      parentOfNode.callee,
+      nodeInPos.file,
       workspace
     );
     if (keywordDefinition) {

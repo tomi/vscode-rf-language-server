@@ -1,5 +1,11 @@
 # Change Log
 
+## Version 2.4.0
+* Release date: March 2, 2019
+
+### What's new in this version
+* Go to definition support for BDD style keyword calls (Given-When-Then)
+
 ## Version 2.3.0
 * Release date: January 10, 2019
 

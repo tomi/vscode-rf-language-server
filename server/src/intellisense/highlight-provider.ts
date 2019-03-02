@@ -146,6 +146,8 @@ function _tryFindKeywordHighlights(nodeInPos: FileNode): DocumentHighlight[] {
       return _createSymbolHighlight(node.callee);
     } else if (typeGuards.isUserKeyword(node)) {
       return _createSymbolHighlight(node.id);
+    } else {
+      return undefined;
     }
   });
 }

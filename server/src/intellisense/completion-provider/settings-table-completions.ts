@@ -93,7 +93,7 @@ function _findNodeOnLine(line: number, ast: TestSuite) {
         return VisitorOption.Break;
       }
       if (typeGuards.isSettingsTable(node)) {
-        return;
+        return VisitorOption.Continue;
       }
       if (isOnLine(line, node)) {
         foundNode = node;

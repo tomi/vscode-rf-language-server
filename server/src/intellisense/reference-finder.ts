@@ -155,6 +155,8 @@ function findFileKeywordReferences(
       } else if (!nodesToEnter.has(node.type)) {
         return VisitorOption.Skip;
       }
+
+      return VisitorOption.Continue;
     },
   });
 

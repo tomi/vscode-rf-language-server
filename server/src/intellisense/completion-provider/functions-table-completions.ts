@@ -122,6 +122,8 @@ function _findNodeOnLine(line: number, functionNode: FunctionDeclaration) {
         foundNode = node;
         return VisitorOption.Break;
       }
+
+      return VisitorOption.Continue;
     },
   });
 

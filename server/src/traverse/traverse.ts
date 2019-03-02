@@ -5,6 +5,7 @@ import { Node } from "../parser/models";
 export const VisitorOption = {
   Skip: {},
   Break: {},
+  Continue: undefined,
 };
 
 const NodeSettings = {
@@ -202,6 +203,8 @@ function internalTraverse(node: Node, parent: Node, visitor: Visitor): any {
             return VisitorOption.Break;
           }
         }
+
+        return VisitorOption.Continue;
       });
     }
   }

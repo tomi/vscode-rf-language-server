@@ -44,6 +44,8 @@ export function findNodeInPos(
 
         leafNode = node;
       }
+
+      return VisitorOption.Continue;
     },
   });
 

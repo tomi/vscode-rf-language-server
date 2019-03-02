@@ -98,5 +98,5 @@ function parseEnvironment(
   location
 ): VariableDeclaration {
   // TODO
-  return;
+  return undefined;
 }

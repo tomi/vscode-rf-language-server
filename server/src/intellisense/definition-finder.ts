@@ -284,6 +284,8 @@ function findVariableDefinitionFromFile(
       } else if (!nodesToEnter.has(node.type)) {
         return VisitorOption.Skip;
       }
+
+      return VisitorOption.Continue;
     },
   });
 
@@ -310,6 +312,8 @@ function findKeywordDefinitionFromFile(
       } else if (!nodesToEnter.has(node.type)) {
         return VisitorOption.Skip;
       }
+
+      return VisitorOption.Continue;
     },
   });
 

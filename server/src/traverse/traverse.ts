@@ -5,10 +5,15 @@ import { Node } from "../parser/models";
 export const VisitorOption = {
   Skip: {},
   Break: {},
-  Continue: undefined,
+  Continue: undefined as undefined,
 };
 
-const NodeSettings = {
+const NodeSettings: {
+  [nodeName: string]: {
+    orderEnsured: boolean;
+    children: string[];
+  };
+} = {
   TestSuite: {
     orderEnsured: false,
     children: [
@@ -186,7 +191,7 @@ function internalTraverse(node: Node, parent: Node, visitor: Visitor): any {
       // TODO: Check order
 
       nodeSettings.children.forEach(propertyName => {
-        const childNode = node[propertyName];
+        const childNode = (node as any)[propertyName] as Node | Node[];
 
         if (Array.isArray(childNode)) {
           for (const item of childNode) {

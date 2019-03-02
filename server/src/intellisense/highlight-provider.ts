@@ -119,7 +119,7 @@ function _tryFindKeywordHighlights(nodeInPos: FileNode): DocumentHighlight[] {
   const lastNode = nodeInPos.node;
   const secondLast = _.last(nodeInPos.path);
 
-  let keywordName;
+  let keywordName: string;
   if (!typeGuards.isIdentifier(lastNode)) {
     return null;
   }

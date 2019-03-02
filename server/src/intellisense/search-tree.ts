@@ -1,3 +1,4 @@
+// @ts-ignore
 import * as Trie from "node-ternary-search-trie";
 
 import {
@@ -36,13 +37,13 @@ abstract class SymbolContainer<T> {
   }
 
   public forEach(cb: (key: string, item: T) => void) {
-    this.tree.traverse((key, item) => {
+    this.tree.traverse((key: string, item: T) => {
       cb(key, item);
     });
   }
 
   public filter(cb: ((item: T) => boolean)): T[] {
-    const filtered = [];
+    const filtered: T[] = [];
 
     this.forEach((key, item) => {
       if (cb(item)) {
@@ -61,7 +62,7 @@ abstract class SymbolContainer<T> {
       return this.getAll();
     }
 
-    this.tree.searchWithPrefix(normalizedPrefix, (key, keyword: T) => {
+    this.tree.searchWithPrefix(normalizedPrefix, (key: any, keyword: T) => {
       found.push(keyword);
     });
 
@@ -144,7 +145,7 @@ export class GlobalKeywordContainer extends SymbolContainer<UserKeyword[]> {
 export class VariableContainer extends SymbolContainer<VariableDeclaration> {
   public static Empty = new VariableContainer();
 
-  public findVariable(kind, name) {
+  public findVariable(kind: string, name: string) {
     const matches = this.findByPrefix(name);
     if (matches.length === 0) {
       return null;

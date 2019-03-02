@@ -80,7 +80,7 @@ export function findReferences(
         },
       ]);
     } else {
-      const isSearchedKeyword = node =>
+      const isSearchedKeyword = (node: Node) =>
         (isCallExpression(node) &&
           identifierMatchesIdentifier(node.callee, parentOfNode.callee)) ||
         (isUserKeyword(node) &&
@@ -100,7 +100,7 @@ export function findReferences(
  * @param keywordToMatch
  */
 function createNodeKeywordMatcherFn(keywordToMatch: UserKeyword) {
-  return node =>
+  return (node: Node) =>
     isCallExpression(node) &&
     identifierMatchesKeyword(node.callee, keywordToMatch);
 }
@@ -109,7 +109,7 @@ function findWorkspaceKeywordReferences(
   isSearchedKeywordFn: (node: Node) => boolean,
   workspace: Workspace
 ): VscodeLocation[] {
-  let references = [];
+  let references: VscodeLocation[] = [];
 
   for (const file of workspace.getFiles()) {
     const fileReferences = findFileKeywordReferences(isSearchedKeywordFn, file);

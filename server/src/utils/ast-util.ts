@@ -9,7 +9,7 @@ import { traverse } from "../traverse/traverse";
  * @param matchFn
  */
 export function filter(ast: Node, matchFn: ((node: Node) => boolean)) {
-  const nodes = [];
+  const nodes = [] as Node[];
 
   traverse(ast, {
     enter: (node: Node) => {

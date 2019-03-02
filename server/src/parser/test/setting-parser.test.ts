@@ -26,7 +26,7 @@ describe("Setting parser", () => {
   const dummyLoc = createLocation(0, 0, 0, 0);
   const FIRST_CELL_LOC = createLocation(0, 5, 0, 10);
 
-  const shouldReturnTrue = cellValue => {
+  const shouldReturnTrue = (cellValue: string) => {
     const cell = new DataCell(cellValue, dummyLoc);
     const actual = isSetting(cell);
 

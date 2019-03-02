@@ -270,7 +270,7 @@ function findVariableDefinitionFromFile(
   const nodesToEnter = new Set(["TestSuite", "VariablesTable"]);
 
   let foundVariable = null;
-  const isNodeSearchedVar = node =>
+  const isNodeSearchedVar = (node: Node) =>
     isVariableDeclaration(node) &&
     node.kind === variable.kind &&
     node.id.name === variable.id.name;
@@ -299,7 +299,7 @@ function findKeywordDefinitionFromFile(
   const nodesToEnter = new Set(["TestSuite", "KeywordsTable"]);
 
   let foundKeyword = null;
-  const isNodeSearchedKeyword = node =>
+  const isNodeSearchedKeyword = (node: Node) =>
     isUserKeyword(node) &&
     identifierMatchesKeyword(callExpression.callee, node);
 

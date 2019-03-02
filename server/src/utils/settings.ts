@@ -1,11 +1,13 @@
+export interface KeywordDefinition {
+  name: string;
+  args: string[] | string;
+  doc: string;
+}
+
 export interface LibraryDefinition {
   name: string;
   version: string;
-  keywords: Array<{
-    name: string;
-    args: string[] | string;
-    doc: string[];
-  }>;
+  keywords: KeywordDefinition[];
 }
 
 export interface Settings {

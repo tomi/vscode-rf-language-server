@@ -1,8 +1,7 @@
 import * as _ from "lodash";
-
 import { Position, SourceLocation } from "./table-models";
 
-export function position(line, column) {
+export function position(line: number, column: number) {
   return {
     line,
     column,
@@ -10,21 +9,14 @@ export function position(line, column) {
 }
 
 export function location(
-  startLine,
-  startColumn,
-  endLine?,
-  endColumn?
+  startLine: number,
+  startColumn: number,
+  endLine: number,
+  endColumn: number
 ): SourceLocation {
-  if (_.isObject(startLine) && _.isObject(startColumn)) {
-    return {
-      start: startLine,
-      end: startColumn,
-    };
-  }
-
   return {
-    start: { line: startLine, column: startColumn },
-    end: { line: endLine, column: endColumn },
+    start: position(startLine, startColumn),
+    end: position(endLine, endColumn),
   };
 }
 

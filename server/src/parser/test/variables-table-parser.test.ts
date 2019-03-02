@@ -2,17 +2,21 @@ import * as _ from "lodash";
 import * as chai from "chai";
 
 import { parseVariablesTable } from "../variables-table-parser";
-import { VariablesTable } from "../models";
+import { VariablesTable, VariableDeclaration } from "../models";
 
 import { createLocation, table, row, createCell } from "./test-helper";
+import { SourceLocation, DataTable } from "../table-models";
 
-function parseAndAssert(tableDefinition, expected) {
+function parseAndAssert(tableDefinition: DataTable, expected: VariablesTable) {
   const actual = parseVariablesTable(tableDefinition);
 
   chai.assert.deepEqual(actual, expected);
 }
 
-function variablesTable(location, variables) {
+function variablesTable(
+  location: SourceLocation,
+  variables: VariableDeclaration[]
+) {
   return Object.assign(new VariablesTable(location), { variables });
 }
 

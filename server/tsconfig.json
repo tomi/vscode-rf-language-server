@@ -5,6 +5,7 @@
 		"module": "commonjs",
 		"moduleResolution": "node",
 		"noFallthroughCasesInSwitch": true,
+		"noImplicitAny": true,
 		"noImplicitThis": true,
 		"noImplicitUseStrict": true,
 		"noImplicitReturns": true,

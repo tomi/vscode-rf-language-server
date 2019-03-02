@@ -4,10 +4,11 @@ import { TestSuite } from "../../parser/models";
 import { Location } from "../../utils/position";
 import { getVariableCompletions } from "./completion-helper";
 import { CompletionItem } from "vscode-languageserver";
+import { LocationInfo } from "../node-locator";
 
 export function getCompletions(
   location: Location,
-  locationInfo,
+  locationInfo: LocationInfo,
   fileAst: TestSuite,
   workspace: Workspace
 ): CompletionItem[] {

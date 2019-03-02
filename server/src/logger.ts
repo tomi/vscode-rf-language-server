@@ -19,7 +19,11 @@ export class ConsoleLogger {
     }
   }
 
-  private static log(logFn, message, optionalParams) {
+  private static log(
+    logFn: typeof console.log,
+    message: string,
+    optionalParams: any[]
+  ) {
     if (optionalParams.length > 0) {
       logFn(message, ...optionalParams);
     } else {

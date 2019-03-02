@@ -4,6 +4,7 @@ import { CompletionItem } from "vscode-languageserver";
 import { Location } from "../../utils/position";
 
 import * as functionCompletions from "./functions-table-completions";
+import { LocationInfo } from "../node-locator";
 
 const SETTINGS = [
   "Documentation",
@@ -20,7 +21,7 @@ const SETTINGS = [
  */
 export function getCompletions(
   location: Location,
-  locationInfo,
+  locationInfo: LocationInfo,
   fileAst: TestSuite,
   workspace: Workspace
 ): CompletionItem[] {

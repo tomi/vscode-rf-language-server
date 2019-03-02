@@ -22,6 +22,8 @@ import {
   CompletionItem,
   DocumentHighlight,
   DidChangeTextDocumentParams,
+  DidChangeConfigurationParams,
+  DidChangeWatchedFilesParams,
 } from "vscode-languageserver";
 
 import Workspace from "./intellisense/workspace/workspace";
@@ -151,7 +153,7 @@ function onDefinition(textDocumentPosition: TextDocumentPositionParams) {
 /**
  * Configuration has changed
  */
-function onDidChangeConfiguration(change) {
+function onDidChangeConfiguration(change: DidChangeConfigurationParams) {
   logger.info("onDidChangeConfiguration...");
 
   if (change.settings && change.settings.rfLanguageServer) {
@@ -184,7 +186,7 @@ function onDidChangeTextDocument(params: DidChangeTextDocumentParams) {
   _parseFile(filePath, fileData);
 }
 
-function onDidChangeWatchedFiles(params) {
+function onDidChangeWatchedFiles(params: DidChangeWatchedFilesParams) {
   logger.info(
     "onDidChangeWatchedFiles",
     params.changes.map(f => f.uri).join(",")

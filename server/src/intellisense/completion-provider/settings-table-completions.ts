@@ -10,6 +10,7 @@ import {
   getKeywordCompletions,
   getVariableCompletions,
 } from "./completion-helper";
+import { LocationInfo } from "../node-locator";
 
 const KEYWORDS = [
   "Default Tags",
@@ -28,7 +29,7 @@ const KEYWORDS = [
 
 export function getCompletions(
   location: Location,
-  locationInfo,
+  locationInfo: LocationInfo,
   fileAst: TestSuite,
   workspace: Workspace
 ): CompletionItem[] {
@@ -100,6 +101,8 @@ function _findNodeOnLine(line: number, ast: TestSuite) {
 
         return VisitorOption.Break;
       }
+
+      return VisitorOption.Continue;
     },
   });
 

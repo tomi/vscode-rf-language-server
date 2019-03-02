@@ -9,6 +9,7 @@ import {
   Literal,
   SuiteSetting,
   CallExpression,
+  TestSuite,
 } from "../models";
 
 import { createLocation } from "./test-helper";
@@ -16,13 +17,16 @@ import { createLocation } from "./test-helper";
 const parser = new FileParser();
 const NAMESPACE = "";
 
-function shouldRecogniseTable(tableDef, tableProperty) {
+function shouldRecogniseTable(
+  tableDef: string,
+  tableProperty: keyof TestSuite
+) {
   const parsed = parser.parseFile(tableDef, NAMESPACE);
 
   chai.assert.isObject(parsed[tableProperty]);
 }
 
-function settingsTable(content) {
+function settingsTable(content: any) {
   return Object.assign(new SettingsTable(null), content);
 }
 

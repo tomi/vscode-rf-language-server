@@ -33,5 +33,9 @@ Test cases for findinging gherking style keyword definition
   Then Simple Keyword
   and Simple Keyword
   but Simple Keyword
+
+Test cases for not existing keywords
+  Non Existing Keyword
+  Given Non Existing Gherkin Keyword
 `,
 };

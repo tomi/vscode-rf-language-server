@@ -113,6 +113,36 @@ describe("Definition finder", () => {
           runTest(15, 2);
         });
       });
+
+      it("non existing keyword", () => {
+        const actual = findDefinition(
+          {
+            filePath: "tests.robot",
+            position: {
+              line: 18,
+              column: 2,
+            },
+          },
+          workspace
+        );
+
+        assert.isNull(actual);
+      });
+
+      it("non existing gherkin keyword", () => {
+        const actual = findDefinition(
+          {
+            filePath: "tests.robot",
+            position: {
+              line: 19,
+              column: 2,
+            },
+          },
+          workspace
+        );
+
+        assert.isNull(actual);
+      });
     });
   });
 });

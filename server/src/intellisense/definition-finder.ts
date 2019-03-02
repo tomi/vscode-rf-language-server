@@ -165,11 +165,13 @@ export function findKeywordDefinition(
       workspaceTree
     );
 
-    return {
-      node: definition.keyword,
-      uri: definition.file.uri,
-      range: nodeLocationToRange(definition.keyword),
-    };
+    if (definition) {
+      return {
+        node: definition.keyword,
+        uri: definition.file.uri,
+        range: nodeLocationToRange(definition.keyword),
+      };
+    }
   }
 
   return null;
@@ -396,7 +398,12 @@ function tryFindKeywordDefinitionFromWorkspace(
 function tryGetKeywordNameFromBddDefinition(
   keywordName: Identifier
 ): Identifier | null {
-  const [, firstWord, rest] = /([^ ]+)(?: )(.*)/.exec(keywordName.name);
+  const matches = /([^ ]+)(?: )(.*)/.exec(keywordName.name);
+  if (!matches) {
+    return null;
+  }
+
+  const [, firstWord, rest] = matches;
   if (gherkingIdentifiers.has(firstWord.toLowerCase())) {
     // Let's just use the same location even tho it's not 100% accurate
     return new Identifier(rest, keywordName.location);

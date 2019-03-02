@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 
-import { DataCell } from "./table-models";
+import { DataCell, SourceLocation } from "./table-models";
 
 import {
   Identifier,
@@ -45,9 +45,12 @@ export function parseTypeAndName(cell: DataCell) {
 }
 
 export function parseVariableDeclaration(
-  typeAndName,
+  typeAndName: {
+    type: string;
+    name: Identifier;
+  },
   values: Expression[],
-  location
+  location: SourceLocation
 ): VariableDeclaration {
   const { type, name } = typeAndName;
 
@@ -68,7 +71,7 @@ function getVariableParserFn(type: string): Function {
 function parseScalar(
   name: Identifier,
   values: Expression[],
-  location
+  location: SourceLocation
 ): VariableDeclaration {
   const value = _.first(values);
 
@@ -78,7 +81,7 @@ function parseScalar(
 function parseList(
   name: Identifier,
   values: Expression[],
-  location
+  location: SourceLocation
 ): VariableDeclaration {
   return new ListDeclaration(name, values, location);
 }
@@ -86,7 +89,7 @@ function parseList(
 function parseDictionary(
   name: Identifier,
   values: Expression[],
-  location
+  location: SourceLocation
 ): VariableDeclaration {
   // TODO
   return new DictionaryDeclaration(name, null, location);
@@ -95,8 +98,8 @@ function parseDictionary(
 function parseEnvironment(
   name: Identifier,
   values: Expression[],
-  location
+  location: SourceLocation
 ): VariableDeclaration {
   // TODO
-  return;
+  return undefined;
 }

@@ -188,13 +188,13 @@ export function getVariableCompletions(
   return [...localCompletions, ...suiteCompletions, ...globalCompletions];
 }
 
-const _localVarToCompletionItem = variable =>
+const _localVarToCompletionItem = (variable: VariableDeclaration) =>
   _variableToCompletionItem(`0-${variable.id.name}`, variable);
 
-const _suiteVarToCompletionItem = variable =>
+const _suiteVarToCompletionItem = (variable: VariableDeclaration) =>
   _variableToCompletionItem(`1-${variable.id.name}`, variable);
 
-const _globalVarToCompletionItem = variable =>
+const _globalVarToCompletionItem = (variable: VariableDeclaration) =>
   _variableToCompletionItem(`2-${variable.id.name}`, variable);
 
 function _variableToCompletionItem(

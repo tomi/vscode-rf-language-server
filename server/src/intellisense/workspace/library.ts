@@ -8,7 +8,7 @@ import {
   Literal,
 } from "../../parser/models";
 import { location, position } from "../../parser/position-helper";
-import { LibraryDefinition } from "../../utils/settings";
+import { LibraryDefinition, KeywordDefinition } from "../../utils/settings";
 import { Symbols, VariableContainer, KeywordContainer } from "../search-tree";
 
 const DUMMY_POSITION = position(0, 0);
@@ -49,7 +49,7 @@ export function createLibraryFile(
 
 function _jsonKeywordToModel(
   namespace: string,
-  keywordDefinition
+  keywordDefinition: KeywordDefinition
 ): UserKeyword {
   const { name, args = [], doc = "" } = keywordDefinition;
 

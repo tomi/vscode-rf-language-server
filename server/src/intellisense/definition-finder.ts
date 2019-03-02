@@ -270,7 +270,7 @@ function findVariableDefinitionFromFile(
   const nodesToEnter = new Set(["TestSuite", "VariablesTable"]);
 
   let foundVariable = null;
-  const isNodeSearchedVar = node =>
+  const isNodeSearchedVar = (node: Node) =>
     isVariableDeclaration(node) &&
     node.kind === variable.kind &&
     node.id.name === variable.id.name;
@@ -284,6 +284,8 @@ function findVariableDefinitionFromFile(
       } else if (!nodesToEnter.has(node.type)) {
         return VisitorOption.Skip;
       }
+
+      return VisitorOption.Continue;
     },
   });
 
@@ -297,7 +299,7 @@ function findKeywordDefinitionFromFile(
   const nodesToEnter = new Set(["TestSuite", "KeywordsTable"]);
 
   let foundKeyword = null;
-  const isNodeSearchedKeyword = node =>
+  const isNodeSearchedKeyword = (node: Node) =>
     isUserKeyword(node) &&
     identifierMatchesKeyword(callExpression.callee, node);
 
@@ -310,6 +312,8 @@ function findKeywordDefinitionFromFile(
       } else if (!nodesToEnter.has(node.type)) {
         return VisitorOption.Skip;
       }
+
+      return VisitorOption.Continue;
     },
   });
 

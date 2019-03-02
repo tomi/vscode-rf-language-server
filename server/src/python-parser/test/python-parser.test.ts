@@ -13,22 +13,22 @@ import {
   Literal,
   NamespacedIdentifier,
 } from "../../parser/models";
+import { Range, createRange, createPosition } from "../../utils/position";
+import { SourceLocation } from "../../parser/table-models";
 
 const parser = new PythonParser();
 const NAMESPACE = "";
 
-function createLocation(startLine, startColumn, endLine?, endColumn?) {
-  if (_.isObject(startLine) && _.isObject(startColumn)) {
-    return {
-      start: startLine,
-      end: startColumn,
-    };
-  }
-
-  return {
-    start: { line: startLine, column: startColumn },
-    end: { line: endLine, column: endColumn },
-  };
+function createLocation(
+  startLine: number,
+  startColumn: number,
+  endLine: number,
+  endColumn: number
+): Range {
+  return createRange(
+    createPosition(startLine, startColumn),
+    createPosition(endLine, endColumn)
+  );
 }
 
 function parseAndAssert(data: string, expected: any) {
@@ -37,7 +37,7 @@ function parseAndAssert(data: string, expected: any) {
   chai.assert.deepEqual(actual, expected);
 }
 
-function createSuite(location, keywords) {
+function createSuite(location: SourceLocation, keywords: UserKeyword[]) {
   return Object.assign(new TestSuite(location), {
     keywordsTable: Object.assign(new KeywordsTable(location), {
       keywords,
@@ -47,7 +47,7 @@ function createSuite(location, keywords) {
 
 function createKeyword(
   keywordName: string,
-  location,
+  location: SourceLocation,
   args?: Array<[string, string]>
 ) {
   const keyword = new UserKeyword(

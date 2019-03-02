@@ -21,7 +21,7 @@ import { createLocation } from "./test-helper";
 
 describe("parseValueExpression", () => {
   describe("should parse single literals", () => {
-    function shouldParseLiteral(cellContent) {
+    function shouldParseLiteral(cellContent: string) {
       const loc = createLocation(0, 0, 0, cellContent.length);
       const cell = new DataCell(cellContent, loc);
 

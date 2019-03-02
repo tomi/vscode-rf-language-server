@@ -20,6 +20,7 @@ import {
 } from "../models";
 
 import { createLocation } from "./test-helper";
+import { SourceLocation } from "../table-models";
 
 const NAMESPACE = "";
 
@@ -29,12 +30,12 @@ function parseAndAssert(tableDefinition: string, expected: KeywordsTable) {
   chai.assert.deepEqual(actual, expected);
 }
 
-function keywordsTable(location, keywords) {
+function keywordsTable(location: SourceLocation, keywords: UserKeyword[]) {
   return Object.assign(new KeywordsTable(location), { keywords });
 }
 
 function keyword(
-  location,
+  location: SourceLocation,
   name: Identifier,
   steps: Step[],
   settings: any = {}

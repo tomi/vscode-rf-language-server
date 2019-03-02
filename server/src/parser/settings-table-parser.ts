@@ -62,7 +62,7 @@ function rowContinues(row: DataRow) {
 }
 
 function joinRows(rows: DataRow[]): DataCell[] {
-  const shouldTakeCell = cell => !cell.isRowContinuation();
+  const shouldTakeCell = (cell: DataCell) => !cell.isRowContinuation();
 
   return rows.reduce((allCells, row) => {
     const rowCells = _.takeRightWhile(row.cells, shouldTakeCell);
@@ -146,7 +146,7 @@ function parseVariableImport(
   settingsTable.addVariableImport(variableImport);
 }
 
-function createParseSettingFn(propertyName) {
+function createParseSettingFn(propertyName: keyof SettingsTable) {
   return (
     settingsTable: SettingsTable,
     nameCell: DataCell,

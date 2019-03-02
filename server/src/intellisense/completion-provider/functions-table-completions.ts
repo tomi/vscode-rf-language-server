@@ -2,7 +2,7 @@ import * as _ from "lodash";
 import Workspace from "../workspace/workspace";
 import { Node, TestSuite, FunctionDeclaration } from "../../parser/models";
 import * as typeGuards from "../type-guards";
-import { findLocalVariables } from "../node-locator";
+import { findLocalVariables, LocationInfo } from "../node-locator";
 import { CompletionItem } from "vscode-languageserver";
 import { traverse, VisitorOption } from "../../traverse/traverse";
 import { Location, isOnLine } from "../../utils/position";
@@ -17,7 +17,7 @@ const VARIABLE_CHARS = new Set(["$", "@", "&", "%"]);
 
 export function getCompletions(
   location: Location,
-  locationInfo,
+  locationInfo: LocationInfo,
   fileAst: TestSuite,
   workspace: Workspace,
   settings: string[]
@@ -93,7 +93,7 @@ function _startsVariable(text: string) {
 }
 
 function _findFunction(line: number, ast: TestSuite) {
-  const isNodeOnLine = node => isOnLine(line, node);
+  const isNodeOnLine = (node: Node) => isOnLine(line, node);
 
   if (isNodeOnLine(ast.keywordsTable)) {
     return ast.keywordsTable.keywords.find(isNodeOnLine);
@@ -110,7 +110,7 @@ function _findNodeOnLine(line: number, functionNode: FunctionDeclaration) {
   }
   let foundNode: Node;
 
-  const isNodeOnLine = node => isOnLine(line, node);
+  const isNodeOnLine = (node: Node) => isOnLine(line, node);
 
   traverse(functionNode, {
     enter: (node: Node, parent: Node) => {
@@ -122,6 +122,8 @@ function _findNodeOnLine(line: number, functionNode: FunctionDeclaration) {
         foundNode = node;
         return VisitorOption.Break;
       }
+
+      return VisitorOption.Continue;
     },
   });
 

@@ -1,32 +1,14 @@
 import * as _ from "lodash";
 
 import { SourceLocation, DataTable, DataRow, DataCell } from "../table-models";
+export {
+  position as createPosition,
+  location as createLocation,
+} from "../position-helper";
 
-export function position(line, column) {
-  return {
-    line,
-    column,
-  };
-}
+// export const position = createPosition;
 
-export function createLocation(
-  startLine,
-  startColumn,
-  endLine?,
-  endColumn?
-): SourceLocation {
-  if (_.isObject(startLine) && _.isObject(startColumn)) {
-    return {
-      start: startLine,
-      end: startColumn,
-    };
-  }
-
-  return {
-    start: { line: startLine, column: startColumn },
-    end: { line: endLine, column: endColumn },
-  };
-}
+// export const createLocation = location;
 
 export function table(
   name: string,

@@ -3,13 +3,13 @@ import * as chai from "chai";
 
 import { TableReader } from "../table-reader";
 
-import { DataCell } from "../table-models";
+import { DataCell, DataTable } from "../table-models";
 
 import { createLocation, table, row } from "./test-helper";
 
 const reader = new TableReader();
 
-function header(text) {
+function header(text: string) {
   return row(createLocation(0, 0, 0, text.length), [
     new DataCell(text, createLocation(0, 0, 0, text.length)),
   ]);
@@ -19,7 +19,7 @@ describe("TableReader", () => {
   it("should recognise table name", () => {
     const name = "Table Name";
 
-    const shouldReadName = tableString => {
+    const shouldReadName = (tableString: string) => {
       const [actual] = reader.read(tableString);
 
       chai.assert.equal(actual.name, name);
@@ -132,7 +132,7 @@ describe("TableReader", () => {
     const data = `Not in a table\nAnother outside table`;
 
     const actual = reader.read(data);
-    const expected = [];
+    const expected: DataTable[] = [];
 
     chai.assert.deepEqual(actual, expected);
   });

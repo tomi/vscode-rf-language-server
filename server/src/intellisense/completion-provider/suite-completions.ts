@@ -3,13 +3,14 @@ import { TestSuite } from "../../parser/models";
 import { Location } from "../../utils/position";
 import { CompletionItem } from "vscode-languageserver";
 import { getSyntaxCompletions } from "./completion-helper";
+import { LocationInfo } from "../node-locator";
 
 /**
  * Return the completions for data tables
  */
 export function getCompletions(
   location: Location,
-  locationInfo,
+  locationInfo: LocationInfo,
   fileAst: TestSuite
 ): CompletionItem[] {
   const { row, cell, textBefore: text } = locationInfo;

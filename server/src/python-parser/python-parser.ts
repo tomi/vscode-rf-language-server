@@ -10,6 +10,7 @@ import {
   TestSuite,
   NamespacedIdentifier,
 } from "../parser/models";
+import { Range } from "../utils/position";
 
 /**
  * Parser for python files
@@ -75,7 +76,7 @@ function getLineIndexes(data: string): LineInfo[] {
 
   findMatches(
     () => regex.exec(data),
-    result => {
+    (result: RegExpExecArray) => {
       lines.push({
         line: lineNumber++,
         start: lastIndex,
@@ -102,7 +103,7 @@ function getLineIndexes(data: string): LineInfo[] {
  * @param getMatchFn
  * @param cb
  */
-function findMatches(getMatchFn, cb) {
+function findMatches(getMatchFn: Function, cb: Function) {
   let result = getMatchFn();
 
   while (result !== null) {
@@ -129,7 +130,8 @@ function createRange(startLine: LineInfo, endLine: LineInfo) {
 function findRange(lineIndexes: LineInfo[], startIdx: number, endIdx: number) {
   let start;
 
-  const isIndexOnLine = (line, idx) => line.start <= idx && idx <= line.end;
+  const isIndexOnLine = (line: LineInfo, idx: number) =>
+    line.start <= idx && idx <= line.end;
 
   for (const lineInfo of lineIndexes) {
     if (isIndexOnLine(lineInfo, startIdx)) {
@@ -172,11 +174,11 @@ function findKeywords(
   data: string,
   lineIndexes: LineInfo[]
 ) {
-  const keywords = [];
+  const keywords: UserKeyword[] = [];
   const regex = new RegExp(FUNCTION_DECLARATION_REGEX, "mg");
 
   const matcherFn = () => regex.exec(data);
-  findMatches(matcherFn, result => {
+  findMatches(matcherFn, (result: RegExpExecArray) => {
     const [fullMatch, name, argsStr] = result;
 
     if (excludeKeyword(name)) {
@@ -218,9 +220,9 @@ function findKeywords(
  * @param args   Argument names comma separated
  * @param range
  */
-function parseArguments(args: string, range) {
+function parseArguments(args: string, range: Range) {
   // Python class instance args are ignore
-  const isSelfArg = (arg, idx) => arg === "self" && idx === 0;
+  const isSelfArg = (arg: string, idx: number) => arg === "self" && idx === 0;
 
   const argumentDeclarations = args
     .split(",")

@@ -25,11 +25,12 @@ describe("Keyword matcher", () => {
       chai.assert.isFalse(result);
     }
 
-    const identifier = name => new Identifier(name, dummyLoc);
-    const keyword = name => new UserKeyword(nsIdentifier("", name), dummyPos);
-    const nsIdentifier = (namespace, name) =>
+    const identifier = (name: string) => new Identifier(name, dummyLoc);
+    const keyword = (name: string) =>
+      new UserKeyword(nsIdentifier("", name), dummyPos);
+    const nsIdentifier = (namespace: string, name: string) =>
       new NamespacedIdentifier(namespace, name, dummyLoc);
-    const nsKeyword = (namespace, name) =>
+    const nsKeyword = (namespace: string, name: string) =>
       new UserKeyword(nsIdentifier(namespace, name), dummyPos);
 
     it("should match identifier to user keyword with same name", () => {
@@ -99,7 +100,7 @@ describe("Keyword matcher", () => {
     });
 
     it("should work with keywords with reserved regex characters", () => {
-      const createMatchTest = value =>
+      const createMatchTest = (value: string) =>
         shouldMatch(identifier(value), keyword(value));
 
       createMatchTest("Keyword ^ $ . * + ? ( ) [ ] { } |");

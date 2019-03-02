@@ -19,16 +19,17 @@ import {
 } from "../models";
 
 import { createLocation } from "./test-helper";
+import { SourceLocation } from "../table-models";
 
 const NAMESPACE = "";
 
-function parseAndAssert(tableDefinition, expected) {
+function parseAndAssert(tableDefinition: string, expected: SettingsTable) {
   const actual = parser.parseFile(tableDefinition, NAMESPACE).settingsTable;
 
   chai.assert.deepEqual(actual, expected);
 }
 
-function settingsTable(location, content) {
+function settingsTable(location: SourceLocation, content: any) {
   return Object.assign(new SettingsTable(location), content);
 }
 

@@ -1,11 +1,7 @@
 import * as _ from "lodash";
-
 import { DataTable, DataRow } from "./table-models";
-
 import { VariablesTable } from "./models";
-
 import { parseValueExpression } from "./primitive-parsers";
-
 import {
   isVariable,
   parseTypeAndName,

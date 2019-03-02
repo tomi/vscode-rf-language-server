@@ -1,11 +1,19 @@
 {
 	"compilerOptions": {
+		"allowUnreachableCode": false,
 		"lib" : [ "es2016" ],
 		"module": "commonjs",
 		"moduleResolution": "node",
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitAny": true,
+		"noImplicitThis": true,
+		"noImplicitUseStrict": true,
+		"noImplicitReturns": true,
 		"noUnusedLocals": true,
 		"outDir": "../client/server",
 		"sourceMap": true,
+		"strictBindCallApply": true,
+		"strictFunctionTypes": true,
 		"target": "es6"
 	},
 	"include": [

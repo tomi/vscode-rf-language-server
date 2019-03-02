@@ -87,7 +87,7 @@ function rowContinues(row: DataRow) {
 }
 
 function joinRows(rows: DataRow[]): DataCell[] {
-  const shouldTakeCell = cell => !cell.isRowContinuation();
+  const shouldTakeCell = (cell: DataCell) => !cell.isRowContinuation();
 
   return rows.reduce((allCells, row) => {
     const rowCells = _.takeRightWhile(row.cells, shouldTakeCell);

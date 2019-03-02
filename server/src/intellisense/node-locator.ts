@@ -4,7 +4,7 @@ import { Node, FunctionDeclaration } from "../parser/models";
 import * as typeGuards from "./type-guards";
 import { DataTable, DataRow, DataCell } from "../parser/table-models";
 import { traverse, VisitorOption } from "../traverse/traverse";
-import { Location, Position, isInRange } from "../utils/position";
+import { Location, Position, isInRange, Range } from "../utils/position";
 import { VariableContainer } from "./search-tree";
 
 export interface FileNode {
@@ -30,8 +30,8 @@ export function findNodeInPos(
   pos: Position,
   fileToSearch: WorkspaceFile
 ): FileNode {
-  const pathToNode = [];
-  let leafNode = null;
+  const pathToNode: Node[] = [];
+  let leafNode: Node | null = null;
 
   traverse(fileToSearch.ast, {
     enter: (node: Node, parent: Node) => {
@@ -44,6 +44,8 @@ export function findNodeInPos(
 
         leafNode = node;
       }
+
+      return VisitorOption.Continue;
     },
   });
 
@@ -63,10 +65,10 @@ export function findLocationInfo(
   location: Location,
   tables: DataTable[]
 ): LocationInfo {
-  const isOnLine = loc =>
+  const isOnLine = (loc: Range) =>
     loc.start.line <= location.position.line &&
     location.position.line <= loc.end.line;
-  const isOnCell = loc =>
+  const isOnCell = (loc: Range) =>
     loc.start.column <= location.position.column &&
     location.position.column <= loc.end.column;
 

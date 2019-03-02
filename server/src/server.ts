@@ -22,6 +22,8 @@ import {
   CompletionItem,
   DocumentHighlight,
   DidChangeTextDocumentParams,
+  DidChangeConfigurationParams,
+  DidChangeWatchedFilesParams,
 } from "vscode-languageserver";
 
 import Workspace from "./intellisense/workspace/workspace";
@@ -151,7 +153,7 @@ function onDefinition(textDocumentPosition: TextDocumentPositionParams) {
 /**
  * Configuration has changed
  */
-function onDidChangeConfiguration(change) {
+function onDidChangeConfiguration(change: DidChangeConfigurationParams) {
   logger.info("onDidChangeConfiguration...");
 
   if (change.settings && change.settings.rfLanguageServer) {
@@ -179,12 +181,15 @@ function onDidChangeTextDocument(params: DidChangeTextDocumentParams) {
   }
 
   // Because syncKind is set to Full, entire file content is received
-  const fileData = _.first(params.contentChanges).text;
+  const firstChange = params.contentChanges[0];
+  if (firstChange) {
+    const fileData = firstChange.text;
 
-  _parseFile(filePath, fileData);
+    _parseFile(filePath, fileData);
+  }
 }
 
-function onDidChangeWatchedFiles(params) {
+function onDidChangeWatchedFiles(params: DidChangeWatchedFilesParams) {
   logger.info(
     "onDidChangeWatchedFiles",
     params.changes.map(f => f.uri).join(",")
@@ -244,7 +249,9 @@ function onInitialize(params: InitializeParams): InitializeResult {
   logger.info("Initializing...");
 
   const rootUri = params.rootUri;
-  workspaceRoot = rootUri && Uri.parse(rootUri).fsPath;
+  if (rootUri) {
+    workspaceRoot = Uri.parse(rootUri).fsPath;
+  }
 
   return {
     capabilities: {

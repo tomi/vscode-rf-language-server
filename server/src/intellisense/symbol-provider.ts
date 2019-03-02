@@ -4,7 +4,6 @@ import { nodeLocationToRange } from "../utils/position";
 import { SymbolKind } from "vscode-languageserver";
 import { formatVariable } from "./formatters";
 import { isVariableDeclaration, isUserKeyword } from "./type-guards";
-
 import { VariableDeclaration, TestCase, UserKeyword } from "../parser/models";
 
 /**
@@ -19,11 +18,11 @@ export function getFileSymbols(
   query: string = ""
 ) {
   const idMatches = _createIdMatcherFn(query);
-  const createVariableSymbol = node =>
+  const createVariableSymbol = (node: VariableDeclaration) =>
     _createVariableSymbol(node, file, useFileNameAsContainer);
-  const createKeywordSymbol = node =>
+  const createKeywordSymbol = (node: UserKeyword) =>
     _createKeywordSymbol(node, file, useFileNameAsContainer);
-  const createTestCaseSymbol = node =>
+  const createTestCaseSymbol = (node: TestCase) =>
     _createTestCaseSymbol(node, file, useFileNameAsContainer);
 
   const variableSymbols = file.variables

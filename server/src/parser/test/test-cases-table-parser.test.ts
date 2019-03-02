@@ -16,6 +16,7 @@ import {
 } from "../models";
 
 import { createLocation } from "./test-helper";
+import { SourceLocation } from "../table-models";
 
 const NAMESPACE = "";
 
@@ -25,12 +26,12 @@ function parseAndAssert(tableDefinition: string, expected: TestCasesTable) {
   chai.assert.deepEqual(actual, expected);
 }
 
-function testCasesTable(location, testCases) {
+function testCasesTable(location: SourceLocation, testCases: TestCase[]) {
   return Object.assign(new TestCasesTable(location), { testCases });
 }
 
 function testCase(
-  location,
+  location: SourceLocation,
   name: Identifier,
   steps: Step[],
   settings: any = {}

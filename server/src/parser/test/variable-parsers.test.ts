@@ -17,7 +17,11 @@ function assertIsVariable(cellData: string) {
   chai.assert.isTrue(actual);
 }
 
-function assertParseResult(cellData: string, expectedType, expectedName) {
+function assertParseResult(
+  cellData: string,
+  expectedType: string,
+  expectedName: string
+) {
   const cell = new DataCell(cellData, DUMMY_LOC);
   const expected = {
     type: expectedType,

@@ -181,9 +181,12 @@ function onDidChangeTextDocument(params: DidChangeTextDocumentParams) {
   }
 
   // Because syncKind is set to Full, entire file content is received
-  const fileData = _.first(params.contentChanges).text;
+  const firstChange = params.contentChanges[0];
+  if (firstChange) {
+    const fileData = firstChange.text;
 
-  _parseFile(filePath, fileData);
+    _parseFile(filePath, fileData);
+  }
 }
 
 function onDidChangeWatchedFiles(params: DidChangeWatchedFilesParams) {
@@ -246,7 +249,9 @@ function onInitialize(params: InitializeParams): InitializeResult {
   logger.info("Initializing...");
 
   const rootUri = params.rootUri;
-  workspaceRoot = rootUri && Uri.parse(rootUri).fsPath;
+  if (rootUri) {
+    workspaceRoot = Uri.parse(rootUri).fsPath;
+  }
 
   return {
     capabilities: {

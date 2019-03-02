@@ -2,11 +2,11 @@ import * as _ from "lodash";
 
 import { Node } from "../parser/models";
 
-export const VisitorOption = {
-  Skip: {},
-  Break: {},
-  Continue: undefined as undefined,
-};
+export enum VisitorOption {
+  Skip = "skip",
+  Break = "break",
+  Continue = "continue",
+}
 
 const NodeSettings: {
   [nodeName: string]: {
@@ -152,11 +152,11 @@ const NodeSettings: {
 };
 
 export interface Visitor {
-  enter?: (node: Node, parent: Node) => any;
-  leave?: (node: Node, parent: Node) => any;
+  enter?: (node: Node, parent: Node | null) => VisitorOption;
+  leave?: (node: Node, parent: Node | null) => VisitorOption;
 }
 
-function visit(node: Node, parent: Node, visitor: Visitor) {
+function visit(node: Node, parent: Node | null, visitor: Visitor) {
   if (visitor.enter) {
     return visitor.enter(node, parent);
   } else {
@@ -164,7 +164,7 @@ function visit(node: Node, parent: Node, visitor: Visitor) {
   }
 }
 
-function leave(node: Node, parent: Node, visitor: Visitor) {
+function leave(node: Node, parent: Node | null, visitor: Visitor) {
   if (visitor.leave) {
     return visitor.leave(node, parent);
   } else {
@@ -172,7 +172,11 @@ function leave(node: Node, parent: Node, visitor: Visitor) {
   }
 }
 
-function internalTraverse(node: Node, parent: Node, visitor: Visitor): any {
+function internalTraverse(
+  node: Node,
+  parent: Node | null,
+  visitor: Visitor
+): any {
   // Naive recursive implementation
   // TODO: Remove recursivity
   if (!node) {

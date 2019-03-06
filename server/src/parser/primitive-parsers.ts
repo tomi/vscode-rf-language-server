@@ -57,6 +57,10 @@ const KWS_WITH_KW_AS_SECOND_ARG = new Set([
   "run keyword unless",
 ]);
 
+const KWS_WITH_KW_AS_THIRD_ARG = new Set([
+  "wait until keyword succeeds",
+]);
+
 const RUN_MULTIPLE_KWS_KW = "run keywords";
 
 function getTemplateElement(
@@ -265,6 +269,15 @@ function _parseCallExpressionArgs(
     return restArgs.length === 0
       ? [parsedFirstArgs]
       : [parsedFirstArgs, parseCallExpression(restArgs)];
+  }
+
+  if (KWS_WITH_KW_AS_THIRD_ARG.has(calleeNameInLower)) {
+    const [firstArg, secondArg, ...restArgs] = argCells;
+    const parsedFirstArgs = parseValueExpression(firstArg);
+    const parsedSecondArgs = parseValueExpression(secondArg);
+    return restArgs.length === 0
+      ? [parsedFirstArgs, parsedSecondArgs]
+      : [parsedFirstArgs, parsedSecondArgs, parseCallExpression(restArgs)];
   }
 
   if (calleeNameInLower === RUN_MULTIPLE_KWS_KW) {

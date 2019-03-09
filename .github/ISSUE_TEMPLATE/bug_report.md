@@ -28,5 +28,11 @@ If applicable, add screenshots to help explain your problem.
  - Extension version: 
  - OS: [e.g. Linux/Mac/Win]
 
+**Extension output:**
+Please include the extension output with debug logging turned on.
+1. Add setting `"rfLanguageServer.logLevel": "debug"`
+1. Select View -> Output -> Robot Framework Intellisense Server
+1. Reproduce the issue
+
 **Additional context**
 Add any other context about the problem here.

@@ -57,9 +57,7 @@ const KWS_WITH_KW_AS_SECOND_ARG = new Set([
   "run keyword unless",
 ]);
 
-const KWS_WITH_KW_AS_THIRD_ARG = new Set([
-  "wait until keyword succeeds",
-]);
+const KWS_WITH_KW_AS_THIRD_ARG = new Set(["wait until keyword succeeds"]);
 
 const RUN_MULTIPLE_KWS_KW = "run keywords";
 

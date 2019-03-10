@@ -2,7 +2,7 @@
   "name": "rf-intellisense",
   "displayName": "Robot Framework Intellisense",
   "description": "Robot Framework Intellisense",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "license": "MIT",
   "publisher": "TomiTurtiainen",
   "icon": "icon.png",

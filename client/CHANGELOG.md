@@ -1,5 +1,11 @@
 # Change Log
 
+## Version 2.5.0
+* Release date: March 10, 2019
+
+### What's new in this version
+* Add support for Goto definition for keywords that are parameters to 'Wait Until Keyword Succeeds' keyword. Big thanks to [@allyusd](https://github.com/allyusd) for implementing this!
+
 ## Version 2.4.0
 * Release date: March 2, 2019
 

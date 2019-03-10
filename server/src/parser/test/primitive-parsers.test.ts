@@ -214,6 +214,56 @@ describe("parseCallExpression", () => {
     });
   });
 
+  describe("keyword call as the third parameter", () => {
+    it("Wait until keyword succeeds  dummy1  dummy2  Keyword To Call", () => {
+      const callee = "Wait until keyword succeeds";
+      const arg1 = "dummy1";
+      const arg2 = "dummy2";
+      const arg3 = "Keyword To Call";
+      const calleeLoc = createLocation(0, 0, 0, callee.length);
+      const arg1Loc = createLocation(
+        0,
+        callee.length + 2,
+        0,
+        callee.length + 2 + arg1.length
+      );
+      const arg2Loc = createLocation(
+        0,
+        callee.length + 2 + arg1.length + 2,
+        0,
+        callee.length + 2 + arg1.length + 2 + arg2.length
+      );
+      const arg3Loc = createLocation(
+        0,
+        callee.length + 2 + arg1.length + 2 + arg2.length + 2,
+        0,
+        callee.length + 2 + arg1.length + 2 + arg2.length + 2 + arg3.length
+      );
+
+      const cells = [
+        new DataCell(callee, calleeLoc),
+        new DataCell(arg1, arg1Loc),
+        new DataCell(arg2, arg2Loc),
+        new DataCell(arg3, arg3Loc),
+      ];
+
+      const actual = parseCallExpression(cells);
+
+      chai.assert.deepEqual(
+        actual,
+        new CallExpression(
+          new Identifier(callee, calleeLoc),
+          [
+            new Literal(arg1, arg1Loc),
+            new Literal(arg2, arg2Loc),
+            new CallExpression(new Identifier(arg3, arg3Loc), [], arg3Loc),
+          ],
+          createLocation(0, 0, 0, arg3Loc.end.column)
+        )
+      );
+    });
+  });
+
   describe("multiple keywords as parameters", () => {
     it("Run Keywords  Keyword To Call  Another To Call", () => {
       const callee = "Run Keywords";

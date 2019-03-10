@@ -149,6 +149,9 @@ Can be found [here](https://github.com/tomi/vscode-rf-language-server/blob/maste
 
 Report them [here](https://github.com/tomi/vscode-rf-language-server/issues).
 
+## Contributing
+
+All contributions are welcomed! Please see [the contributing guide](https://github.com/tomi/vscode-rf-language-server/blob/master/CONTRIBUTING.md) for more details.
 
 ## License
 

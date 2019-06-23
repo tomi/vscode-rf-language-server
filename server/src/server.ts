@@ -49,6 +49,7 @@ const LIBRARY_PATH = path.resolve(__dirname, "./library-docs");
 
 const parsersByFile = new Map([
   [".robot", createRobotFile],
+  [".resource", createRobotFile],
   [".txt", createRobotFile],
   [".py", createPythonFile],
 ]);

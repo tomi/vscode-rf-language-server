@@ -5,7 +5,7 @@ A [Visual Studio Code](https://code.visualstudio.com/) extension that supports R
 ## Features
 
 ### Syntax highlighting
-* Supports `.robot` files
+* Supports `.robot` and `.resource` files
 * Can be added for `.txt` files using the `files.associations` setting:
 ```json
 "files.associations": {
@@ -63,7 +63,7 @@ A [Visual Studio Code](https://code.visualstudio.com/) extension that supports R
 
 ## Configuration
 
-By default all `.robot` files are parsed. This can be configured using parameters. (see `Code` > `Preferences` > `Workspace Settings`).
+By default all `.robot` and `.resource` files are parsed. This can be configured using parameters. (see `Code` > `Preferences` > `Workspace Settings`).
 
 |param                            | description              |
 |---------------------------------|--------------------------|
@@ -73,9 +73,9 @@ By default all `.robot` files are parsed. This can be configured using parameter
 | `rfLanguageServer.trace.server` | what information of the communication between VSCode and the rfLanguageServer is logged to the Output. Possible values `off`, `messages`, `verbose`|
 | `rfLanguageServer.libraries` | What libraries' keywords are suggested with code completion. Can be a name of a standard library (see [Supported standard libraries](##supported-standard-libraries)) or a library definition (see [defining 3rd party libraries](##defining-3rd-party-libraries)) or a combination of them. |
 
-The `includePaths` and `excludePaths` properties take a list of glob-like file patterns. Even though any files can be matched this way, only files with supported extensions are included (i.e. `.robot`, `.txt`, and `.py`).
+The `includePaths` and `excludePaths` properties take a list of glob-like file patterns. Even though any files can be matched this way, only files with supported extensions are included (i.e. `.robot`, `.resource`, `.txt`, and `.py`).
 
-If the `includePaths` is left unspecified, the parser defaults to including all `.robot` files in the containing directory and subdirectories except those excluded using the `excludePaths` property.
+If the `includePaths` is left unspecified, the parser defaults to including all `.robot` and `.resource` files in the containing directory and subdirectories except those excluded using the `excludePaths` property.
 
 ## Supported standard libraries
 

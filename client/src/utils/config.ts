@@ -26,7 +26,9 @@ export class Config {
       : [];
 
     return _createGlob(
-      includePatterns.length > 0 ? includePatterns : ["**/*.robot"]
+      includePatterns.length > 0
+        ? includePatterns
+        : ["**/*.robot", "**/*.resource"]
     );
   }
 

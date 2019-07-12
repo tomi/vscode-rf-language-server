@@ -24,6 +24,7 @@ import {
   DidChangeTextDocumentParams,
   DidChangeConfigurationParams,
   DidChangeWatchedFilesParams,
+  FileEvent,
 } from "vscode-languageserver";
 
 import Workspace from "./intellisense/workspace/workspace";
@@ -193,7 +194,7 @@ function onDidChangeTextDocument(params: DidChangeTextDocumentParams) {
 function onDidChangeWatchedFiles(params: DidChangeWatchedFilesParams) {
   logger.info(
     "onDidChangeWatchedFiles",
-    params.changes.map(f => f.uri).join(",")
+    params.changes.map(f => `[${_fileEventTypeToString(f)} ${f.uri}]`).join(" ")
   );
 
   // Remove deleted files
@@ -423,6 +424,13 @@ function _textPositionToLocation(position: TextDocumentPositionParams) {
     },
   };
 }
+
+const _fileEventTypeToString = (fileEvent: FileEvent) =>
+  fileEvent.type === FileChangeType.Created
+    ? "Cr"
+    : fileEvent.type === FileChangeType.Changed
+      ? "Ch"
+      : "De";
 
 // Listen on the connection
 connection.listen();

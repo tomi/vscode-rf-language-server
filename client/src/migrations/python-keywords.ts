@@ -68,6 +68,7 @@ function _getIncludePatterns(includePaths = []) {
 
   if (includePaths.length === 0) {
     patterns.push("**/*.robot");
+    patterns.push("**/*.resource");
   }
 
   return includePaths.concat(patterns);

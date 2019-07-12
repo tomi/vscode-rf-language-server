@@ -27,7 +27,8 @@
       {
         "id": "robot",
         "extensions": [
-          ".robot"
+          ".robot",
+          ".resource"
         ],
         "aliases": [
           "Robot Framework",

@@ -1,5 +1,12 @@
 # Change Log
 
+## Version xxx
+* Release date: yyy
+
+### What's new in this version
+* Fix error when both a file added and file removed event is received for the same file at the same time.
+* Fix watching of python files. There was a bug that caused python files to not be reparsed if they were changed.
+
 ## Version 2.6.0
 * Release date: July 12, 2019
 

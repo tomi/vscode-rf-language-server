@@ -197,20 +197,32 @@ function onDidChangeWatchedFiles(params: DidChangeWatchedFilesParams) {
     params.changes.map(f => `[${_fileEventTypeToString(f)} ${f.uri}]`).join(" ")
   );
 
-  // Remove deleted files
-  params.changes
+  const urisOfDeletedFiles = params.changes
     .filter(change => change.type === FileChangeType.Deleted)
-    .map(deletedFile => _filePathFromUri(deletedFile.uri))
-    .forEach(deletedFilePath => {
-      logger.info("Removing file", deletedFilePath);
-      workspace.removeFileByPath(deletedFilePath);
-    });
+    .map(deletedFile => _filePathFromUri(deletedFile.uri));
 
-  // Parse created files
-  params.changes
+  // Remove deleted files
+  urisOfDeletedFiles.forEach(deletedFilePath => {
+    logger.info("Removing file", deletedFilePath);
+    workspace.removeFileByPath(deletedFilePath);
+  });
+
+  const urisOfCreatedFiles = params.changes
     .filter(change => change.type === FileChangeType.Created)
+    .map(createdFile => _filePathFromUri(createdFile.uri));
+
+  // There are no 'onDidChangeTextDocument' events for python files, because
+  // the extension is not configured to work with .py files.
+  const urisOfChangedPyFiles = params.changes
+    .filter(change => change.type === FileChangeType.Changed)
     .map(createdFile => _filePathFromUri(createdFile.uri))
-    .filter(_shouldAcceptFile)
+    .filter(_isPythonFile);
+
+  [...urisOfCreatedFiles, ...urisOfChangedPyFiles]
+    // In some cases there can be a create and delete events for the same file.
+    // Such as in the case of VSCode python extension, which creates temp
+    // files when formatting.
+    .filter(uri => !urisOfDeletedFiles.includes(uri) && _shouldAcceptFile(uri))
     .forEach(_readAndParseFile);
 }
 
@@ -339,6 +351,8 @@ function _shouldAcceptFile(filePath: string) {
 
   return shouldInclude && !shouldExclude;
 }
+
+const _isPythonFile = (filePath: string) => path.extname(filePath) === ".py";
 
 function _parseFile(filePath: string, fileContents: string) {
   try {

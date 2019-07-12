@@ -1,5 +1,11 @@
 # Change Log
 
+## Version 2.6.0
+* Release date: July 12, 2019
+
+### What's new in this version
+* Add support for `.resource` files introduced in [RF 3.1](https://github.com/robotframework/robotframework/blob/master/doc/releasenotes/rf-3.1.rst#new-resource-extension-for-resource-files). Thanks to [@BabyMaybe](https://github.com/BabyMaybe) for help in implementing this!
+
 ## Version 2.5.0
 * Release date: March 10, 2019
 

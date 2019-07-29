@@ -9,7 +9,7 @@
       "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
       "sourceMaps": true,
       "cwd": "${workspaceRoot}",
-      "preLaunchTask": "build-tests",
+      "preLaunchTask": "build",
       "outFiles": [
         "${workspaceRoot}/out/**/*.js",
         "!${workspaceRoot}/node_modules/**"

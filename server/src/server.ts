@@ -4,8 +4,6 @@ import Uri from "vscode-uri";
 import * as path from "path";
 
 import {
-  IPCMessageReader,
-  IPCMessageWriter,
   createConnection,
   IConnection,
   TextDocumentSyncKind,
@@ -56,11 +54,11 @@ const parsersByFile = new Map([
 ]);
 const workspace = new Workspace();
 
-// Create a connection for the server. The connection uses Node's IPC as a transport
-const connection: IConnection = createConnection(
-  new IPCMessageReader(process),
-  new IPCMessageWriter(process)
-);
+// Create a connection for the server
+const connection: IConnection =
+  process.argv.length <= 2
+    ? createConnection(process.stdin, process.stdout)
+    : createConnection();
 
 const logger = ConsoleLogger;
 

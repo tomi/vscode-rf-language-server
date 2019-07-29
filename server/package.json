@@ -32,7 +32,7 @@
   },
   "main": "index.js",
   "scripts": {
-    "build-tests": "tsc --outDir out",
+    "build": "tsc --outDir out",
     "clean": "rm -rf ../client/server",
     "compile": "npm run copy-libs && installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc -p .",
     "copy-libs": "mkdir -p ../client/server && cp -r ../library-docs/library-docs ../client/server",

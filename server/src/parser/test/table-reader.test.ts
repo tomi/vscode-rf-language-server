@@ -86,6 +86,67 @@ describe("TableReader", () => {
     chai.assert.deepEqual(actual, expected);
   });
 
+  it("should read single table with pipes", () => {
+    const data = `| *** Table\n| cell1 | cell2 |`;
+
+    const actual = reader.read(data);
+
+    const expected = [
+      table("Table", {
+        header: header("*** Table"),
+        rows: [
+          row(createLocation(1, 0, 1, 13), [
+            new DataCell("cell1", createLocation(1, 0, 1, 5)),
+            new DataCell("cell2", createLocation(1, 8, 1, 13)),
+          ]),
+        ],
+      }),
+    ];
+
+    chai.assert.deepEqual(actual, expected);
+  });
+
+  it("should parse empty first cell with pipes", () => {
+    const data = `| *** Table\n| | cell1 | cell2`;
+
+    const actual = reader.read(data);
+
+    const expected = [
+      table("Table", {
+        header: header("*** Table"),
+        rows: [
+          row(createLocation(1, 0, 1, 16), [
+            new DataCell("", createLocation(1, 0, 1, 0)),
+            new DataCell("cell1", createLocation(1, 3, 1, 8)),
+            new DataCell("cell2", createLocation(1, 11, 1, 16)),
+          ]),
+        ],
+      }),
+    ];
+
+    chai.assert.deepEqual(actual, expected);
+  });
+
+  it("should not remove pipes from names", () => {
+    const data = `| *** Table\n| |cell1 | cell2|`;
+
+    const actual = reader.read(data);
+
+    const expected = [
+      table("Table", {
+        header: header("*** Table"),
+        rows: [
+          row(createLocation(1, 0, 1, 15), [
+            new DataCell("|cell1", createLocation(1, 0, 1, 6)),
+            new DataCell("cell2|", createLocation(1, 9, 1, 15)),
+          ]),
+        ],
+      }),
+    ];
+
+    chai.assert.deepEqual(actual, expected);
+  });
+
   it("should ignore trailing whitespace", () => {
     const data = `*** Table\ncell1    `;
 

@@ -57,7 +57,7 @@ class LineReader {
 
   public readLine(lineNumber: number, line: string) {
     this.lineNumber = lineNumber;
-    this.line = this.trimComments(line);
+    this.line = this.trimPipes(this.trimComments(line));
     this.position = 0;
 
     const row = new DataRow({
@@ -76,7 +76,7 @@ class LineReader {
 
       row.addCell(cell);
 
-      this.readWhitespace();
+      this.readWhitespaceOrPipe();
     } while (!this.isEnd());
 
     return row;
@@ -90,6 +90,23 @@ class LineReader {
     } else {
       return line;
     }
+  }
+
+  private trimPipes(line: string) {
+    // in case empty first cell, do not remove space after leading pipe
+    if (line.startsWith("| | ")) {
+      line = line.substring(1, line.length);
+    }
+    // remove mandatory leading pipe
+    if (line.startsWith("| ")) {
+      line = line.substring(2, line.length);
+    }
+    // remove optional pipe at the end of line
+    if (line.endsWith(" |")) {
+      line = line.substring(0, line.length - 2);
+    }
+
+    return line;
   }
 
   private findStartOfCommentIdx(line: string) {
@@ -108,7 +125,7 @@ class LineReader {
   }
 
   private endOfCellIdx() {
-    const cellSeparators = ["  ", " \t", "\t"];
+    const cellSeparators = ["  ", " \t", "\t", " | "];
 
     const separatorIndexes = cellSeparators
       .map(sep => this.line.indexOf(sep, this.position))
@@ -142,8 +159,8 @@ class LineReader {
     return cell;
   }
 
-  private readWhitespace() {
-    while (!this.isEnd() && /\s/.test(this.line.charAt(this.position))) {
+  private readWhitespaceOrPipe() {
+    while (!this.isEnd() && /(\s|\|)/.test(this.line.charAt(this.position))) {
       this.position = this.position + 1;
     }
   }

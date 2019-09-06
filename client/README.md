@@ -46,10 +46,10 @@ A [Visual Studio Code](https://code.visualstudio.com/) extension that supports R
   "BuiltIn-3.0.4"
 ]
 ```
-* See a list of all available libraries [here](##supported-standard-libraries)
+* See a list of all available libraries [here](#supported-standard-libraries)
 
 ### Code Completion for Any 3rd Party Library
-* See [defining 3rd party libraries](##defining-3rd-party-libraries)
+* See [defining 3rd party libraries](#defining-3rd-party-libraries)
 
 ### Support for python keywords
 * Keywords defined in `.py` files are also included
@@ -71,7 +71,7 @@ By default all `.robot` and `.resource` files are parsed. This can be configured
 | `rfLanguageServer.excludePaths` | Array of glob patterns for files to be excluded|
 | `rfLanguageServer.logLevel` | What information of the language server is logged in the Output. Possible values `off`, `errors`, `info`, `debug`|
 | `rfLanguageServer.trace.server` | what information of the communication between VSCode and the rfLanguageServer is logged to the Output. Possible values `off`, `messages`, `verbose`|
-| `rfLanguageServer.libraries` | What libraries' keywords are suggested with code completion. Can be a name of a standard library (see [Supported standard libraries](##supported-standard-libraries)) or a library definition (see [defining 3rd party libraries](##defining-3rd-party-libraries)) or a combination of them. |
+| `rfLanguageServer.libraries` | What libraries' keywords are suggested with code completion. Can be a name of a standard library (see [Supported standard libraries](#supported-standard-libraries)) or a library definition (see [defining 3rd party libraries](#defining-3rd-party-libraries)) or a combination of them. |
 
 The `includePaths` and `excludePaths` properties take a list of glob-like file patterns. Even though any files can be matched this way, only files with supported extensions are included (i.e. `.robot`, `.resource`, `.txt`, and `.py`).
 

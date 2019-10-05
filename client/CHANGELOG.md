@@ -1,11 +1,14 @@
 # Change Log
 
-## Version xxx
-* Release date: yyy
+## Version 2.7.0
+* Release date: October 5, 2019
 
 ### What's new in this version
 * Fix error when both a file added and file removed event is received for the same file at the same time.
 * Fix watching of python files. There was a bug that caused python files to not be reparsed if they were changed.
+* Fix .resource files not being correctly monitored for changes.
+* Fix anchor links in README. Thanks to [@JaPyR](https://github.com/JaPyR) for fixing!
+* Add definitions for standard library versions 3.1.1. Big thanks to [@lolotoms](https://github.com/lolotoms) for this!
 
 ## Version 2.6.0
 * Release date: July 12, 2019

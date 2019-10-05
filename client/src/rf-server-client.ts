@@ -92,8 +92,8 @@ export default class RFServerClient implements Disposable {
 
     // Options to control the language client
     const clientOptions: LanguageClientOptions = {
-      // Register the server for robot documents
-      documentSelector: ["robot"],
+      // Register the server for robot and resource documents
+      documentSelector: ["robot", "resource"],
       synchronize: {
         // Synchronize the setting section to the server
         configurationSection: CONFIG_BLOCK_NAME,

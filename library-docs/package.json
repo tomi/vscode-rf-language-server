@@ -28,7 +28,7 @@
   "scripts": {
     "fetch": "ts-node src/fetch-library-documentation",
     "lint": "npm run tslint && npm run prettier",
-    "prettier": "prettier -l 'src/**'",
+    "prettier": "prettier -l src/**",
     "tslint": "tslint --project . --config ../tslint.json"
   },
   "repository": {

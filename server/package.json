@@ -37,7 +37,7 @@
     "compile": "npm run copy-libs && installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc -p .",
     "copy-libs": "mkdir -p ../client/server && cp -r ../library-docs/library-docs ../client/server",
     "lint": "npm run tslint && npm run prettier",
-    "prettier": "prettier -l 'src/**'",
+    "prettier": "prettier -l src/**",
     "test": "mocha --require ts-node/register src/**/*.test.ts",
     "tslint": "tslint --project . --config ../tslint.json",
     "watch": "npm run clean && npm run copy-libs && installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc --watch -p ."

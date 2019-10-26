@@ -44,7 +44,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/tomi/vscode-rf-language-server.git"
+    "url": "https://github.com/tomi/vscode-rf-language-server.git"
   },
   "keywords": [
     "RF",

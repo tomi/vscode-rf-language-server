@@ -561,7 +561,7 @@
       <string>meta.named.argument.robot</string>
 
       <key>match</key>
-      <string>([^ |\t]*)((?<!\\)=)</string>
+      <string>((?<=[\s|])[^ |\t=]*)((?<!\\)=)</string>
 
       <key>captures</key>
       <dict>

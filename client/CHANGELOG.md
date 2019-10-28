@@ -1,5 +1,12 @@
 # Change Log
 
+## Version 2.8.0
+* Release date: October 28, 2019
+
+### What's new in this version
+* Fix syntax highlight for named arguments where the value contains a '=' character. Big thanks to [3zk1m0](https://github.com/3zk1m0) for fixing this!
+* Fix repository links in VSCode extension page. Thanks to [tumit](https://github.com/tumit) for fixing this!
+
 ## Version 2.7.0
 * Release date: October 5, 2019
 

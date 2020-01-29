@@ -1,8 +1,11 @@
 #!/bin/bash
 
 urls=(
-  http://robotframework.org/Selenium2Library/Selenium2Library.html
-  http://robotframework.org/Selenium2Library/Selenium2Library-1.8.0.html
+  https://robotframework.org/SwingLibrary/SwingLibrary-1.9.9.html
+  http://robotframework.org/SSHLibrary/SSHLibrary.html
+  http://omenia.github.io/robotframework-whitelibrary/keywords.html
+  https://guykisel.github.io/robotframework-faker/
+  http://serhatbolsu.github.io/robotframework-appiumlibrary/AppiumLibrary.html
   http://robotframework.org/SeleniumLibrary/SeleniumLibrary.html
 )
 
@@ -12,7 +15,7 @@ do
   npx ts-node src/fetch-library-documentation $url
 done
 
-versions=(3.0.4 2.9.2 2.8.7 2.7.7)
+versions=(3.1.2 3.1 3.0.4)
 libs=(BuiltIn Collections DateTime Dialogs OperatingSystem Process Screenshot String Telnet XML)
 
 for v in "${versions[@]}"

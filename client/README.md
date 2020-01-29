@@ -79,46 +79,22 @@ If the `includePaths` is left unspecified, the parser defaults to including all 
 
 ## Supported standard libraries
 
-* `BuiltIn-2.7.7`
-* `BuiltIn-2.8.7`
-* `BuiltIn-2.9.2`
-* `BuiltIn-3.0.4`
-* `Collections-2.7.7`
-* `Collections-2.8.7`
-* `Collections-2.9.2`
-* `Collections-3.0.4`
-* `DateTime-2.8.7`
-* `DateTime-2.9.2`
-* `DateTime-3.0.4`
-* `Dialogs-2.7.7`
-* `Dialogs-2.8.7`
-* `Dialogs-2.9.2`
-* `Dialogs-3.0.4`
-* `OperatingSystem-2.7.7`
-* `OperatingSystem-2.8.7`
-* `OperatingSystem-2.9.2`
-* `OperatingSystem-3.0.4`
-* `Process-2.8.7`
-* `Process-2.9.2`
-* `Process-3.0.4`
-* `Screenshot-2.7.7`
-* `Screenshot-2.8.7`
-* `Screenshot-2.9.2`
-* `Screenshot-3.0.4`
-* `Selenium2Library-1.8.0`
-* `Selenium2Library-3.0.0`
-* `SeleniumLibrary-3.2.0`
-* `String-2.7.7`
-* `String-2.8.7`
-* `String-2.9.2`
-* `String-3.0.4`
-* `Telnet-2.7.7`
-* `Telnet-2.8.7`
-* `Telnet-2.9.2`
-* `Telnet-3.0.4`
-* `XML-2.8.7`
-* `XML-2.9.2`
-* `XML-3.0.4`
+* `AppiumLibrary-1.5.0.3`
+* `BuiltIn-3.1.2`
+* `Collections-3.1.2`
+* `DateTime-3.1.2`
+* `Dialogs-3.1.2`
+* `FakerLibrary-`
+* `OperatingSystem-3.1.2`
+* `Process-3.1.2`
+* `Screenshot-3.1.2`
+* `SeleniumLibrary-4.2.0`
+* `SSHLibrary-3.4.0`
+* `String-3.1.2`
+* `SwingLibrary-1.9.9`
+* `Telnet-3.1.2`
+* `WhiteLibrary-1.6.0`
+* `XML-3.1.2`
 
 ## Defining 3rd party libraries
 

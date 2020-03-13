@@ -1,5 +1,12 @@
 # Change Log
 
+## Version 2.9.0
+* Release date: March 13, 2020
+
+### What's new in this version
+* Changed spaces in Code completion from 2 spaces to 4 spaces as seperator
+* Updated inbuilt library documentation to Robot Framework 3.1.2 and SeleniumLibrary 4.3.0 added some additional Libraries
+
 ## Version 2.8.0
 * Release date: October 28, 2019
 

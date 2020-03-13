@@ -1,12 +1,15 @@
 #!/bin/bash
 
 urls=(
-  https://robotframework.org/SwingLibrary/SwingLibrary-1.9.9.html
-  http://robotframework.org/SSHLibrary/SSHLibrary.html
-  http://omenia.github.io/robotframework-whitelibrary/keywords.html
+  https://robotframework.org/SwingLibrary/SwingLibrary.html
+  https://robotframework.org/SSHLibrary/SSHLibrary.html
+  https://omenia.github.io/robotframework-whitelibrary/keywords.html
   https://guykisel.github.io/robotframework-faker/
-  http://serhatbolsu.github.io/robotframework-appiumlibrary/AppiumLibrary.html
-  http://robotframework.org/SeleniumLibrary/SeleniumLibrary.html
+  https://serhatbolsu.github.io/robotframework-appiumlibrary/AppiumLibrary.html
+  https://robotframework.org/SeleniumLibrary/SeleniumLibrary.html
+  https://rasjani.github.io/robotframework-seleniumtestability/index.html
+  https://robotframework-thailand.github.io/robotframework-jsonlibrary/JSONLibrary.html
+  https://bulkan.github.io/robotframework-requests/doc/RequestsLibrary.html
 )
 
 for url in "${urls[@]}"

@@ -79,16 +79,19 @@ If the `includePaths` is left unspecified, the parser defaults to including all 
 
 ## Supported standard libraries
 
-* `AppiumLibrary-1.5.0.3`
+* `AppiumLibrary-1.5.0.4`
 * `BuiltIn-3.1.2`
 * `Collections-3.1.2`
 * `DateTime-3.1.2`
 * `Dialogs-3.1.2`
 * `FakerLibrary-`
+* `JSONLibrary-`
 * `OperatingSystem-3.1.2`
 * `Process-3.1.2`
+* `RequestsLibrary-`
 * `Screenshot-3.1.2`
-* `SeleniumLibrary-4.2.0`
+* `SeleniumLibrary-4.3.0`
+* `SeleniumLibrary with SeleniumTestability Plugin-4.0.0`
 * `SSHLibrary-3.4.0`
 * `String-3.1.2`
 * `SwingLibrary-1.9.9`
@@ -98,10 +101,17 @@ If the `includePaths` is left unspecified, the parser defaults to including all 
 
 ## Defining 3rd party libraries
 
-3rd party libraries can be defined inline in the `rfLanguageServer.libraries` configuration block. For example:
+3rd party libraries can be defined inline in the `rfLanguageServer.libraries` configuration block. 
+
+You may use the tool `libdoc2json` to generate these JSON files. You will find it [here.](https://pypi.org/project/robotframework-libdoc2json)
+
+For example:
 
 ```json
 "rfLanguageServer.libraries": [
+  "RequestsLibrary",
+  "Screenshot-3.1.2",
+  "SeleniumLibrary-4.2.0",
   {
     "name": "MyLibrary",
     "version": "1.0.0",
@@ -139,3 +149,5 @@ All contributions are welcomed! Please see [the contributing guide](https://gith
 This project is a grateful recipient of the [Futurice Open Source sponsorship program](https://spiceprogram.org). ♥
 
 Syntax highlighting grammar is built on top of [work](https://bitbucket.org/jussimalinen/robot.tmbundle/wiki/Home) by Jussi Malinen.
+
+This specific version has been made by @Snooz82 René Rohner

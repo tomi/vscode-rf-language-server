@@ -250,9 +250,9 @@ function _createKeywordSnippet(
   if (keyword.arguments) {
     const args = keyword.arguments.values
       .map((arg, idx) => `\${${idx + 1}:${arg.id.name}}`)
-      .join("  ");
+      .join("    ");
 
-    return [`${keywordName}  ${args}`, InsertTextFormat.Snippet];
+    return [`${keywordName}    ${args}`, InsertTextFormat.Snippet];
   } else {
     return [keywordName, InsertTextFormat.PlainText];
   }

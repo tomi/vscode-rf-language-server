@@ -88,10 +88,11 @@ If the `includePaths` is left unspecified, the parser defaults to including all 
 * `JSONLibrary-`
 * `OperatingSystem-3.1.2`
 * `Process-3.1.2`
-* `RequestsLibrary-`
+* `RequestsLibrary-0.6.5`
+* `REST-`
 * `Screenshot-3.1.2`
 * `SeleniumLibrary-4.3.0`
-* `SeleniumLibrary with SeleniumTestability Plugin-4.0.0`
+* `SeleniumLibrary with SeleniumTestability Plugin-4.3.0`
 * `SSHLibrary-3.4.0`
 * `String-3.1.2`
 * `SwingLibrary-1.9.9`

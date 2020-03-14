@@ -38,7 +38,7 @@
     <key>variables</key>
 		<dict>
 			<key>match</key>
-			<string>(?:(?&lt;!\\)|(?&lt;=\\\\))([$@&amp;%]\{)(.*?)(\})( ?=)?</string>
+			<string>(?:(?&lt;!^)(?&lt;!\\)|(?&lt;=\\\\))([$@&amp;%]\{)(?:(\d*?)|(.+?}*))(\})( ?=)?</string>
 
       <key>captures</key>
       <dict>
@@ -51,13 +51,13 @@
         <key>2</key>
         <dict>
           <key>name</key>
-          <string>variable.language.robot</string>
+          <string>constant.numeric.robot</string>
         </dict>
 
         <key>3</key>
         <dict>
           <key>name</key>
-          <string>keyword.operator.robot</string>
+          <string>variable.other.robot</string>
         </dict>
 
         <key>4</key>
@@ -65,9 +65,44 @@
           <key>name</key>
           <string>keyword.operator.robot</string>
         </dict>
+
+        <key>5</key>
+        <dict>
+          <key>name</key>
+          <string>keyword.operator.robot</string>
+        </dict>
       </dict>
 		</dict>
 
+
+    <!-- parameters of [Arguments] -->
+    <key>parameter</key>
+		<dict>
+			<key>match</key>
+			<string>(?:(?&lt;!\\)|(?&lt;=\\\\))([$@&amp;]\{)(?:(.+?}*))(\})</string>
+
+      <key>captures</key>
+      <dict>
+        <key>1</key>
+        <dict>
+          <key>name</key>
+          <string>keyword.operator.robot</string>
+        </dict>
+
+        <key>2</key>
+        <dict>
+          <key>name</key>
+          <string>variable.parameter.robot</string>
+        </dict>
+
+        <key>3</key>
+        <dict>
+          <key>name</key>
+          <string>keyword.operator.robot</string>
+        </dict>
+      </dict>
+		</dict>
+    
     <!-- ... -->
     <key>line_continuation</key>
     <dict>
@@ -134,7 +169,7 @@
 
       <!-- TODO: Create a separate repository entry for each of these for better control -->
       <key>begin</key>
-      <string>(?i)^(Library|Resource|Variables|Documentation|Metadata|Suite Setup|Suite Teardown|Force Tags|Default Tags|Test Setup|Test Teardown|Test Template|Test Timeout)(?= {2}| ?\t| ?$)</string>
+      <string>(?i)^(Documentation|Force Tags|Default Tags|Test Timeout)(?= {2}| ?\t| ?$)</string>
 
       <key>beginCaptures</key>
       <dict>
@@ -167,6 +202,118 @@
           <key>include</key>
           <string>#line_continuation</string>
         </dict>
+      </array>
+		</dict>
+
+    <!-- Settings in settings table, e.g. Library or Resource -->
+    <key>settings_table_setting_imports</key>
+		<dict>
+      <key>name</key>
+      <string>meta.setting.robot</string>
+
+      <!-- TODO: Create a separate repository entry for each of these for better control -->
+      <key>begin</key>
+      <string>(?i)^(Library|Resource|Variables|Metadata)(?: {2}| ?\t)*(.*?)(?= {2}| ?\t| ?$)</string>
+
+      <key>beginCaptures</key>
+      <dict>
+        <key>1</key>
+        <dict>
+          <key>name</key>
+          <string>storage.type.setting.robot</string>
+        </dict>
+
+        <key>2</key>
+        <dict>
+          <key>name</key>
+          <string>entity.other.inherited-class.robot</string>
+        </dict>
+      </dict>
+
+      <key>contentName</key>
+      <string>constant.other.robot</string>
+
+      <key>end</key>
+      <string>^(?!\s*\.\.\.)</string>
+
+      <key>patterns</key>
+      <array>
+        <dict>
+          <key>include</key>
+          <string>#comment</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#variables</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#line_continuation</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#named_argument</string>
+        </dict>
+
+      </array>
+		</dict>
+
+    <!-- Settings in settings table, e.g. Library or Resource -->
+    <key>settings_table_setting_keywordCalls</key>
+		<dict>
+      <key>name</key>
+      <string>meta.setting.robot</string>
+
+      <!-- TODO: Create a separate repository entry for each of these for better control -->
+      <key>begin</key>
+      <string>(?i)^(Suite Setup|Suite Teardown|Test Setup|Test Teardown|Test Template)(?: {2}| ?\t)*(.*?)(?= {2}| ?\t| ?$)</string>
+
+      <key>beginCaptures</key>
+      <dict>
+        <key>1</key>
+        <dict>
+          <key>name</key>
+          <string>storage.type.setting.robot</string>
+        </dict>
+
+        <key>2</key>
+        <dict>
+          <key>name</key>
+          <string>entity.name.function.robot</string>
+        </dict>
+      </dict>
+
+      <key>contentName</key>
+      <string>constant.other.robot</string>
+
+      <key>end</key>
+      <string>^(?!\s*\.\.\.)</string>
+
+      <key>patterns</key>
+      <array>
+        <dict>
+          <key>include</key>
+          <string>#comment</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#variables</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#line_continuation</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#named_argument</string>
+        </dict>
+
       </array>
 		</dict>
 
@@ -243,14 +390,69 @@
       </array>
 		</dict>
 
-    <!-- [Arguments] or [Return] -->
-    <key>keyword_arguments_return</key>
+    <!-- [Arguments] -->
+    <key>keyword_arguments</key>
 		<dict>
       <key>name</key>
       <string>meta.keyword.setting.robot</string>
 
       <key>begin</key>
-      <string>^(?i)(?:\s)+(\[)(arguments|return)(\])</string>
+      <string>^(?i)(?:\s)+(\[)(arguments)(\])</string>
+
+      <key>beginCaptures</key>
+      <dict>
+        <key>1</key>
+        <dict>
+          <key>name</key>
+          <string>keyword.operator.robot</string>
+        </dict>
+
+        <key>2</key>
+        <dict>
+          <key>name</key>
+          <string>storage.type.method.robot</string>
+        </dict>
+
+        <key>3</key>
+        <dict>
+          <key>name</key>
+          <string>keyword.operator.robot</string>
+        </dict>
+      </dict>
+
+      <key>contentName</key>
+      <string>constant.other.robot</string>
+
+      <key>end</key>
+      <string>^(?!\s*\.\.\.)</string>
+
+      <key>patterns</key>
+      <array>
+        <dict>
+          <key>include</key>
+          <string>#comment</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#parameter</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#line_continuation</string>
+        </dict>
+      </array>
+		</dict>
+
+    <!-- [Return] -->
+    <key>keyword_return</key>
+		<dict>
+      <key>name</key>
+      <string>meta.keyword.setting.robot</string>
+
+      <key>begin</key>
+      <string>^(?i)(?:\s)+(\[)(return)(\])</string>
 
       <key>beginCaptures</key>
       <dict>
@@ -482,7 +684,7 @@
       <string>meta.function.setting.robot</string>
 
       <key>begin</key>
-      <string>(?i)^(?:\s)+(\[)(template)(\])(?: {2}| ?\t| ?$)</string>
+      <string>(?i)^(?:\s)+(\[)(template)(\])(?: {2}| ?\t| ?$)(?:\s)*(.*?)(?: {2}| ?\t| ?$)</string>
 
       <key>beginCaptures</key>
       <dict>
@@ -503,6 +705,12 @@
           <key>name</key>
           <string>keyword.operator.robot</string>
         </dict>
+
+        <key>4</key>
+        <dict>
+          <key>name</key>
+          <string>entity.name.function.robot</string>
+        </dict>
       </dict>
 
       <key>contentName</key>
@@ -520,11 +728,6 @@
 
         <dict>
           <key>include</key>
-          <string>#variables</string>
-        </dict>
-
-        <dict>
-          <key>include</key>
           <string>#line_continuation</string>
         </dict>
       </array>
@@ -537,7 +740,7 @@
       <string>entity.name.function.robot</string>
 
       <key>begin</key>
-      <string>^(?:\s)+(?=[^$\[@&%])</string>
+      <string>^(?!(?:\s)+(?:(?=[$\[@&amp;%])|(?=(?:(?:FOR)|(?:END)))))(?:\s)+</string>
 
       <key>contentName</key>
       <string>entity.name.function.robot</string>
@@ -554,7 +757,52 @@
       </array>
 		</dict>
 
-    <!-- Test case or user keyword step, i.e. call to other keyword -->
+    <!-- [Variable assignment from keywords] -->
+    <key>function_step_assign</key>
+		<dict>
+      <key>name</key>
+      <string>meta.function.setting.robot</string>
+
+      <key>begin</key>
+      <string>^(?:\s)+(?:(?=[$@&amp;]))</string>
+
+      <key>contentName</key>
+      <string>constant.other.robot</string>
+
+      <key>end</key>
+      <string>(?:( ?=)?(?: {2,}| ?\t+| ?$)([^$@&amp; ].*?)(?: {2,}| ?\t+| ?$))</string>
+
+      <key>endCaptures</key>
+      <dict>
+        <key>1</key>
+        <dict>
+          <key>name</key>
+          <string>keyword.operator.robot</string>
+        </dict>
+
+        <key>2</key>
+        <dict>
+          <key>name</key>
+          <string>entity.name.function.robot</string>
+        </dict>
+      </dict>
+
+      <key>patterns</key>
+      <array>
+
+        <dict>
+          <key>include</key>
+          <string>#parameter</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#line_continuation</string>
+        </dict>
+      </array>
+		</dict>
+
+    <!-- named Arguments -->
     <key>named_argument</key>
 		<dict>
       <key>name</key>
@@ -578,6 +826,91 @@
         </dict>
       </dict>
 		</dict>
+
+    <!-- variable assignment in variables section -->
+    <key>variable_assign</key>
+		<dict>
+      <key>name</key>
+      <string>meta.variable.setting.robot</string>
+
+      <key>begin</key>
+      <string>^(?=[$@&amp;])</string>
+
+      <key>contentName</key>
+      <string>constant.other.robot</string>
+
+      <key>end</key>
+      <string>(=)?(?: {2}| ?\t)</string>
+
+      <key>endCaptures</key>
+      <dict>
+        <key>1</key>
+        <dict>
+          <key>name</key>
+          <string>keyword.operator.robot</string>
+        </dict>
+      </dict>
+
+      <key>patterns</key>
+      <array>
+        <dict>
+          <key>include</key>
+          <string>#parameter</string>
+        </dict>
+      </array>
+		</dict>
+  
+    <!-- FOR -->
+    <key>for_loop</key>
+		<dict>
+      <key>name</key>
+      <string>meta.function.setting.robot</string>
+
+      <key>begin</key>
+      <string>^(?:\s)+(FOR)</string>
+
+      <key>beginCaptures</key>
+      <dict>
+        <key>1</key>
+        <dict>
+          <key>name</key>
+          <string>keyword.control.robot</string>
+        </dict>
+      </dict>
+
+      <key>contentName</key>
+      <string>constant.other.robot</string>
+
+      <key>end</key>
+      <string>(IN ENUMERATE|IN RANGE|IN ZIP|IN|$)</string>
+
+      <key>endCaptures</key>
+      <dict>
+        <key>1</key>
+        <dict>
+          <key>name</key>
+          <string>keyword.control.robot</string>
+        </dict>
+      </dict>
+
+      <key>patterns</key>
+      <array>
+        <dict>
+          <key>include</key>
+          <string>#parameter</string>
+        </dict>
+      </array>
+		</dict>
+
+    <!-- END -->
+    <key>end_loop</key>
+    <dict>
+      <key>match</key>
+      <string>^(\s*END)(?= {2,}| ?\t+| ?$)</string>
+
+      <key>name</key>
+      <string>keyword.control.robot</string>
+    </dict>
 
     <!-- *** Settings *** -->
     <key>settings_table</key>
@@ -621,6 +954,17 @@
           <key>include</key>
           <string>#settings_table_setting</string>
         </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#settings_table_setting_keywordCalls</string>
+        </dict>
+       
+        <dict>
+          <key>include</key>
+          <string>#settings_table_setting_imports</string>
+        </dict>
+        
       </array>
 
 		</dict>
@@ -659,6 +1003,11 @@
         <dict>
           <key>include</key>
           <string>#variables</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#variable_assign</string>
         </dict>
       </array>
 
@@ -722,7 +1071,12 @@
 
         <dict>
           <key>include</key>
-          <string>#keyword_arguments_return</string>
+          <string>#keyword_arguments</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#keyword_return</string>
         </dict>
 
         <dict>
@@ -753,7 +1107,22 @@
 
         <dict>
           <key>include</key>
+          <string>#function_step_assign</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
           <string>#named_argument</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#for_loop</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#end_loop</string>
         </dict>
       </array>
 
@@ -838,9 +1207,14 @@
         <!-- Arguments and return are illegal for test cases but highlight them anyway  -->
         <dict>
           <key>include</key>
-          <string>#keyword_arguments_return</string>
+          <string>#keyword_eturn</string>
         </dict>
 
+        <dict>
+          <key>include</key>
+          <string>#keyword_arguments</string>
+        </dict>
+        
         <dict>
           <key>include</key>
           <string>#function_step</string>
@@ -848,7 +1222,22 @@
 
         <dict>
           <key>include</key>
+          <string>#function_step_assign</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
           <string>#named_argument</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#for_loop</string>
+        </dict>
+
+        <dict>
+          <key>include</key>
+          <string>#end_loop</string>
         </dict>
       </array>
 

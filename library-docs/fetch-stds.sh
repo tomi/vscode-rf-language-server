@@ -10,6 +10,7 @@ urls=(
   https://rasjani.github.io/robotframework-seleniumtestability/index.html
   https://robotframework-thailand.github.io/robotframework-jsonlibrary/JSONLibrary.html
   https://bulkan.github.io/robotframework-requests/doc/RequestsLibrary.html
+  https://asyrjasalo.github.io/RESTinstance/
 )
 
 for url in "${urls[@]}"

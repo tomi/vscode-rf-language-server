@@ -11,6 +11,7 @@ urls=(
   https://robotframework-thailand.github.io/robotframework-jsonlibrary/JSONLibrary.html
   https://bulkan.github.io/robotframework-requests/doc/RequestsLibrary.html
   https://asyrjasalo.github.io/RESTinstance/
+  https://franz-see.github.io/Robotframework-Database-Library/api/1.2.2/DatabaseLibrary.html
 )
 
 for url in "${urls[@]}"

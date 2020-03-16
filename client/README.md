@@ -82,6 +82,7 @@ If the `includePaths` is left unspecified, the parser defaults to including all 
 * `AppiumLibrary-1.5.0.4`
 * `BuiltIn-3.1.2`
 * `Collections-3.1.2`
+* `DatabaseLibrary-`
 * `DateTime-3.1.2`
 * `Dialogs-3.1.2`
 * `FakerLibrary-`

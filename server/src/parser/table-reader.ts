@@ -57,8 +57,9 @@ class LineReader {
 
   public readLine(lineNumber: number, line: string) {
     this.lineNumber = lineNumber;
-    this.line = this.trimComments(line);
+    this.line = this.trimPipes(this.trimComments(line));
     this.position = 0;
+    this.readLeadingPipe();
 
     const row = new DataRow({
       start: {
@@ -76,7 +77,7 @@ class LineReader {
 
       row.addCell(cell);
 
-      this.readWhitespace();
+      this.readWhitespaceOrPipe();
     } while (!this.isEnd());
 
     return row;
@@ -90,6 +91,15 @@ class LineReader {
     } else {
       return line;
     }
+  }
+
+  private trimPipes(line: string) {
+    // remove optional pipe at the end of line
+    if (line.endsWith(" |")) {
+      line = line.substring(0, line.length - 2);
+    }
+
+    return line;
   }
 
   private findStartOfCommentIdx(line: string) {
@@ -108,7 +118,7 @@ class LineReader {
   }
 
   private endOfCellIdx() {
-    const cellSeparators = ["  ", " \t", "\t"];
+    const cellSeparators = ["  ", " \t", "\t", " | "];
 
     const separatorIndexes = cellSeparators
       .map(sep => this.line.indexOf(sep, this.position))
@@ -142,9 +152,30 @@ class LineReader {
     return cell;
   }
 
-  private readWhitespace() {
-    while (!this.isEnd() && /\s/.test(this.line.charAt(this.position))) {
+  private readLeadingPipe() {
+    // in case empty first cell, move position to empty cell
+    if (/^\|\s+\|\s.*/.test(this.line)) {
       this.position = this.position + 1;
+    } else if (this.line.startsWith("| ")) {
+      this.position = this.position + 2;
+    }
+  }
+
+  private readWhitespaceOrPipe() {
+    while (!this.isEnd()) {
+      // read pipe delimiter
+      if (this.line.startsWith(" | ", this.position)) {
+        this.position = this.position + 3;
+        continue;
+      }
+
+      // read whitespace
+      if (/(\s)/.test(this.line.charAt(this.position))) {
+        this.position = this.position + 1;
+        continue;
+      }
+
+      break;
     }
   }
 

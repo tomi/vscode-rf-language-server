@@ -168,7 +168,7 @@ class LineReader {
         this.position = this.position + 3;
         continue;
       }
-      
+
       // read whitespace
       if (/(\s)/.test(this.line.charAt(this.position))) {
         this.position = this.position + 1;

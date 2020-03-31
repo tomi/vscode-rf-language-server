@@ -59,6 +59,7 @@ class LineReader {
     this.lineNumber = lineNumber;
     this.line = this.trimPipes(this.trimComments(line));
     this.position = 0;
+    this.readLeadingPipe();
 
     const row = new DataRow({
       start: {
@@ -93,14 +94,6 @@ class LineReader {
   }
 
   private trimPipes(line: string) {
-    // in case empty first cell, do not remove space after leading pipe
-    if (line.startsWith("| | ")) {
-      line = line.substring(1, line.length);
-    }
-    // remove mandatory leading pipe
-    if (line.startsWith("| ")) {
-      line = line.substring(2, line.length);
-    }
     // remove optional pipe at the end of line
     if (line.endsWith(" |")) {
       line = line.substring(0, line.length - 2);
@@ -159,9 +152,30 @@ class LineReader {
     return cell;
   }
 
-  private readWhitespaceOrPipe() {
-    while (!this.isEnd() && /(\s|\|)/.test(this.line.charAt(this.position))) {
+  private readLeadingPipe() {
+    // in case empty first cell, move position to empty cell
+    if (/^\|\s+\|\s.*/.test(this.line)) {
       this.position = this.position + 1;
+    } else if (this.line.startsWith("| ")) {
+      this.position = this.position + 2;
+    }
+  }
+
+  private readWhitespaceOrPipe() {
+    while (!this.isEnd()) {
+      // read pipe delimiter
+      if (this.line.startsWith(" | ", this.position)) {
+        this.position = this.position + 3;
+        continue;
+      }
+      
+      // read whitespace
+      if (/(\s)/.test(this.line.charAt(this.position))) {
+        this.position = this.position + 1;
+        continue;
+      }
+
+      break;
     }
   }
 

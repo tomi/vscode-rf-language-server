@@ -10,8 +10,12 @@ import { createLocation, table, row } from "./test-helper";
 const reader = new TableReader();
 
 function header(text: string) {
-  return row(createLocation(0, 0, 0, text.length), [
-    new DataCell(text, createLocation(0, 0, 0, text.length)),
+  return headerWithStartIndex(text, 0);
+}
+
+function headerWithStartIndex(text: string, start: number) {
+  return row(createLocation(0, 0, 0, start + text.length), [
+    new DataCell(text, createLocation(0, start, 0, start + text.length)),
   ]);
 }
 
@@ -93,11 +97,11 @@ describe("TableReader", () => {
 
     const expected = [
       table("Table", {
-        header: header("*** Table"),
+        header: headerWithStartIndex("*** Table", 2),
         rows: [
-          row(createLocation(1, 0, 1, 13), [
-            new DataCell("cell1", createLocation(1, 0, 1, 5)),
-            new DataCell("cell2", createLocation(1, 8, 1, 13)),
+          row(createLocation(1, 0, 1, 15), [
+            new DataCell("cell1", createLocation(1, 2, 1, 7)),
+            new DataCell("cell2", createLocation(1, 10, 1, 15)),
           ]),
         ],
       }),
@@ -113,12 +117,12 @@ describe("TableReader", () => {
 
     const expected = [
       table("Table", {
-        header: header("*** Table"),
+        header: headerWithStartIndex("*** Table", 2),
         rows: [
-          row(createLocation(1, 0, 1, 16), [
-            new DataCell("", createLocation(1, 0, 1, 0)),
-            new DataCell("cell1", createLocation(1, 3, 1, 8)),
-            new DataCell("cell2", createLocation(1, 11, 1, 16)),
+          row(createLocation(1, 0, 1, 17), [
+            new DataCell("", createLocation(1, 1, 1, 1)),
+            new DataCell("cell1", createLocation(1, 4, 1, 9)),
+            new DataCell("cell2", createLocation(1, 12, 1, 17)),
           ]),
         ],
       }),
@@ -128,17 +132,21 @@ describe("TableReader", () => {
   });
 
   it("should not remove pipes from names", () => {
-    const data = `| *** Table\n| |cell1 | cell2|`;
+    const data = `| *** Table\n| |cell1 | cell2|\n| cell1| | |cell2`;
 
     const actual = reader.read(data);
 
     const expected = [
       table("Table", {
-        header: header("*** Table"),
+        header: headerWithStartIndex("*** Table", 2),
         rows: [
-          row(createLocation(1, 0, 1, 15), [
-            new DataCell("|cell1", createLocation(1, 0, 1, 6)),
-            new DataCell("cell2|", createLocation(1, 9, 1, 15)),
+          row(createLocation(1, 0, 1, 17), [
+            new DataCell("|cell1", createLocation(1, 2, 1, 8)),
+            new DataCell("cell2|", createLocation(1, 11, 1, 17)),
+          ]),
+          row(createLocation(2, 0, 2, 17), [
+            new DataCell("cell1|", createLocation(2, 2, 2, 8)),
+            new DataCell("|cell2", createLocation(2, 11, 2, 17)),
           ]),
         ],
       }),

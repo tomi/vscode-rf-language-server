@@ -16,7 +16,10 @@ export interface ValueExpression extends Expression {}
 export class Identifier implements Node {
   public type = "Identifier";
 
-  constructor(public name: string, public location: SourceLocation) {}
+  constructor(
+    public name: string,
+    public location: SourceLocation
+  ) {}
 }
 
 export class NamespacedIdentifier extends Identifier {
@@ -60,7 +63,10 @@ export class VariableExpression implements ValueExpression {
 export class Literal implements ValueExpression {
   public type = "Literal";
 
-  constructor(public value: string, public location: SourceLocation) {}
+  constructor(
+    public value: string,
+    public location: SourceLocation
+  ) {}
 }
 
 export class KeyValueLiteral extends Literal {
@@ -69,7 +75,11 @@ export class KeyValueLiteral extends Literal {
   /**
    *
    */
-  constructor(public name: string, value: string, location: SourceLocation) {
+  constructor(
+    public name: string,
+    value: string,
+    location: SourceLocation
+  ) {
     super(value, location);
   }
 }
@@ -77,7 +87,10 @@ export class KeyValueLiteral extends Literal {
 export class TemplateElement implements Node {
   public type = "TemplateElement";
 
-  constructor(public value: string, public location: SourceLocation) {}
+  constructor(
+    public value: string,
+    public location: SourceLocation
+  ) {}
 }
 
 export class TemplateLiteral implements ValueExpression {
@@ -453,7 +466,10 @@ export class UserKeyword implements FunctionDeclaration {
   public tags: Tags;
   public location: SourceLocation;
 
-  constructor(public id: NamespacedIdentifier, startPosition?: Position) {
+  constructor(
+    public id: NamespacedIdentifier,
+    startPosition?: Position
+  ) {
     this.location = {
       start: startPosition,
       end: startPosition,
@@ -494,7 +510,10 @@ export class TestCase implements FunctionDeclaration {
   public location: SourceLocation;
   // TODO: Template
 
-  constructor(public id: Identifier, startPosition: Position) {
+  constructor(
+    public id: Identifier,
+    startPosition: Position
+  ) {
     this.location = {
       start: startPosition,
       end: startPosition,

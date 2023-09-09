@@ -8,7 +8,7 @@ import { traverse, VisitorOption } from "../traverse/traverse";
  * @param ast  abstract syntax tree
  * @param matchFn
  */
-export function filter(ast: Node, matchFn: ((node: Node) => boolean)) {
+export function filter(ast: Node, matchFn: (node: Node) => boolean) {
   const nodes = [] as Node[];
 
   traverse(ast, {

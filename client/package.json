@@ -222,7 +222,7 @@
   },
   "devDependencies": {
     "@types/node": "8.9.5",
-    "prettier": "1.14.3",
+    "prettier": "3.0.3",
     "tslint": "5.13.1",
     "typescript": "3.3.3333",
     "vscode": "1.1.21"

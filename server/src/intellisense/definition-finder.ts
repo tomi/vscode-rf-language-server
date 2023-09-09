@@ -68,9 +68,7 @@ export function findDefinition(
   if (!isIdentifier(nodeInPos.node)) {
     const logMsg =
       "Definition not found. " +
-      `Node in position is not an identifier, but of type ${
-        nodeInPos.node.type
-      }`;
+      `Node in position is not an identifier, but of type ${nodeInPos.node.type}`;
     logger.info(logMsg);
     return null;
   }

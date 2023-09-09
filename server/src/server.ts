@@ -441,8 +441,8 @@ const _fileEventTypeToString = (fileEvent: FileEvent) =>
   fileEvent.type === FileChangeType.Created
     ? "Cr"
     : fileEvent.type === FileChangeType.Changed
-      ? "Ch"
-      : "De";
+    ? "Ch"
+    : "De";
 
 // Listen on the connection
 connection.listen();

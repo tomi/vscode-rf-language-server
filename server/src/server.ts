@@ -2,6 +2,7 @@ import * as _ from "lodash";
 import * as minimatch from "minimatch";
 import Uri from "vscode-uri";
 import * as path from "path";
+import * as fs from "fs/promises";
 
 import {
   createConnection,
@@ -37,8 +38,6 @@ import {
 import { findFileHighlights } from "./intellisense/highlight-provider";
 import { Config, LibraryDefinition } from "./utils/settings";
 import { ConsoleLogger } from "./logger";
-
-import * as asyncFs from "./utils/async-fs";
 
 import { createRobotFile } from "./intellisense/workspace/robot-file";
 import { createPythonFile } from "./intellisense/workspace/python-file";
@@ -366,7 +365,7 @@ function _parseFile(filePath: string, fileContents: string) {
 async function _readAndParseFile(filePath: string) {
   try {
     const createFn = _getParserFn(filePath);
-    const fileContents = await asyncFs.readFileAsync(filePath, "utf-8");
+    const fileContents = await fs.readFile(filePath, "utf-8");
     const file = _createWorkspaceFile(filePath, fileContents, createFn);
 
     workspace.addFile(file);
@@ -381,7 +380,7 @@ async function _readAndParseLibrary(libraryName: string | LibraryDefinition) {
 
     if (typeof libraryName === "string") {
       const filePath = path.join(LIBRARY_PATH, `${libraryName}.json`);
-      const fileContents = await asyncFs.readFileAsync(filePath, "utf-8");
+      const fileContents = await fs.readFile(filePath, "utf-8");
 
       logger.info("Parsing library", filePath);
       libraryDefinition = JSON.parse(fileContents);

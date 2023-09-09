@@ -18,13 +18,13 @@
     "vscode-uri": "1.0.6"
   },
   "devDependencies": {
-    "@types/chai": "4.1.7",
+    "@types/chai": "4.3.6",
     "@types/lodash": "4.14.121",
     "@types/minimatch": "3.0.3",
-    "@types/mocha": "5.2.6",
+    "@types/mocha": "10.0.1",
     "@types/node": "8.9.5",
-    "chai": "^4.2.0",
-    "mocha": "^5.2.0",
+    "chai": "4.3.8",
+    "mocha": "10.2.0",
     "prettier": "3.0.3",
     "ts-node": "~8.0.2",
     "tslint": "~5.11.0",

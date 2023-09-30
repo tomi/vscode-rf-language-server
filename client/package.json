@@ -224,7 +224,7 @@
     "@types/vscode": "1.52",
     "prettier": "3.0.3",
     "tslint": "5.13.1",
-    "typescript": "3.3.3333"
+    "typescript": "4.8.4"
   },
   "dependencies": {
     "vscode-languageclient": "~5.1.1"

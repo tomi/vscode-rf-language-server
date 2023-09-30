@@ -7,7 +7,7 @@
   "publisher": "TomiTurtiainen",
   "icon": "icon.png",
   "engines": {
-    "vscode": "^1.26.0"
+    "vscode": "^1.52.0"
   },
   "categories": [
     "Programming Languages",
@@ -213,7 +213,6 @@
     "compile": "tsc -watch -p ./",
     "lint": "npm run tslint && npm run prettier",
     "prettier": "prettier -l src/**",
-    "postinstall": "node ./node_modules/vscode/bin/install",
     "test": "echo no tests",
     "tslint": "tslint --project . --config ../tslint.json",
     "update-vscode": "node ./node_modules/vscode/bin/install",
@@ -221,11 +220,11 @@
     "watch": "tsc -watch -p ./"
   },
   "devDependencies": {
-    "@types/node": "8.9.5",
+    "@types/node": "12.12.70",
+    "@types/vscode": "1.52",
     "prettier": "3.0.3",
     "tslint": "5.13.1",
-    "typescript": "3.3.3333",
-    "vscode": "1.1.21"
+    "typescript": "3.3.3333"
   },
   "dependencies": {
     "vscode-languageclient": "~5.1.1"

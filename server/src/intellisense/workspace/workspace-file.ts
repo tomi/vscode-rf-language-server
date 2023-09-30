@@ -7,7 +7,7 @@ import {
   VariableContainer,
 } from "../search-tree";
 
-import Uri from "vscode-uri";
+import { URI } from "vscode-uri";
 
 abstract class WorkspaceFile implements Symbols {
   // All the variables in the file
@@ -36,7 +36,7 @@ abstract class WorkspaceFile implements Symbols {
   }
 
   public get uri() {
-    return Uri.file(this.filePath).toString();
+    return URI.file(this.filePath).toString();
   }
 }
 

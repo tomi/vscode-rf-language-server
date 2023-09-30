@@ -15,7 +15,7 @@
     "minimatch": "~3.0.3",
     "node-ternary-search-trie": "https://github.com/tomi/node-ternary-search-trie.git",
     "vscode-languageserver": "~5.1.0",
-    "vscode-uri": "1.0.6"
+    "vscode-uri": "3.0.7"
   },
   "devDependencies": {
     "@types/chai": "4.3.6",

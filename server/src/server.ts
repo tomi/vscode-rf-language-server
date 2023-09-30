@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 import * as minimatch from "minimatch";
-import Uri from "vscode-uri";
+import { URI } from "vscode-uri";
 import * as path from "path";
 import * as fs from "fs/promises";
 
@@ -261,7 +261,7 @@ function onInitialize(params: InitializeParams): InitializeResult {
 
   const rootUri = params.rootUri;
   if (rootUri) {
-    workspaceRoot = Uri.parse(rootUri).fsPath;
+    workspaceRoot = URI.parse(rootUri).fsPath;
   }
 
   return {
@@ -421,7 +421,7 @@ function _createWorkspaceFile(
 }
 
 function _filePathFromUri(uri: string): string {
-  return Uri.parse(uri).fsPath;
+  return URI.parse(uri).fsPath;
 }
 
 function _textPositionToLocation(position: TextDocumentPositionParams) {

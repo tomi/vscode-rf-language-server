@@ -6,6 +6,7 @@
     "vscode": "^1.70.0"
   },
   "scripts": {
+    "clean": "rm -rf ./out",
     "compile": "tsc -watch -p ./",
     "lint": "npm run tslint && npm run prettier",
     "prettier": "prettier -l src/**",
@@ -23,7 +24,7 @@
     "typescript": "5.2.2"
   },
   "dependencies": {
-    "vscode-languageclient": "7.0.0"
+    "vscode-languageclient": "8.1.0"
   },
   "repository": {
     "type": "git",

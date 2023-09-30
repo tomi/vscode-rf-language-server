@@ -42,9 +42,7 @@ export default class RFServerClient implements Disposable {
     }
 
     this._client = this._createClient();
-    this._client.start();
-
-    return this._client.onReady();
+    return this._client.start();
   }
 
   public restart() {
@@ -63,10 +61,8 @@ export default class RFServerClient implements Disposable {
   }
 
   public sendBuildFilesRequest(files) {
-    this._client.onReady().then(() => {
-      this._client.sendRequest(BuildFromFilesRequestType, {
-        files,
-      });
+    this._client.sendRequest(BuildFromFilesRequestType, {
+      files,
     });
   }
 

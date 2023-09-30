@@ -44,3 +44,10 @@ export function activate(context: ExtensionContext) {
   context.subscriptions.push(rfLanguageServerClient);
   context.subscriptions.push(disposable);
 }
+
+export function deactivate(): Thenable<void> | undefined {
+  if (!rfLanguageServerClient) {
+    return undefined;
+  }
+  return rfLanguageServerClient.stop();
+}

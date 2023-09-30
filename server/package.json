@@ -14,7 +14,7 @@
     "lodash": "4.17.21",
     "minimatch": "9.0.3",
     "node-ternary-search-trie": "https://github.com/tomi/node-ternary-search-trie.git",
-    "vscode-languageserver": "7.0.0",
+    "vscode-languageserver": "8.1.0",
     "vscode-uri": "3.0.7"
   },
   "devDependencies": {
@@ -32,6 +32,7 @@
   },
   "main": "index.js",
   "scripts": {
+    "clean": "rm -rf ./out",
     "copy-libs": "mkdir -p ../client/server",
     "lint": "npm run tslint && npm run prettier",
     "prettier": "prettier -l src/**",

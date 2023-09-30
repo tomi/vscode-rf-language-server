@@ -1,5 +1,5 @@
 import * as _ from "lodash";
-import * as minimatch from "minimatch";
+import { minimatch } from "minimatch";
 import { URI } from "vscode-uri";
 import * as path from "path";
 import * as fs from "fs/promises";

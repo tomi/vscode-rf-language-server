@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "lodash": "4.17.21",
-    "minimatch": "~3.0.3",
+    "minimatch": "9.0.3",
     "node-ternary-search-trie": "https://github.com/tomi/node-ternary-search-trie.git",
     "vscode-languageserver": "~5.1.0",
     "vscode-uri": "3.0.7"
@@ -20,7 +20,7 @@
   "devDependencies": {
     "@types/chai": "4.3.6",
     "@types/lodash": "4.14.121",
-    "@types/minimatch": "3.0.3",
+    "@types/minimatch": "5.1.2",
     "@types/mocha": "10.0.1",
     "@types/node": "18.17.15",
     "chai": "4.3.8",

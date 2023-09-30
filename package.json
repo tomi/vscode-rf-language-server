@@ -217,7 +217,8 @@
     "color": "#232d33"
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
+    "package": "vsce package",
+    "vscode:prepublish": "npm run clean && npm run build",
     "build": "tsc -b",
     "watch": "tsc -b -w",
     "clean": "npm run clean-client && npm run clean-server",

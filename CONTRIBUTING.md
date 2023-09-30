@@ -1,6 +1,6 @@
 # How to contribute to Robot Framework Language Server
 
-## Running the extension locally
+## Developing the extension locally
 
 1. Install dependencies `npm ci`
 2. Start the client & server build process in watch mode with `npm run build` or using VSCode task `Cmd+Shift+B`
@@ -8,6 +8,14 @@
    1. Go to "Run and Debug" view (`Cmd+Shift+D`)
    2. Select "Launch Extension" from the dropdown
    3. Press ▷ to launch the config
+
+## Packaging the extension into installation package
+
+The extension can be packaged into an `.vsix` file that can be installed into VSCode:
+
+1. Make sure you have [vsce](https://github.com/microsoft/vscode-vsce) installed: `npm install --global @vscode/vsce`
+2. Run `npm run package`
+3. The `.vsix` can be installed from VSCode extensions panel's `...` menu: "Install from VSIX..."
 
 ## Did you find a bug?
 

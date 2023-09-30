@@ -1,6 +1,15 @@
-## How to contribute to Robot Framework Language Server
+# How to contribute to Robot Framework Language Server
 
-#### **Did you find a bug?**
+## Running the extension locally
+
+1. Install dependencies `npm ci`
+2. Start the client & server build process in watch mode with `npm run build` or using VSCode task `Cmd+Shift+B`
+3. Use the "Launch Extension" launch configuration in VSCode to run the extension in debug mode
+   1. Go to "Run and Debug" view (`Cmd+Shift+D`)
+   2. Select "Launch Extension" from the dropdown
+   3. Press ▷ to launch the config
+
+## Did you find a bug?
 
 * **Ensure the bug was not already reported** by searching on GitHub under [Issues](https://github.com/tomi/vscode-rf-language-server/issues).
 
@@ -8,7 +17,7 @@
 
 * If possible, use the relevant bug report templates to create the issue.
 
-#### **Did you write a patch that fixes a bug?**
+## Did you write a patch that fixes a bug?
 
 * Open a new GitHub pull request with the patch.
 
@@ -19,7 +28,7 @@
 1. The code has been formatted and passes linting (`npm run lint`)
 2. A test case has been added and it passes (`npm run test`)
 
-#### **Do you intend to add a new feature or change an existing one?**
+## Do you intend to add a new feature or change an existing one?
 
 * Suggest your change by creating an issue (unless one exists already) on [the issues page](https://github.com/tomi/vscode-rf-language-server/issues) and start writing code.
 
@@ -32,7 +41,7 @@
 1. The code has been formatted and passes linting (`npm run lint`)
 2. A test case has been added and it passes (`npm run test`)
 
-#### **Do you have questions about the source code?**
+## Do you have questions about the source code?
 
 * Ask any question on [the issues page](https://github.com/tomi/vscode-rf-language-server/issues).
 

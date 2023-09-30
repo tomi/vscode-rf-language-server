@@ -12,8 +12,6 @@
     "prettier": "prettier -l src/**",
     "test": "echo no tests",
     "tslint": "tslint --project . --config ../tslint.json",
-    "update-vscode": "node ./node_modules/vscode/bin/install",
-    "vscode:prepublish": "tsc -p ./",
     "watch": "tsc -watch -p ./"
   },
   "devDependencies": {

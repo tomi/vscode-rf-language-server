@@ -5,6 +5,7 @@
 		"moduleResolution": "node",
 		"noUnusedLocals": true,
 		"outDir": "out",
+    "rootDir": "src",
 		"sourceMap": true,
 		"target": "es6"
 	},

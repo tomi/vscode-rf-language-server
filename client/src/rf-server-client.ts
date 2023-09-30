@@ -6,10 +6,10 @@ import {
   ServerOptions,
   TransportKind,
   RequestType,
-} from "vscode-languageclient";
+} from "vscode-languageclient/node";
 import { Config, CONFIG_BLOCK_NAME } from "./utils/config";
 
-const SERVER_PATH = path.join("server", "server.js");
+const SERVER_PATH = path.join("server", "out", "server.js");
 
 export interface BuildFromFilesParam {
   files: string[];
@@ -17,7 +17,6 @@ export interface BuildFromFilesParam {
 
 const BuildFromFilesRequestType = new RequestType<
   BuildFromFilesParam,
-  void,
   void,
   void
 >("buildFromFiles");

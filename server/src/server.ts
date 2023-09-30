@@ -6,7 +6,6 @@ import * as fs from "fs/promises";
 
 import {
   createConnection,
-  IConnection,
   TextDocumentSyncKind,
   InitializeParams,
   InitializeResult,
@@ -24,7 +23,7 @@ import {
   DidChangeConfigurationParams,
   DidChangeWatchedFilesParams,
   FileEvent,
-} from "vscode-languageserver";
+} from "vscode-languageserver/node";
 
 import Workspace from "./intellisense/workspace/workspace";
 import { WorkspaceFileParserFn } from "./intellisense/workspace/workspace-file";
@@ -54,7 +53,7 @@ const parsersByFile = new Map([
 const workspace = new Workspace();
 
 // Create a connection for the server
-const connection: IConnection =
+const connection =
   process.argv.length <= 2
     ? createConnection(process.stdin, process.stdout)
     : createConnection();
@@ -67,7 +66,6 @@ export interface BuildFromFilesParam {
 
 export const BuildFromFilesRequest = new RequestType<
   BuildFromFilesParam,
-  void,
   void,
   void
 >("buildFromFiles");

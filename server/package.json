@@ -14,7 +14,7 @@
     "lodash": "4.17.21",
     "minimatch": "9.0.3",
     "node-ternary-search-trie": "https://github.com/tomi/node-ternary-search-trie.git",
-    "vscode-languageserver": "~5.1.0",
+    "vscode-languageserver": "7.0.0",
     "vscode-uri": "3.0.7"
   },
   "devDependencies": {
@@ -32,15 +32,11 @@
   },
   "main": "index.js",
   "scripts": {
-    "build": "tsc --outDir out",
-    "clean": "rm -rf ../client/server",
-    "compile": "npm run copy-libs && installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc -p .",
-    "copy-libs": "mkdir -p ../client/server && cp -r ../library-docs/library-docs ../client/server",
+    "copy-libs": "mkdir -p ../client/server",
     "lint": "npm run tslint && npm run prettier",
     "prettier": "prettier -l src/**",
     "test": "mocha --require ts-node/register src/**/*.test.ts",
-    "tslint": "tslint --project . --config ../tslint.json",
-    "watch": "npm run clean && npm run copy-libs && installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc --watch -p ."
+    "tslint": "tslint --project . --config ../tslint.json"
   },
   "repository": {
     "type": "git",

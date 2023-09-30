@@ -14,7 +14,7 @@ export interface Settings {
   includePaths?: string[];
   excludePaths?: string[];
   logLevel?: string;
-  libraries?: Array<string | LibraryDefinition>;
+  libraries?: (string | LibraryDefinition)[];
 }
 
 export enum LogLevel {

@@ -33,17 +33,11 @@ export class TableReader {
   }
 
   private startsTable(row: DataRow) {
-    return row
-      .first()
-      .content.trim()
-      .startsWith("*");
+    return row.first().content.trim().startsWith("*");
   }
 
   private readTableName(row: DataRow) {
-    return row
-      .first()
-      .content.replace(/\*/g, "")
-      .trim();
+    return row.first().content.replace(/\*/g, "").trim();
   }
 }
 

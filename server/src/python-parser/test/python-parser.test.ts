@@ -48,7 +48,7 @@ function createSuite(location: SourceLocation, keywords: UserKeyword[]) {
 function createKeyword(
   keywordName: string,
   location: SourceLocation,
-  args?: Array<[string, string]>
+  args?: [string, string][]
 ) {
   const keyword = new UserKeyword(
     new NamespacedIdentifier(NAMESPACE, keywordName, location)

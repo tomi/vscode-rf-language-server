@@ -1,5 +1,13 @@
 # Change Log
 
+## Version x.x.x
+* Release date:
+
+### What's new in this version
+* minimatch was upgraded from version 3 to 9:
+  * Forward slash (/) is exclusively used as path separator
+  * See [full changelog](https://github.com/isaacs/minimatch/blob/main/changelog.md)
+
 ## Version 2.8.0
 * Release date: October 28, 2019
 

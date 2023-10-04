@@ -146,7 +146,9 @@ function parseVariableImport(
   settingsTable.addVariableImport(variableImport);
 }
 
-function createParseSettingFn(propertyName: keyof SettingsTable) {
+function createParseSettingFn(
+  propertyName: "suiteSetup" | "suiteTeardown" | "testSetup" | "testTeardown"
+) {
   return (
     settingsTable: SettingsTable,
     nameCell: DataCell,

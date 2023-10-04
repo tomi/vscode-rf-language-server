@@ -1,5 +1,8 @@
-import { Range, Location } from "vscode-languageserver";
+import {
+  Range as LangServerRange,
+  Location as LangServerLocation,
+} from "vscode-languageserver";
 
-export type Range = Range;
+export type Range = LangServerRange;
 
-export type Location = Location;
+export type Location = LangServerLocation;

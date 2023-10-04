@@ -42,7 +42,7 @@ abstract class SymbolContainer<T> {
     });
   }
 
-  public filter(cb: ((item: T) => boolean)): T[] {
+  public filter(cb: (item: T) => boolean): T[] {
     const filtered: T[] = [];
 
     this.forEach((key, item) => {

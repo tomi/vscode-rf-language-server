@@ -26,9 +26,7 @@ export function findCompletionItems(location: Location, workspace: Workspace) {
   const locationInfo = findLocationInfo(location, file.tables);
   if (!locationInfo) {
     logger.info(
-      `Location info not available. Location '${
-        location.position
-      }' not available`
+      `Location info not available. Location '${location.position}' not available`
     );
     return [];
   }

@@ -1,11 +1,11 @@
 import * as _ from "lodash";
-import * as minimatch from "minimatch";
-import Uri from "vscode-uri";
+import { minimatch } from "minimatch";
+import { URI } from "vscode-uri";
 import * as path from "path";
+import * as fs from "fs/promises";
 
 import {
   createConnection,
-  IConnection,
   TextDocumentSyncKind,
   InitializeParams,
   InitializeResult,
@@ -23,7 +23,7 @@ import {
   DidChangeConfigurationParams,
   DidChangeWatchedFilesParams,
   FileEvent,
-} from "vscode-languageserver";
+} from "vscode-languageserver/node";
 
 import Workspace from "./intellisense/workspace/workspace";
 import { WorkspaceFileParserFn } from "./intellisense/workspace/workspace-file";
@@ -37,8 +37,6 @@ import {
 import { findFileHighlights } from "./intellisense/highlight-provider";
 import { Config, LibraryDefinition } from "./utils/settings";
 import { ConsoleLogger } from "./logger";
-
-import * as asyncFs from "./utils/async-fs";
 
 import { createRobotFile } from "./intellisense/workspace/robot-file";
 import { createPythonFile } from "./intellisense/workspace/python-file";
@@ -55,7 +53,7 @@ const parsersByFile = new Map([
 const workspace = new Workspace();
 
 // Create a connection for the server
-const connection: IConnection =
+const connection =
   process.argv.length <= 2
     ? createConnection(process.stdin, process.stdout)
     : createConnection();
@@ -68,7 +66,6 @@ export interface BuildFromFilesParam {
 
 export const BuildFromFilesRequest = new RequestType<
   BuildFromFilesParam,
-  void,
   void,
   void
 >("buildFromFiles");
@@ -262,7 +259,7 @@ function onInitialize(params: InitializeParams): InitializeResult {
 
   const rootUri = params.rootUri;
   if (rootUri) {
-    workspaceRoot = Uri.parse(rootUri).fsPath;
+    workspaceRoot = URI.parse(rootUri).fsPath;
   }
 
   return {
@@ -366,7 +363,7 @@ function _parseFile(filePath: string, fileContents: string) {
 async function _readAndParseFile(filePath: string) {
   try {
     const createFn = _getParserFn(filePath);
-    const fileContents = await asyncFs.readFileAsync(filePath, "utf-8");
+    const fileContents = await fs.readFile(filePath, "utf-8");
     const file = _createWorkspaceFile(filePath, fileContents, createFn);
 
     workspace.addFile(file);
@@ -381,7 +378,7 @@ async function _readAndParseLibrary(libraryName: string | LibraryDefinition) {
 
     if (typeof libraryName === "string") {
       const filePath = path.join(LIBRARY_PATH, `${libraryName}.json`);
-      const fileContents = await asyncFs.readFileAsync(filePath, "utf-8");
+      const fileContents = await fs.readFile(filePath, "utf-8");
 
       logger.info("Parsing library", filePath);
       libraryDefinition = JSON.parse(fileContents);
@@ -422,7 +419,7 @@ function _createWorkspaceFile(
 }
 
 function _filePathFromUri(uri: string): string {
-  return Uri.parse(uri).fsPath;
+  return URI.parse(uri).fsPath;
 }
 
 function _textPositionToLocation(position: TextDocumentPositionParams) {
@@ -441,8 +438,8 @@ const _fileEventTypeToString = (fileEvent: FileEvent) =>
   fileEvent.type === FileChangeType.Created
     ? "Cr"
     : fileEvent.type === FileChangeType.Changed
-      ? "Ch"
-      : "De";
+    ? "Ch"
+    : "De";
 
 // Listen on the connection
 connection.listen();

@@ -56,9 +56,8 @@ export function parseKeywordsTable(
       const firstRowDataCells = row.getCellsByRange(1);
       const continuedRows = iterator.takeRowWhile(rowContinues);
       const continuedCells = joinRows(continuedRows);
-      const [firstCell, ...restCells] = firstRowDataCells.concat(
-        continuedCells
-      );
+      const [firstCell, ...restCells] =
+        firstRowDataCells.concat(continuedCells);
 
       if (keywordSettings.has(firstCell.content)) {
         const setting = SettingParser.parseSetting(firstCell, restCells);

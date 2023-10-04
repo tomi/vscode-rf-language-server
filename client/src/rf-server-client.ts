@@ -6,10 +6,10 @@ import {
   ServerOptions,
   TransportKind,
   RequestType,
-} from "vscode-languageclient";
+} from "vscode-languageclient/node";
 import { Config, CONFIG_BLOCK_NAME } from "./utils/config";
 
-const SERVER_PATH = path.join("server", "server.js");
+const SERVER_PATH = path.join("server", "out", "server.js");
 
 export interface BuildFromFilesParam {
   files: string[];
@@ -17,7 +17,6 @@ export interface BuildFromFilesParam {
 
 const BuildFromFilesRequestType = new RequestType<
   BuildFromFilesParam,
-  void,
   void,
   void
 >("buildFromFiles");
@@ -43,9 +42,7 @@ export default class RFServerClient implements Disposable {
     }
 
     this._client = this._createClient();
-    this._client.start();
-
-    return this._client.onReady();
+    return this._client.start();
   }
 
   public restart() {
@@ -64,10 +61,8 @@ export default class RFServerClient implements Disposable {
   }
 
   public sendBuildFilesRequest(files) {
-    this._client.onReady().then(() => {
-      this._client.sendRequest(BuildFromFilesRequestType, {
-        files,
-      });
+    this._client.sendRequest(BuildFromFilesRequestType, {
+      files,
     });
   }
 

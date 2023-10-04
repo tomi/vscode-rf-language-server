@@ -25,7 +25,10 @@ export class DataTable {
   /**
    *
    */
-  constructor(public name: string, public header: DataRow) {}
+  constructor(
+    public name: string,
+    public header: DataRow
+  ) {}
 
   public get location(): SourceLocation {
     if (_.isEmpty(this.rows)) {
@@ -133,7 +136,10 @@ export class DataCell {
   /**
    *
    */
-  constructor(public content: string, public location: SourceLocation) {}
+  constructor(
+    public content: string,
+    public location: SourceLocation
+  ) {}
 
   /**
    * Is the cell empty. Cell is empty if it's only whitespace or
